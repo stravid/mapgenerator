@@ -1,0 +1,170 @@
+var Point = new Class({
+    x: 0,
+    y: 0    
+});
+
+var Triangle = new Class({
+    vertex: new Array(new Point(), new Point(), new Point()),
+    neighbors: new Array(),
+    countryID: -1
+});
+
+var Country = new Class({
+    triangles: new Array(),
+    ID: -1
+});
+
+function setNeighbors(triangles, numberOfTrianglesInARow)
+{
+    var leftBorder = true;
+    var topBorder = true;
+    var rightBorder = false;
+    var bottomBorder = false;    
+    var rows = triangles.length / numberOfTrianglesInARow;
+    var index = 0;
+    
+    for (var i = 0; i < rows; i++) {
+        leftBorder = true;
+        
+        if (i == (rows - 1))
+                bottomBorder = true;
+                
+        for (var j = 0; j < numberOfTrianglesInARow; j++) {
+            if (j == (numberOfTrianglesInARow - 1))
+                rightBorder = true;
+            
+            if (!leftBorder)
+                triangles[index].neighbors.push(index - 1);
+            
+            if (!rightBorder)
+                triangles[index].neighbors.push(index + 1);
+            
+            if ((i % 2) == 1) {
+                if ((index % 2) == 1) {
+                    if (!topBorder)
+                        triangles[index].neighbors.push((i - 1) * numberOfTrianglesInARow + j);
+                }
+                else {
+                    if (!bottomBorder)
+                        triangles[index].neighbors.push((i + 1) * numberOfTrianglesInARow + j);
+                }
+            }
+            else {
+                if ((index % 2) == 1) {
+                    if (!bottomBorder)
+                        triangles[index].neighbors.push((i + 1) * numberOfTrianglesInARow + j);
+                }
+                else {
+                    if (!topBorder)
+                        triangles[index].neighbors.push((i - 1) * numberOfTrianglesInARow + j);
+                }
+            }
+            
+            if (leftBorder)
+                leftBorder = false;
+            else if (rightBorder)
+                rightBorder = false;
+        
+            index++;
+        }
+        
+        if (topBorder)
+            topBorder = false;        
+    }
+    
+    return triangles;
+}
+
+function generateTriangleArray(mapWidth, mapHeight, numberOfTrianglesInARow)
+{
+    var triangleWidth = parseInt(mapWidth / numberOfTrianglesInARow);
+    var triangleHeight = Math.sqrt(triangleWidth * triangleWidth - (triangleWidth * triangleWidth)/4 );
+    var numberOfTrianglesInAColumn = parseInt(mapHeight / triangleHeight);
+    var numberOfTriangles = numberOfTrianglesInAColumn * numberOfTrianglesInARow;
+    var triangles = new Array();
+        
+    for (var row = 0; row < numberOfTrianglesInAColumn; row++) {
+        for (var column = 0; column < numberOfTrianglesInARow * 2; column++) {
+            var tempTriangle = new Triangle();
+            
+            if ((row % 2) == (column % 2)) {
+                tempTriangle.vertex[0].x = (column / 2) * triangleWidth;
+                tempTriangle.vertex[0].y = row * triangleHeight;
+                tempTriangle.vertex[1].x = ((column / 2) + 1) * triangleWidth;
+                tempTriangle.vertex[1].y = row * triangleHeight;
+                tempTriangle.vertex[2].x = (column / 2) * triangleWidth + triangleWidth / 2;
+                tempTriangle.vertex[2].y = (row + 1) * triangleHeight;
+            }
+            else {
+                tempTriangle.vertex[0].x = (column / 2) * triangleWidth;
+                tempTriangle.vertex[0].y = (row + 1) * triangleHeight;
+                tempTriangle.vertex[1].x = (column / 2) * triangleWidth + triangleWidth / 2;
+                tempTriangle.vertex[1].y = row * triangleHeight;
+                tempTriangle.vertex[2].x = ((column / 2) + 1) * triangleWidth;
+                tempTriangle.vertex[2].y = (row + 1) * triangleHeight;
+            }
+            
+            triangles.push(tempTriangle);
+        }
+    }
+    
+    triangles = setNeighbors(triangles, numberOfTrianglesInARow * 2);
+    
+    return triangles;    
+}
+
+function generateMap(triangles, numberOfPlayers)
+{
+    var numberOfTriangles = triangles.length;
+    var countriesPerPlayer = 10;
+    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer);
+    var usedTriangles = new Array();
+    
+    var startID = rand(0, numberOfTriangles - 1);    
+    usedTriangles.push(startID);
+    
+    /*
+    do {
+        var startID = rand(0, numberOfTriangles - 1);    
+    }while (!isValidStartID(startID, triangles));
+*/    
+    var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
+    var tempCountry = new Country();
+    tempCountry.triangles.push(startID);
+    tempCountry.ID = 0;
+    triangles[startID].countryID = 0;
+        
+    for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
+        var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+    }
+    
+}
+
+function isValidStartID(startID, triangles)
+{
+    // TODO
+    return true;
+}
+
+function getPossibleNeighbors(country, triangles)
+{
+    var possibleNeighbors = new Array();
+    var amountOfTrianglesInCountry = country.triangles.length;
+    
+    for (var i = 0; i < amountOfTrianglesInCountry; i++) {
+        var triangleIndex = country.triangles[i];
+        var currentNeighbors = triangles[triangleIndex].neighbors;
+        var amountOfNeighbors = currentNeighbors.length;
+        
+        for (var j = 0; j < amountOfNeighbors; j++) {
+            if (triangles[currentNeighbors[j]].countryID == -1) 
+                possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
+        }
+    }
+    return possibleNeighbors;
+}
+
+function rand(minimum, maximum)
+{  
+    return Math.floor(Math.random() * maximum + minimum);
+}
