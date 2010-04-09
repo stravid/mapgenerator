@@ -139,5 +139,8 @@ function holeTest()
     console.log('false = ' + blupp(13, 3, triangles));
 }
 
-holeTest();
+//holeTest();
 
+var m = new Map(500, 400, 40);
+m.generateHexagonArray();
+m.generateCountries(2, 2, 10, 3);

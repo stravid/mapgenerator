@@ -123,33 +123,42 @@ var Map = new Class({
         var averageAmountOfHexagonsPerCountry = parseInt(this.hexagons.length / (numberOfPlayers * countriesPerPlayer));
         var usedHexagons = new Array();
         
+        console.log('total amount of hexagons: ' + this.hexagons.length);
+        console.log('average amount of hexagons per country: ' + averageAmountOfHexagonsPerCountry);
+        
         for (var i = 0; i < numberOfPlayers * countriesPerPlayer; i++) {
             var startID = rand(0, this.hexagons.length - 1);
-            var numberOfHexagons = countriesPerPlayer - rand(0, countrySizeVariance);
+            var numberOfHexagons = averageAmountOfHexagonsPerCountry - rand(0, countrySizeVariance);
             this.countries.push(new Country());
             this.countries[i].ID = i;
+            console.log('new country:');
+            console.log(this.countries[i]);
             this.countries[i].elements.push(startID);
             usedHexagons.push(startID);
             
+            console.log('country will have ' + numberOfHexagons + ' hexagons');
+            
             for (var j = 0; j < numberOfHexagons; j++) {
                 var newHexagonID;
-                
-                do {
+                newHexagonID = this.getNewHexagonNeighbor(i);
+                console.log(newHexagonID);
+                /*do {
                     newHexagonID = this.getNewHexagonNeighbor(i);
                 } while(!isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
-                
+                */
                 this.countries[i].elements.push(newHexagonID);
                 usedHexagons.push(newHexagonID);
             }
             
-            return true;
+            console.log(startID);
+            return startID;
         }
     },
     
     getNewHexagonNeighbor: function(countryID) {
         var newHexagonNeighbors = new Array();
         
-        for (var i = 0; i < this.countries[countryID].elements.length; i++) {
+        /*for (var i = 0; i < this.countries[countryID].elements.length; i++) {
             newHexagonNeighbors = newHexagonNeighbors.combine(this.countries[countryID].elements[i].neighbors);
         }
         
@@ -157,9 +166,9 @@ var Map = new Class({
         
         for (var i = 0; i < newHexagonNeighbors.length; i++) {
             newHexagonNeighborIDs.push(newHexagonNeighbors[i].ID);
-        }
+        }*/
         
-        return rand(0, newHexagonNeighborIDs.length - 1);  
+        return rand(0, newHexagonNeighborIDs.length - 1); 
     },
     
     setHexagonNeighbors: function(numberOfHexagonsInARow) {
@@ -231,12 +240,12 @@ var Triangle = new Class({
     neighbors: new Array(),
     countryID: -1
 });
-
+/*
 var Country = new Class({
     trianglesInCountry: new Array(),
     triangleIDs: new Array(),
     ID: -1
-});
+});*/
 
 function setNeighbors(triangles, numberOfTrianglesInARow)
 {
