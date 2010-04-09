@@ -209,6 +209,6 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
         return false;
     
     return takenNeighbors.every(function(item, index, array) {
-        return item > array[0];
+        return item == array[0];
     }); 
 }
