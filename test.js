@@ -1,6 +1,6 @@
 function test()
 {
-    var triangles = generateTriangleArray(1000, 800, 20);
+    var triangles = generateTriangleArray(600, 300, 30);
     var countries = generateMap(triangles, 3);
     for (var i = 0; i < countries.length; i++) {
         // console.log(countries[i].triangles.length);
@@ -25,5 +25,20 @@ function test()
         console.log(possibleNeighbors[i]);
     };*/
 }
+
+function holeTest()
+{
+    var triangles = generateTriangleArray(100, 100, 5);
+    triangles[0].countryID = 1;
+    triangles[1].countryID = 1;
+    triangles[2].countryID = 1;
+    triangles[10].countryID = 1;
+    triangles[13].countryID = 1;
+    triangles[22].countryID = 1;
+    
+    console.log(isTriangleInAHole(triangles, 11, 5));
+}
+
+holeTest();
 
 // test();
