@@ -147,7 +147,7 @@ var Map = new Class({
                     console.log('new ID generated: ' + newHexagonID);
                     console.log(usedHexagons);
                     console.log(usedHexagons.contains(newHexagonID));
-                } while(!this.isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
+                } while(this.isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
                 console.log('ID added: ' + newHexagonID);
                 this.countries[i].elements.push(newHexagonID);
                 usedHexagons.push(newHexagonID);
