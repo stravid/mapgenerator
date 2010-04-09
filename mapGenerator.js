@@ -148,7 +148,7 @@ function generateMap(triangles, numberOfPlayers)
             
             if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
                 countryID--;
-                console.warn('triangle is in hole');
+                // console.warn('triangle is in hole');
                 continue;
             }
         }
@@ -159,36 +159,25 @@ function generateMap(triangles, numberOfPlayers)
         triangles[startID].countryID = countryID;
         
         var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
-        var fail = false;
         for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
             var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+            // this should not happen at any time
             if (possibleNeighbors.length == 0) {
-                countryID--;
-                fail = true;
-                // DEBUGGING
-                console.warn('it seems like SOMETHING failed');
-                console.log(tempCountry);
-                console.log(startID);
-                drawCountryInColor(tempCountry.trianglesInCountry, '#000000');
-                break;
+                console.error('Something FAILED');
+                return 'fail';
             }
-            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
             
-            if (usedTriangles.contains(nextID))
-                i--;
-            else {
-                usedTriangles.push(nextID);
-                triangles[nextID].countryID = countryID;
-                tempCountry.triangleIDs.push(nextID);
-                tempCountry.trianglesInCountry.push(triangles[nextID]);
-            }
+            do {
+                var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+            } while(usedTriangles.contains(nextID))
+            usedTriangles.push(nextID);
+            triangles[nextID].countryID = countryID;
+            tempCountry.triangleIDs.push(nextID);
+            tempCountry.trianglesInCountry.push(triangles[nextID]);
         }
         
-        if (!fail) {
-            countries.push(tempCountry);
-            drawCountry(tempCountry.trianglesInCountry);
-        }
-        
+        countries.push(tempCountry);
+        drawCountry(tempCountry.trianglesInCountry);
     }
     
     return countries;
