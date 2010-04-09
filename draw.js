@@ -29,7 +29,7 @@ function drawCountry(country)
 */
 function drawCountry(triangles)  //(country)
 {
-    // map.clear();
+    // map.clear();#
     
     for (var i = 0; i < triangles.length; i++) {
         for (var j = 0; j < 3; j++) {
@@ -42,7 +42,7 @@ function drawCountry(triangles)  //(country)
             var line = "M " + triangles[i].vertex[j].x + " " + triangles[i].vertex[j].y;
             line += "L " + triangles[i].vertex[k].x + " " + triangles[i].vertex[k].y;
             
-            line = map.path(line); 
+            line = map.path(line);
         }
     }
 }
