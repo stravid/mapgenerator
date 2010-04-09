@@ -4,7 +4,7 @@ function initMap()
 {
     map = Raphael("map", 1000, 800);
 }
-
+/*
 function drawCountry(country)
 {
     map.clear();
@@ -26,7 +26,7 @@ function drawCountry(country)
         }
     }
 }
-/*
+*/
 function drawCountry(triangles)  //(country)
 {
     // map.clear();
@@ -46,4 +46,4 @@ function drawCountry(triangles)  //(country)
         }
     }
 }
-*/
+

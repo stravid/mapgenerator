@@ -118,7 +118,7 @@ function generateMap(triangles, numberOfPlayers)
 {
     var numberOfTriangles = triangles.length;
     var countriesPerPlayer = 10;
-    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer);
+    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer) * 2 / 3;
     var usedTriangles = new Array();
     var countries = new Array();
     
@@ -143,6 +143,12 @@ function generateMap(triangles, numberOfPlayers)
             }
             var possibleNeighbors = getPossibleNeighbors(global, triangles);
             var startID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+            
+            if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
+                countryID--;
+                console.warn('triangle is in hole');
+                continue;
+            }
         }
         
         usedTriangles.push(startID);
@@ -157,6 +163,7 @@ function generateMap(triangles, numberOfPlayers)
             if (possibleNeighbors.length == 0) {
                 countryID--;
                 fail = true;
+                console.warn('it seems like triangleIsInHole failed');
                 break;
             }
             var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
@@ -205,8 +212,8 @@ function getPossibleNeighbors(country, triangles)
 }
 
 function rand(minimum, maximum)
-{  
-    return Math.floor(Math.random() * maximum + minimum);
+{
+    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 }
 
 function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCountry)
