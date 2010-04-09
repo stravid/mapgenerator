@@ -2,19 +2,19 @@ var map;
 
 function toHex(dec) {
     // create list of hex characters
-    var hexCharacters = "0123456789ABCDEF"
+    var hexCharacters = "0123456789ABCDEF";
     // if number is out of range return limit
     if (dec < 0)
-        return "00"
+        return "00";
     if (dec > 255)
-        return "FF"
+        return "FF";
 
     // decimal equivalent of first hex character in converted number
-    var i = Math.floor(dec / 16)
+    var i = Math.floor(dec / 16);
     // decimal equivalent of second hex character in converted number
-    var j = dec % 16
+    var j = dec % 16;
     // return hexadecimal equivalent
-    return hexCharacters.charAt(i) + hexCharacters.charAt(j)
+    return hexCharacters.charAt(i) + hexCharacters.charAt(j);
 }
 
 
@@ -23,13 +23,15 @@ function initMap()
     map = Raphael("map", 1000, 500);
 }
 
-function drawCountry(hexagons, hexagonIDs)  //(country)
+function drawCountry(hexagons, hexagonIDs)//, color = 0)  //(country)
 {
     // map.clear();#
-    
-    var color = "#"+toHex(rand(0,255));
-    color += toHex(rand(0,255));
-    color += toHex(rand(0,255));
+    var color = 0;
+    if ( color == 0 ) {
+        var color = "#"+toHex(rand(0,255));
+        color += toHex(rand(0,255));
+        color += toHex(rand(0,255));
+    }
     
     for (var i = 0; i < hexagonIDs.length; i++) {
         
@@ -47,7 +49,7 @@ function drawCountry(hexagons, hexagonIDs)  //(country)
 }
 
 
-function drawCountryInColor(hexagons, color)  //(country)
+function drawCountryInColor(hexagons, hexagonIDs, color)  //(country)
 {
     // map.clear();#
     
