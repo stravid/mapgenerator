@@ -136,6 +136,10 @@ function generateMap(triangles, numberOfPlayers)
         
     for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
         var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+        var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+        usedTriangles.push(nextID);
+        triangles[nextID].countryID = 0;
+        tempCountry.triangles.push(nextID);
     }
     
 }
@@ -157,7 +161,7 @@ function getPossibleNeighbors(country, triangles)
         var amountOfNeighbors = currentNeighbors.length;
         
         for (var j = 0; j < amountOfNeighbors; j++) {
-            if (triangles[currentNeighbors[j]].countryID == -1) 
+            if (triangles[currentNeighbors[j]].countryID == -1)
                 possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
         }
     }
