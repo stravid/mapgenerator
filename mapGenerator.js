@@ -84,6 +84,69 @@ var Map = new Class({
                 hexagonID++;
             }
         }
+        this.setHexagonNeighbors(numberOfHexagonsInARow);
+    },
+    
+    setHexagonNeighbors: function(numberOfHexagonsInARow) {
+        var leftBorder = true;
+        var topBorder = true;
+        var rightBorder = false;
+        var bottomBorder = false;    
+        var rows = this.hexagons.length / numberOfHexagonsInARow;
+        var index = 0;
+                    
+        for (var i = 0; i < rows; i++) {
+            leftBorder = true;
+                    
+            if (i == (rows - 1))
+                bottomBorder = true;
+                    
+            for (var j = 0; j < numberOfHexagonsInARow; j++) {
+                if (j == (numberOfHexagonsInARow - 1))
+                    rightBorder = true;
+                    
+                if (!leftBorder)
+                    this.hexagons[index].neighbors.push(index - 1);
+                    
+                if (!rightBorder)
+                    this.hexagons[index].neighbors.push(index + 1);
+                    
+                if ((i % 2) == 1) {
+                    if (!topBorder) {
+                        this.hexagons[index].neighbors.push(index - numberOfHexagonsInARow);
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(index + 1 - numberOfHexagonsInARow);
+                    }
+                    if (!bottomBorder) {
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(index + 1 + numberOfHexagonsInARow);
+                        this.hexagons[index].neighbors.push(index + numberOfHexagonsInARow);
+                    }
+                }
+                else {
+                    if (!topBorder) {
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(index - 1 - numberOfHexagonsInARow);
+                        this.hexagons[index].neighbors.push(index - numberOfHexagonsInARow);
+                    }
+                    if (!bottomBorder) {
+                        this.hexagons[index].neighbors.push(index + numberOfHexagonsInARow);
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(index - 1 + numberOfHexagonsInARow);
+                    }
+                }
+                    
+                if (leftBorder)
+                    leftBorder = false;
+                else if (rightBorder)
+                    rightBorder = false;
+                    
+                index++;
+            }
+                
+            if (topBorder)
+                topBorder = false;        
+        }
     }
 });
 
