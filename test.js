@@ -26,14 +26,117 @@ function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
 function holeTest()
 {
     var triangles = generateTriangleArray(100, 100, 5);
-    triangles[0].countryID = 1;
-    triangles[1].countryID = 1;
-    triangles[2].countryID = 1;
-    triangles[10].countryID = 1;
-    triangles[13].countryID = 1;
-    triangles[22].countryID = 1;
     
-    console.log(isTriangleInAHole(triangles, 11, 5));
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[0].countryID = -1;
+    triangles[1].countryID = -1;
+    triangles[2].countryID = -1;
+    triangles[3].countryID = -1;
+    triangles[4].countryID = -1;
+    triangles[5].countryID = -1;
+
+    console.log('false = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[0].countryID = -1;
+    triangles[1].countryID = -1;
+    triangles[2].countryID = -1;
+
+    console.log('false = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[0].countryID = -1;
+    triangles[1].countryID = -1;
+
+    console.log('true = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = -1;
+    }
+
+    console.log('false = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[0].countryID = -1;
+    triangles[1].countryID = -1;
+    triangles[2].countryID = 1;
+    triangles[11].countryID = 2;
+
+    console.log('true = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[0].countryID = -1;
+    triangles[1].countryID = -1;
+    triangles[2].countryID = -1;
+    triangles[3].countryID = 2;
+    triangles[11].countryID = 2;
+
+    console.log('false = ' + blupp(0, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[3].countryID = 1;
+    triangles[12].countryID = 1;
+    triangles[14].countryID = 1;
+    triangles[15].countryID = 1;
+    triangles[16].countryID = 1;
+    triangles[17].countryID = 1;
+    triangles[5].countryID = 1;
+
+    console.log('true = ' + blupp(13, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[3].countryID = 1;
+    triangles[12].countryID = 1;
+    triangles[15].countryID = 1;
+    triangles[16].countryID = 1;
+    triangles[17].countryID = 1;
+    triangles[5].countryID = 1;
+
+    console.log('true = ' + blupp(13, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[3].countryID = 1;
+    triangles[12].countryID = 1;
+    triangles[16].countryID = 1;
+    triangles[17].countryID = 1;
+    triangles[5].countryID = 1;
+
+    console.log('true = ' + blupp(13, 3, triangles));
+    
+    for (var i = 0; i < triangles.length; i++) {
+        triangles[i].countryID = 1;
+    }
+    
+    triangles[3].countryID = 1;
+    triangles[12].countryID = 1;
+    triangles[17].countryID = 1;
+    triangles[5].countryID = 1;
+
+    console.log('false = ' + blupp(13, 3, triangles));
 }
 
 holeTest();

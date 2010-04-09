@@ -312,16 +312,7 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
         returnValue = true;
     }
     
-    /*if (returnValue) {
-       console.warn('true returned');
-    }
-    else {
-        console.warn('false returned');
-        if (enoughNeighbors)
-            console.info(enoughNeighbors);
-        else
-            console.log(takenNeighbors);
-    }*/
+
     
     return returnValue;
 }
@@ -329,4 +320,36 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
 function isDefined( variable)
 {
     return (typeof(variable) == "undefined")?  false: true;
+}
+
+function isHexagonInAHole(ID, maximumHoleSize)
+{
+    var freeNeighbors = new Array();
+    var wereNewNeighborsAdded = true;
+    freeNeighbors.push(ID);
+    
+    for (var i = 0; i < freeNeighbors.length; i++) {
+        if (!wereNewNeighborsAdded)
+            break;
+        else if (freeNeighbors.length >= maximumHoleSize)
+            return false;
+        
+        wereNewNeighborsAdded = false;
+        
+        for (var j = 0; j < this.hexagons[freeNeighbors[i]].neighbors.length; j++) {
+            var ID = this.hexagons[freeNeighbors[i]].neighbors[j];
+            
+            if (this.hexagons[ID].ID == -1) {
+                if (!freeNeighbors.contains(ID)) {
+                    freeNeighbors.push(ID);
+                    wereNewNeighborsAdded = true;
+                }
+            }
+        }  
+    }
+    
+    if (freeNeighbors.length >= maximumHoleSize)
+        return false;
+    else
+        return true;
 }
