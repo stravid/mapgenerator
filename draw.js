@@ -60,6 +60,7 @@ function drawCountry(triangles)  //(country)
         line += "L " + triangles[i].vertex[2].x + " " + triangles[i].vertex[2].y + " Z";
         
         line = map.path(line);
+        line.attr("stroke", color);
         line.attr("fill", color);
     }
 }
