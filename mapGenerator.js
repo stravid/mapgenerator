@@ -127,7 +127,15 @@ var Map = new Class({
         console.log('average amount of hexagons per country: ' + averageAmountOfHexagonsPerCountry);
         
         for (var i = 0; i < numberOfPlayers * countriesPerPlayer; i++) {
-            var startID = rand(0, this.hexagons.length - 1);
+            if (i == 0) {
+                var startID = rand(0, this.hexagons.length - 1);
+            }
+            else {
+                do {
+                    
+                } while()
+            }
+            
             var numberOfHexagons = averageAmountOfHexagonsPerCountry - rand(0, countrySizeVariance);
             this.countries.push(new Country());
             this.countries[i].ID = i;
@@ -154,8 +162,7 @@ var Map = new Class({
             }
             
             console.log(this.countries[i]);
-            
-            //console.log(startID);
+    
             return startID;
         }
     },
