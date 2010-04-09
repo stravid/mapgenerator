@@ -11,7 +11,7 @@ function test()
     
     for (var i = 0; i < possibleNeighbors.length; i++) {
         console.log(possibleNeighbors[i]);
-    };
+    }
 }
 
 test();
