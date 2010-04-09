@@ -5,12 +5,24 @@ var Shape = new Class({
 });
 
 var Point = new Class({
+    initialize: function(x, y) {
+        this.x = x;
+        this.y = y;
+    },
     x: 0,
     y: 0    
 });
 
 var Hexagon = new Class({
-    Extends: Shape
+    Extends: Shape,
+    initialize: function() {
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+    }
 });
 
 var Country = new Class({
@@ -28,10 +40,50 @@ var Map = new Class({
     width: 0,
     height: 0,
     hexagonSize:0,
+                    
     initialize: function(width, height, hexagonSize) {
         this.width = width;
         this.height = height;
         this.hexagonSize = hexagonSize;
+    },
+                    
+    generateHexagonArray: function() {
+        var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
+        var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
+        var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+        var hexagonID = 0;
+    
+        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
+            for (var column = 0; column < numberOfHexagonsInARow; column++) {
+                var tempHexagon = new Hexagon();
+                tempHexagon.ID = hexagonID;
+                var oddrow = 0;
+                    
+                if ((row % 2) == 1)
+                    oddrow = hexagonWidth / 2;
+                    
+                tempHexagon.elements[0].x = (column + 0.5) * hexagonWidth + oddrow;
+                tempHexagon.elements[0].y = row * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[1].x = (column + 1) * hexagonWidth + oddrow;
+                tempHexagon.elements[1].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                    
+                tempHexagon.elements[2].x = (column + 1) * hexagonWidth + oddrow;
+                tempHexagon.elements[2].y = (row + 1) * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[3].x = (column + 0.5) * hexagonWidth + oddrow;
+                tempHexagon.elements[3].y = row * this.hexagonSize * 0.75 + this.hexagonSize;
+                    
+                tempHexagon.elements[4].x = column * hexagonWidth + oddrow;
+                tempHexagon.elements[4].y = (row + 1) * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[5].x = column * hexagonWidth + oddrow;
+                tempHexagon.elements[5].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                    
+                this.hexagons.push(tempHexagon);
+                hexagonID++;
+            }
+        }
     }
 });
 

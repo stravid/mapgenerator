@@ -22,30 +22,8 @@ function initMap()
 {
     map = Raphael("map", 1000, 500);
 }
-/*
-function drawCountry(country)
-{
-    map.clear();
-    
-    var trianglesLength = country.triangles.length;
-    
-    for (var i = 0; i < trianglesLength; i++) {
-        for (var j = 0; j < 3; j++) {
-            
-            if (j == 2)
-                var k = 0;
-            else
-                var k = j+1;
-            
-            var line = "M " + country.triangles[i].vertex[j].x + " " + country.triangles[i].vertex[j].y;
-            line += "L " + country.triangles[i].vertex[k].x + " " + country.triangles[i].vertex[k].y;
-            
-            line = map.path(line); 
-        }
-    }
-}
-*/
-function drawCountry(triangles)  //(country)
+
+function drawCountry(hexagons)  //(country)
 {
     // map.clear();#
     
@@ -53,11 +31,14 @@ function drawCountry(triangles)  //(country)
     color += toHex(rand(0,255));
     color += toHex(rand(0,255));
     
-    for (var i = 0; i < triangles.length; i++) {
+    for (var i = 0; i < hexagons.length; i++) {
         
-        var line = "M " + triangles[i].vertex[0].x + " " + triangles[i].vertex[0].y;
-        line += "L " + triangles[i].vertex[1].x + " " + triangles[i].vertex[1].y;
-        line += "L " + triangles[i].vertex[2].x + " " + triangles[i].vertex[2].y + " Z";
+        var line = "M " + hexagons[i].elements[0].x + " " + hexagons[i].elements[0].y;
+        line += "L " + hexagons[i].elements[1].x + " " + hexagons[i].elements[1].y;
+        line += "L " + hexagons[i].elements[2].x + " " + hexagons[i].elements[2].y;
+        line += "L " + hexagons[i].elements[3].x + " " + hexagons[i].elements[3].y;
+        line += "L " + hexagons[i].elements[4].x + " " + hexagons[i].elements[4].y;
+        line += "L " + hexagons[i].elements[5].x + " " + hexagons[i].elements[5].y + " Z";
         
         line = map.path(line);
         line.attr("stroke", color);
@@ -66,15 +47,18 @@ function drawCountry(triangles)  //(country)
 }
 
 
-function drawCountryInColor(triangles, color)  //(country)
+function drawCountryInColor(hexagons, color)  //(country)
 {
     // map.clear();#
     
-    for (var i = 0; i < triangles.length; i++) {
+    for (var i = 0; i < hexagons.length; i++) {
         
-        var line = "M " + triangles[i].vertex[0].x + " " + triangles[i].vertex[0].y;
-        line += "L " + triangles[i].vertex[1].x + " " + triangles[i].vertex[1].y;
-        line += "L " + triangles[i].vertex[2].x + " " + triangles[i].vertex[2].y + " Z";
+        var line = "M " + hexagons[i].elements[0].x + " " + hexagons[i].elements[0].y;
+        line += "L " + hexagons[i].elements[1].x + " " + hexagons[i].elements[1].y;
+        line += "L " + hexagons[i].elements[2].x + " " + hexagons[i].elements[2].y;
+        line += "L " + hexagons[i].elements[3].x + " " + hexagons[i].elements[3].y;
+        line += "L " + hexagons[i].elements[4].x + " " + hexagons[i].elements[4].y;
+        line += "L " + hexagons[i].elements[5].x + " " + hexagons[i].elements[5].y + " Z";
         
         line = map.path(line);
         line.attr("fill", color);
