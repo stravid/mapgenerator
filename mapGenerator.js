@@ -1,8 +1,41 @@
+var Shape = new Class({
+    elements: new Array(),
+    ID: -1,
+    neighbors: new Array()
+});
+
 var Point = new Class({
     x: 0,
     y: 0    
 });
 
+var Hexagon = new Class({
+    Extends: Shape
+});
+
+var Country = new Class({
+    Extends: Shape
+});
+
+var Region = new Class({
+    Extends: Shape
+});
+
+var Map = new Class({
+    hexagons: new Array(),
+    countries: new Array(),
+    regions: new Array(),
+    width: 0,
+    height: 0,
+    hexagonSize:0,
+    initialize: function(width, height, hexagonSize) {
+        this.width = width;
+        this.height = height;
+        this.hexagonSize = hexagonSize;
+    }
+});
+
+// BELOW THIS POINT ONLY OLD STUFF
 var Triangle = new Class({
     vertex: new Array(new Point(), new Point(), new Point()),
     neighbors: new Array(),
