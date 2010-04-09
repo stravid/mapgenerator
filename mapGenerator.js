@@ -5,12 +5,24 @@ var Shape = new Class({
 });
 
 var Point = new Class({
+    initialize: function(x, y) {
+        this.x = x;
+        this.y = y;
+    },
     x: 0,
     y: 0    
 });
 
 var Hexagon = new Class({
-    Extends: Shape
+    Extends: Shape,
+    initialize: function() {
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+        this.elements.push(new Point(0,0));
+    }
 });
 
 var Country = new Class({
@@ -28,10 +40,50 @@ var Map = new Class({
     width: 0,
     height: 0,
     hexagonSize:0,
+                    
     initialize: function(width, height, hexagonSize) {
         this.width = width;
         this.height = height;
         this.hexagonSize = hexagonSize;
+    },
+                    
+    generateHexagonArray: function() {
+        var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
+        var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
+        var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+        var hexagonID = 0;
+    
+        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
+            for (var column = 0; column < numberOfHexagonsInARow; column++) {
+                var tempHexagon = new Hexagon();
+                tempHexagon.ID = hexagonID;
+                var oddrow = 0;
+                    
+                if ((row % 2) == 1)
+                    oddrow = hexagonWidth / 2;
+                    
+                tempHexagon.elements[0].x = (column + 0.5) * hexagonWidth + oddrow;
+                tempHexagon.elements[0].y = row * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[1].x = (column + 1) * hexagonWidth + oddrow;
+                tempHexagon.elements[1].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                    
+                tempHexagon.elements[2].x = (column + 1) * hexagonWidth + oddrow;
+                tempHexagon.elements[2].y = (row + 1) * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[3].x = (column + 0.5) * hexagonWidth + oddrow;
+                tempHexagon.elements[3].y = row * this.hexagonSize * 0.75 + this.hexagonSize;
+                    
+                tempHexagon.elements[4].x = column * hexagonWidth + oddrow;
+                tempHexagon.elements[4].y = (row + 1) * this.hexagonSize * 0.75;
+                    
+                tempHexagon.elements[5].x = column * hexagonWidth + oddrow;
+                tempHexagon.elements[5].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                    
+                this.hexagons.push(tempHexagon);
+                hexagonID++;
+            }
+        }
     }
 });
 
@@ -167,6 +219,8 @@ function generateMap(triangles, numberOfPlayers)
     for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
         var tempCountry = new Country();
         tempCountry.ID = countryID;
+        var tempTriangles = triangles;
+        var tempUsedTriangles = usedTriangles;
         
         if (countryID != 0) {
             var global = new Country();
@@ -179,7 +233,7 @@ function generateMap(triangles, numberOfPlayers)
             
             if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
                 countryID--;
-                console.warn('triangle is in hole');
+                // console.warn('triangle is in hole');
                 continue;
             }
         }
@@ -190,37 +244,25 @@ function generateMap(triangles, numberOfPlayers)
         triangles[startID].countryID = countryID;
         
         var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
-        var fail = false;
         for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
             var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+            // this should not happen at any time
             if (possibleNeighbors.length == 0) {
-                countryID--;
-                fail = true;
-                // DEBUGGING
-                console.warn('it seems like SOMETHING failed');
-                console.log(tempCountry);
-                console.log(startID);
-                drawCountryInColor(tempCountry.trianglesInCountry, '#000000');
-                return countries;
-                break;
+                console.error('Something FAILED');
+                return 'fail';
             }
-            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
             
-            if (usedTriangles.contains(nextID))
-                i--;
-            else {
-                usedTriangles.push(nextID);
-                triangles[nextID].countryID = countryID;
-                tempCountry.triangleIDs.push(nextID);
-                tempCountry.trianglesInCountry.push(triangles[nextID]);
-            }
+            do {
+                var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+            } while(usedTriangles.contains(nextID))
+            usedTriangles.push(nextID);
+            triangles[nextID].countryID = countryID;
+            tempCountry.triangleIDs.push(nextID);
+            tempCountry.trianglesInCountry.push(triangles[nextID]);
         }
         
-        if (!fail) {
-            countries.push(tempCountry);
-            drawCountry(tempCountry.trianglesInCountry);
-        }
-        
+        countries.push(tempCountry);
+        drawCountry(tempCountry.trianglesInCountry);
     }
     
     return countries;
