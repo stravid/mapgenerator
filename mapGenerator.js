@@ -119,28 +119,59 @@ function generateMap(triangles, numberOfPlayers)
     var countriesPerPlayer = 10;
     var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer);
     var usedTriangles = new Array();
+    var countries = new Array();
     
     var startID = rand(0, numberOfTriangles - 1);    
-    usedTriangles.push(startID);
     
     /*
     do {
         var startID = rand(0, numberOfTriangles - 1);    
     }while (!isValidStartID(startID, triangles));
 */    
-    var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
-    var tempCountry = new Country();
-    tempCountry.triangles.push(startID);
-    tempCountry.ID = 0;
-    triangles[startID].countryID = 0;
+    
+    
+    for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
+        var tempCountry = new Country();
+        tempCountry.ID = countryID;
         
-    for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
-        var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
-        var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
-        usedTriangles.push(nextID);
-        triangles[nextID].countryID = 0;
-        tempCountry.triangles.push(nextID);
+        if (countryID != 0) {
+            var global = new Country();
+            var usedTrianglesLength = usedTriangles.length;
+            for (var i = 0; i < usedTrianglesLength; i++) {
+                global.triangles.push(i);
+            }
+            var possibleNeighbors = getPossibleNeighbors(global, triangles);
+            var startID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+        }
+        
+        usedTriangles.push(startID);
+        tempCountry.triangles.push(startID);
+        triangles[startID].countryID = countryID;
+        
+        var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
+        var fail = false;
+        for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
+            var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+            if (possibleNeighbors.length == 0) {
+                countryID--;
+                fail = true;
+                break;
+            }
+            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+            
+            if (usedTriangles.contains(nextID))
+                i--;
+            else {
+                usedTriangles.push(nextID);
+                triangles[nextID].countryID = countryID;
+                tempCountry.triangles.push(nextID);
+            }
+        }
+        
+        if (!fail)
+            countries.push(tempCountry);
     }
+    
     
 }
 
@@ -154,7 +185,8 @@ function getPossibleNeighbors(country, triangles)
 {
     var possibleNeighbors = new Array();
     var amountOfTrianglesInCountry = country.triangles.length;
-    
+    // console.warn('executed');
+    // console.log(amountOfTrianglesInCountry);
     for (var i = 0; i < amountOfTrianglesInCountry; i++) {
         var triangleIndex = country.triangles[i];
         var currentNeighbors = triangles[triangleIndex].neighbors;
