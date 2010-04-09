@@ -143,4 +143,4 @@ function holeTest()
 
 var m = new Map(500, 400, 40);
 m.generateHexagonArray();
-m.generateCountries(2, 2, 10, 3);
+m.generateCountries(2, 10, 5, 3);

@@ -137,38 +137,43 @@ var Map = new Class({
             usedHexagons.push(startID);
             
             console.log('country will have ' + numberOfHexagons + ' hexagons');
+
             
-            for (var j = 0; j < numberOfHexagons; j++) {
+            for (var j = 0; j < numberOfHexagons - 1; j++) {
                 var newHexagonID;
-                newHexagonID = this.getNewHexagonNeighbor(i);
-                console.log(newHexagonID);
-                /*do {
+
+                do {
                     newHexagonID = this.getNewHexagonNeighbor(i);
-                } while(!isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
-                */
+                    console.log('new ID generated: ' + newHexagonID);
+                    console.log(usedHexagons);
+                    console.log(usedHexagons.contains(newHexagonID));
+                } while(!this.isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
+                console.log('ID added: ' + newHexagonID);
                 this.countries[i].elements.push(newHexagonID);
                 usedHexagons.push(newHexagonID);
             }
             
-            console.log(startID);
+            console.log(this.countries[i]);
+            
+            //console.log(startID);
             return startID;
         }
     },
     
     getNewHexagonNeighbor: function(countryID) {
         var newHexagonNeighbors = new Array();
-        
-        /*for (var i = 0; i < this.countries[countryID].elements.length; i++) {
-            newHexagonNeighbors = newHexagonNeighbors.combine(this.countries[countryID].elements[i].neighbors);
+
+        for (var i = 0; i < this.countries[countryID].elements.length; i++) {
+            newHexagonNeighbors = newHexagonNeighbors.combine(this.hexagons[this.countries[countryID].elements[i]].neighbors);
         }
         
         var newHexagonNeighborIDs = new Array();
         
         for (var i = 0; i < newHexagonNeighbors.length; i++) {
-            newHexagonNeighborIDs.push(newHexagonNeighbors[i].ID);
-        }*/
+            newHexagonNeighborIDs.push(this.hexagons[newHexagonNeighbors[i]].ID);
+        }
         
-        return rand(0, newHexagonNeighborIDs.length - 1); 
+        return newHexagonNeighborIDs[rand(0, newHexagonNeighborIDs.length - 1)]; 
     },
     
     setHexagonNeighbors: function(numberOfHexagonsInARow) {
