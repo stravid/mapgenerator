@@ -10,7 +10,8 @@ var Triangle = new Class({
 });
 
 var Country = new Class({
-    triangles: new Array(),
+    trianglesInCountry: new Array(),
+    triangleIDs: new Array(),
     ID: -1
 });
 
@@ -138,14 +139,15 @@ function generateMap(triangles, numberOfPlayers)
             var global = new Country();
             var usedTrianglesLength = usedTriangles.length;
             for (var i = 0; i < usedTrianglesLength; i++) {
-                global.triangles.push(i);
+                global.triangleIDs.push(i);
             }
             var possibleNeighbors = getPossibleNeighbors(global, triangles);
             var startID = possibleNeighbors[rand(0, possibleNeighbors.length)];
         }
         
         usedTriangles.push(startID);
-        tempCountry.triangles.push(startID);
+        tempCountry.triangleIDs.push(startID);
+        tempCountry.trianglesInCountry.push(triangles[startID]);
         triangles[startID].countryID = countryID;
         
         var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
@@ -164,7 +166,8 @@ function generateMap(triangles, numberOfPlayers)
             else {
                 usedTriangles.push(nextID);
                 triangles[nextID].countryID = countryID;
-                tempCountry.triangles.push(nextID);
+                tempCountry.triangleIDs.push(nextID);
+                tempCountry.trianglesInCountry.push(triangles[nextID]);
             }
         }
         
@@ -172,7 +175,7 @@ function generateMap(triangles, numberOfPlayers)
             countries.push(tempCountry);
     }
     
-    
+    return countries;
 }
 
 function isValidStartID(startID, triangles)
@@ -184,11 +187,11 @@ function isValidStartID(startID, triangles)
 function getPossibleNeighbors(country, triangles)
 {
     var possibleNeighbors = new Array();
-    var amountOfTrianglesInCountry = country.triangles.length;
+    var amountOfTrianglesInCountry = country.triangleIDs.length;
     // console.warn('executed');
     // console.log(amountOfTrianglesInCountry);
     for (var i = 0; i < amountOfTrianglesInCountry; i++) {
-        var triangleIndex = country.triangles[i];
+        var triangleIndex = country.triangleIDs[i];
         var currentNeighbors = triangles[triangleIndex].neighbors;
         var amountOfNeighbors = currentNeighbors.length;
         

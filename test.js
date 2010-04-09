@@ -1,13 +1,19 @@
 function test()
 {
-    var triangles = generateTriangleArray(100, 100, 20);
-    generateMap(triangles, 3);
+    var triangles = generateTriangleArray(1000, 800, 20);
+    var countries = generateMap(triangles, 3);
+    for (var i = 0; i < countries.length; i++) {
+        // console.log(countries[i].triangles.length);
+        drawCountry(countries[i].trianglesInCountry);
+    }
     
+    /*
     for (var i = 0; i < triangles.length; i++) {
         if (triangles[i].countryID == -1)
             console.log(i + ' belongs to ' + triangles[i].countryID);
     };
-    /*var startID = rand(0, triangles.length - 1);
+    
+    var startID = rand(0, triangles.length - 1);
     var tempCountry = new Country();
     tempCountry.triangles.push(startID);
     tempCountry.ID = 0;
@@ -20,4 +26,4 @@ function test()
     };*/
 }
 
-test();
+// test();

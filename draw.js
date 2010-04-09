@@ -7,7 +7,7 @@ function initMap()
 
 function drawCountry(triangles)  //(country)
 {
-    map.clear();
+    // map.clear();
     
     for (var i = 0; i < triangles.length; i++) {
         for (var j = 0; j < 3; j++) {
