@@ -23,7 +23,7 @@ function initMap()
     map = Raphael("map", 1000, 500);
 }
 
-function drawCountry(hexagons)  //(country)
+function drawCountry(hexagons, hexagonIDs)  //(country)
 {
     // map.clear();#
     
@@ -31,14 +31,14 @@ function drawCountry(hexagons)  //(country)
     color += toHex(rand(0,255));
     color += toHex(rand(0,255));
     
-    for (var i = 0; i < hexagons.length; i++) {
+    for (var i = 0; i < hexagonIDs.length; i++) {
         
-        var line = "M " + hexagons[i].elements[0].x + " " + hexagons[i].elements[0].y;
-        line += "L " + hexagons[i].elements[1].x + " " + hexagons[i].elements[1].y;
-        line += "L " + hexagons[i].elements[2].x + " " + hexagons[i].elements[2].y;
-        line += "L " + hexagons[i].elements[3].x + " " + hexagons[i].elements[3].y;
-        line += "L " + hexagons[i].elements[4].x + " " + hexagons[i].elements[4].y;
-        line += "L " + hexagons[i].elements[5].x + " " + hexagons[i].elements[5].y + " Z";
+        var line = "M " + hexagons[hexagonIDs[i]].elements[0].x + " " + hexagons[hexagonIDs[i]].elements[0].y;
+        line += "L " + hexagons[hexagonIDs[i]].elements[1].x + " " + hexagons[hexagonIDs[i]].elements[1].y;
+        line += "L " + hexagons[hexagonIDs[i]].elements[2].x + " " + hexagons[hexagonIDs[i]].elements[2].y;
+        line += "L " + hexagons[hexagonIDs[i]].elements[3].x + " " + hexagons[hexagonIDs[i]].elements[3].y;
+        line += "L " + hexagons[hexagonIDs[i]].elements[4].x + " " + hexagons[hexagonIDs[i]].elements[4].y;
+        line += "L " + hexagons[hexagonIDs[i]].elements[5].x + " " + hexagons[hexagonIDs[i]].elements[5].y + " Z";
         
         line = map.path(line);
         line.attr("stroke", color);
