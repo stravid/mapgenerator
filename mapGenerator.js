@@ -134,6 +134,8 @@ function generateMap(triangles, numberOfPlayers)
     for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
         var tempCountry = new Country();
         tempCountry.ID = countryID;
+        var tempTriangles = triangles;
+        var tempUsedTriangles = usedTriangles;
         
         if (countryID != 0) {
             var global = new Country();
@@ -168,7 +170,6 @@ function generateMap(triangles, numberOfPlayers)
                 console.log(tempCountry);
                 console.log(startID);
                 drawCountryInColor(tempCountry.trianglesInCountry, '#000000');
-                return countries;
                 break;
             }
             var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
