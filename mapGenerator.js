@@ -261,12 +261,36 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
         }
     }
     
-    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry)
-        return false;
+    var returnValue;
+    var enoughNeighbors = false;
     
-    return takenNeighbors.every(function(item, index, array) {
-        return item == array[0];
-    }); 
+    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry) {
+        returnValue = false;
+        enoughNeighbors = true;
+    }
+    else {
+        var firstElement = takenNeighbors[0];
+        
+        for (var i = 0; i < takenNeighbors.length; i++) {
+            if (firstElement != takenNeighbors[i])
+                returnValue = false;
+        }
+        
+        returnValue = true;
+    }
+    
+    /*if (returnValue) {
+       console.warn('true returned');
+    }
+    else {
+        console.warn('false returned');
+        if (enoughNeighbors)
+            console.info(enoughNeighbors);
+        else
+            console.log(takenNeighbors);
+    }*/
+    
+    return returnValue;
 }
 
 function isDefined( variable)
