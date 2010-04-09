@@ -1,29 +1,26 @@
-function test()
+function test(width, height, trianglesPerRow, players)
 {
-    var triangles = generateTriangleArray(600, 300, 30);
-    var countries = generateMap(triangles, 3);
+    map.clear();
+    var triangles = generateTriangleArray(width, height, trianglesPerRow);
+    var countries = generateMap(triangles, players);
+    
+    
     for (var i = 0; i < countries.length; i++) {
         // console.log(countries[i].triangles.length);
-        drawCountry(countries[i].trianglesInCountry);
+        //drawCountry(countries[i].trianglesInCountry);
     }
     
-    /*
-    for (var i = 0; i < triangles.length; i++) {
-        if (triangles[i].countryID == -1)
-            console.log(i + ' belongs to ' + triangles[i].countryID);
-    };
+    console.info('Test finished');
+}
+
+function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
+{
+    var triangles = generateTriangleArray(width, height, trianglesPerRow);
+    var testCountry = new Country();
     
-    var startID = rand(0, triangles.length - 1);
-    var tempCountry = new Country();
-    tempCountry.triangles.push(startID);
-    tempCountry.ID = 0;
-    triangles[startID].countryID = 0;
-    
-    var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
-    
-    for (var i = 0; i < possibleNeighbors.length; i++) {
-        console.log(possibleNeighbors[i]);
-    };*/
+    testCountry.triangleIDs.push(ID);
+    testCountry.trianglesInCountry.push(triangles[ID]);
+    console.log(getPossibleNeighbors(testCountry, triangles));
 }
 
 function holeTest()
@@ -41,4 +38,3 @@ function holeTest()
 
 holeTest();
 
-// test();
