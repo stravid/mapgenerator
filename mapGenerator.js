@@ -84,6 +84,80 @@ var Map = new Class({
                 hexagonID++;
             }
         }
+    },
+    
+    isHexagonInAHole: function(ID, maximumHoleSize) {
+        var freeNeighbors = new Array();
+        var wereNewNeighborsAdded = true;
+        freeNeighbors.push(ID);
+        
+        for (var i = 0; i < freeNeighbors.length; i++) {
+            if (!wereNewNeighborsAdded)
+                break;
+            else if (freeNeighbors.length >= maximumHoleSize)
+                return false;
+            
+            wereNewNeighborsAdded = false;
+            
+            for (var j = 0; j < this.hexagons[freeNeighbors[i]].neighbors.length; j++) {
+                var ID = this.hexagons[freeNeighbors[i]].neighbors[j];
+                
+                if (this.hexagons[ID].ID == -1) {
+                    if (!freeNeighbors.contains(ID)) {
+                        freeNeighbors.push(ID);
+                        wereNewNeighborsAdded = true;
+                    }
+                }
+            }  
+        }
+        
+        if (freeNeighbors.length >= maximumHoleSize)
+            return false;
+        else
+            return true;
+    },
+    
+    generateCountries: function(numberOfPlayers, countriesPerPlayer, countrySizeVariance, maximumHoleSize) {
+        var averageAmountOfHexagonsPerCountry = parseInt(this.hexagons.length / (numberOfPlayers * countriesPerPlayer));
+        var usedHexagons = new Array();
+        
+        for (var i = 0; i < numberOfPlayers * countriesPerPlayer; i++) {
+            var startID = rand(0, this.hexagons.length - 1);
+            var numberOfHexagons = countriesPerPlayer - rand(0, countrySizeVariance);
+            this.countries.push(new Country());
+            this.countries[i].ID = i;
+            this.countries[i].elements.push(startID);
+            usedHexagons.push(startID);
+            
+            for (var j = 0; j < numberOfHexagons; j++) {
+                var newHexagonID;
+                
+                do {
+                    newHexagonID = this.getNewHexagonNeighbor(i);
+                } while(!isHexagonInAHole(newHexagonID, maximumHoleSize) && usedHexagons.contains(newHexagonID))
+                
+                this.countries[i].elements.push(newHexagonID);
+                usedHexagons.push(newHexagonID);
+            }
+            
+            return true;
+        }
+    },
+    
+    getNewHexagonNeighbor: function(countryID) {
+        var newHexagonNeighbors = new Array();
+        
+        for (var i = 0; i < this.countries[countryID].elements.length; i++) {
+            newHexagonNeighbors = newHexagonNeighbors.combine(this.countries[countryID].elements[i].neighbors);
+        }
+        
+        var newHexagonNeighborIDs = new Array();
+        
+        for (var i = 0; i < newHexagonNeighbors.length; i++) {
+            newHexagonNeighborIDs.push(newHexagonNeighbors[i].ID);
+        }
+        
+        return rand(0, newHexagonNeighborIDs.length - 1);
     }
 });
 
@@ -364,34 +438,3 @@ function isDefined( variable)
     return (typeof(variable) == "undefined")?  false: true;
 }
 
-function isHexagonInAHole(ID, maximumHoleSize)
-{
-    var freeNeighbors = new Array();
-    var wereNewNeighborsAdded = true;
-    freeNeighbors.push(ID);
-    
-    for (var i = 0; i < freeNeighbors.length; i++) {
-        if (!wereNewNeighborsAdded)
-            break;
-        else if (freeNeighbors.length >= maximumHoleSize)
-            return false;
-        
-        wereNewNeighborsAdded = false;
-        
-        for (var j = 0; j < this.hexagons[freeNeighbors[i]].neighbors.length; j++) {
-            var ID = this.hexagons[freeNeighbors[i]].neighbors[j];
-            
-            if (this.hexagons[ID].ID == -1) {
-                if (!freeNeighbors.contains(ID)) {
-                    freeNeighbors.push(ID);
-                    wereNewNeighborsAdded = true;
-                }
-            }
-        }  
-    }
-    
-    if (freeNeighbors.length >= maximumHoleSize)
-        return false;
-    else
-        return true;
-}
