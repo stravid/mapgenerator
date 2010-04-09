@@ -139,10 +139,10 @@ function generateMap(triangles, numberOfPlayers)
             var global = new Country();
             var usedTrianglesLength = usedTriangles.length;
             for (var i = 0; i < usedTrianglesLength; i++) {
-                global.triangleIDs.push(i);
+                global.triangleIDs.push(usedTriangles[i]);
             }
             var possibleNeighbors = getPossibleNeighbors(global, triangles);
-            var startID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+            var startID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
             
             if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
                 countryID--;
@@ -163,10 +163,15 @@ function generateMap(triangles, numberOfPlayers)
             if (possibleNeighbors.length == 0) {
                 countryID--;
                 fail = true;
-                console.warn('it seems like triangleIsInHole failed');
+                // DEBUGGING
+                console.warn('it seems like SOMETHING failed');
+                console.log(tempCountry);
+                console.log(startID);
+                drawCountryInColor(tempCountry.trianglesInCountry, '#000000');
+                return countries;
                 break;
             }
-            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
             
             if (usedTriangles.contains(nextID))
                 i--;
@@ -178,8 +183,11 @@ function generateMap(triangles, numberOfPlayers)
             }
         }
         
-        if (!fail)
+        if (!fail) {
             countries.push(tempCountry);
+            drawCountry(tempCountry.trianglesInCountry);
+        }
+        
     }
     
     return countries;
@@ -195,8 +203,7 @@ function getPossibleNeighbors(country, triangles)
 {
     var possibleNeighbors = new Array();
     var amountOfTrianglesInCountry = country.triangleIDs.length;
-    // console.warn('executed');
-    // console.log(amountOfTrianglesInCountry);
+    
     for (var i = 0; i < amountOfTrianglesInCountry; i++) {
         var triangleIndex = country.triangleIDs[i];
         var currentNeighbors = triangles[triangleIndex].neighbors;
@@ -207,7 +214,9 @@ function getPossibleNeighbors(country, triangles)
                 possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
         }
     }
-    
+    if (possibleNeighbors.length == 0) {
+        console.log(country);
+    }
     return possibleNeighbors;
 }
 
@@ -220,6 +229,8 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
 {
     var takenNeighbors = new Array();
     var freeNeighbors = new Array();
+    if (!isDefined(triangleID))
+        console.warn('FAIL BOY');
     freeNeighbors.push(triangleID);
     var freeNeighborsCounter = 1;
     var i = 0;
@@ -229,7 +240,10 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
     while (freeNeighborsCounter < averageAmountOfTrianglesPerCountry && addedNewFreeNeighbor) {
         addedNewFreeNeighbor = false;
         length = freeNeighbors.length;
-        
+        if (!isDefined(triangles[freeNeighbors[i]])) {
+            console.log('index:' + i);
+            console.log(freeNeighbors[i]);
+        }
         for (i; i < length; i++) {
             for (var j = 0; j < triangles[freeNeighbors[i]].neighbors.length; j++) {
                 var id = triangles[freeNeighbors[i]].neighbors[j];
@@ -253,4 +267,9 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
     return takenNeighbors.every(function(item, index, array) {
         return item == array[0];
     }); 
+}
+
+function isDefined( variable)
+{
+    return (typeof(variable) == "undefined")?  false: true;
 }
