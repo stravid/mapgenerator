@@ -165,10 +165,50 @@ function getPossibleNeighbors(country, triangles)
                 possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
         }
     }
+    
     return possibleNeighbors;
 }
 
 function rand(minimum, maximum)
 {  
     return Math.floor(Math.random() * maximum + minimum);
+}
+
+function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCountry)
+{
+    var takenNeighbors = new Array();
+    var freeNeighbors = new Array();
+    freeNeighbors.push(triangleID);
+    var freeNeighborsCounter = 1;
+    var i = 0;
+    var addedNewFreeNeighbor = true;
+    var length;
+    
+    while (freeNeighborsCounter < averageAmountOfTrianglesPerCountry && addedNewFreeNeighbor) {
+        addedNewFreeNeighbor = false;
+        length = freeNeighbors.length;
+        
+        for (i; i < length; i++) {
+            for (var j = 0; j < triangles[freeNeighbors[i]].neighbors.length; j++) {
+                var id = triangles[freeNeighbors[i]].neighbors[j];
+                
+                if (triangles[id].countryID == -1) {
+                    if (!freeNeighbors.contains(id)) {
+                        freeNeighborsCounter++;
+                        freeNeighbors.push(id);
+                        addedNewFreeNeighbor = true;
+                    }
+                }
+                else
+                    takenNeighbors.push(triangles[id].countryID);
+            }
+        }
+    }
+    
+    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry)
+        return false;
+    
+    return takenNeighbors.every(function(item, index, array) {
+        return item > array[0];
+    }); 
 }
