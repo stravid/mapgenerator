@@ -118,7 +118,7 @@ function generateMap(triangles, numberOfPlayers)
 {
     var numberOfTriangles = triangles.length;
     var countriesPerPlayer = 10;
-    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer);
+    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer) * 2 / 3;
     var usedTriangles = new Array();
     var countries = new Array();
     
@@ -134,15 +134,23 @@ function generateMap(triangles, numberOfPlayers)
     for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
         var tempCountry = new Country();
         tempCountry.ID = countryID;
+        var tempTriangles = triangles;
+        var tempUsedTriangles = usedTriangles;
         
         if (countryID != 0) {
             var global = new Country();
             var usedTrianglesLength = usedTriangles.length;
             for (var i = 0; i < usedTrianglesLength; i++) {
-                global.triangleIDs.push(i);
+                global.triangleIDs.push(usedTriangles[i]);
             }
             var possibleNeighbors = getPossibleNeighbors(global, triangles);
-            var startID = possibleNeighbors[rand(0, possibleNeighbors.length)];
+            var startID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+            
+            if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
+                countryID--;
+                // console.warn('triangle is in hole');
+                continue;
+            }
         }
         
         usedTriangles.push(startID);
@@ -151,28 +159,25 @@ function generateMap(triangles, numberOfPlayers)
         triangles[startID].countryID = countryID;
         
         var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
-        var fail = false;
         for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
             var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
+            // this should not happen at any time
             if (possibleNeighbors.length == 0) {
-                countryID--;
-                fail = true;
-                break;
+                console.error('Something FAILED');
+                return 'fail';
             }
-            var nextID = possibleNeighbors[rand(0, possibleNeighbors.length)];
             
-            if (usedTriangles.contains(nextID))
-                i--;
-            else {
-                usedTriangles.push(nextID);
-                triangles[nextID].countryID = countryID;
-                tempCountry.triangleIDs.push(nextID);
-                tempCountry.trianglesInCountry.push(triangles[nextID]);
-            }
+            do {
+                var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+            } while(usedTriangles.contains(nextID))
+            usedTriangles.push(nextID);
+            triangles[nextID].countryID = countryID;
+            tempCountry.triangleIDs.push(nextID);
+            tempCountry.trianglesInCountry.push(triangles[nextID]);
         }
         
-        if (!fail)
-            countries.push(tempCountry);
+        countries.push(tempCountry);
+        drawCountry(tempCountry.trianglesInCountry);
     }
     
     return countries;
@@ -188,8 +193,7 @@ function getPossibleNeighbors(country, triangles)
 {
     var possibleNeighbors = new Array();
     var amountOfTrianglesInCountry = country.triangleIDs.length;
-    // console.warn('executed');
-    // console.log(amountOfTrianglesInCountry);
+    
     for (var i = 0; i < amountOfTrianglesInCountry; i++) {
         var triangleIndex = country.triangleIDs[i];
         var currentNeighbors = triangles[triangleIndex].neighbors;
@@ -200,19 +204,23 @@ function getPossibleNeighbors(country, triangles)
                 possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
         }
     }
-    
+    if (possibleNeighbors.length == 0) {
+        console.log(country);
+    }
     return possibleNeighbors;
 }
 
 function rand(minimum, maximum)
-{  
-    return Math.floor(Math.random() * maximum + minimum);
+{
+    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 }
 
 function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCountry)
 {
     var takenNeighbors = new Array();
     var freeNeighbors = new Array();
+    if (!isDefined(triangleID))
+        console.warn('FAIL BOY');
     freeNeighbors.push(triangleID);
     var freeNeighborsCounter = 1;
     var i = 0;
@@ -222,7 +230,10 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
     while (freeNeighborsCounter < averageAmountOfTrianglesPerCountry && addedNewFreeNeighbor) {
         addedNewFreeNeighbor = false;
         length = freeNeighbors.length;
-        
+        if (!isDefined(triangles[freeNeighbors[i]])) {
+            console.log('index:' + i);
+            console.log(freeNeighbors[i]);
+        }
         for (i; i < length; i++) {
             for (var j = 0; j < triangles[freeNeighbors[i]].neighbors.length; j++) {
                 var id = triangles[freeNeighbors[i]].neighbors[j];
@@ -240,10 +251,39 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
         }
     }
     
-    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry)
-        return false;
+    var returnValue;
+    var enoughNeighbors = false;
     
-    return takenNeighbors.every(function(item, index, array) {
-        return item == array[0];
-    }); 
+    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry) {
+        returnValue = false;
+        enoughNeighbors = true;
+    }
+    else {
+        var firstElement = takenNeighbors[0];
+        
+        for (var i = 0; i < takenNeighbors.length; i++) {
+            if (firstElement != takenNeighbors[i])
+                returnValue = false;
+        }
+        
+        returnValue = true;
+    }
+    
+    /*if (returnValue) {
+       console.warn('true returned');
+    }
+    else {
+        console.warn('false returned');
+        if (enoughNeighbors)
+            console.info(enoughNeighbors);
+        else
+            console.log(takenNeighbors);
+    }*/
+    
+    return returnValue;
+}
+
+function isDefined( variable)
+{
+    return (typeof(variable) == "undefined")?  false: true;
 }

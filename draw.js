@@ -20,7 +20,7 @@ function toHex(dec) {
 
 function initMap()
 {
-    map = Raphael("map", 1000, 800);
+    map = Raphael("map", 1000, 500);
 }
 /*
 function drawCountry(country)
@@ -61,6 +61,22 @@ function drawCountry(triangles)  //(country)
         
         line = map.path(line);
         line.attr("stroke", color);
+        line.attr("fill", color);
+    }
+}
+
+
+function drawCountryInColor(triangles, color)  //(country)
+{
+    // map.clear();#
+    
+    for (var i = 0; i < triangles.length; i++) {
+        
+        var line = "M " + triangles[i].vertex[0].x + " " + triangles[i].vertex[0].y;
+        line += "L " + triangles[i].vertex[1].x + " " + triangles[i].vertex[1].y;
+        line += "L " + triangles[i].vertex[2].x + " " + triangles[i].vertex[2].y + " Z";
+        
+        line = map.path(line);
         line.attr("fill", color);
     }
 }
