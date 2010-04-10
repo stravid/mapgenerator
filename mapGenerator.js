@@ -178,6 +178,196 @@ var Map = new Class({
         }
     },
     
+    getFreeNeighborHexagons: function(country) {
+        /*var possibleNeighbors = new Array();
+        var amountOfHexagonsInCountry = country.elements.length;
+        //console.log(amountOfHexagonsInCountry);
+        for (var i = 0; i < amountOfHexagonsInCountry; i++) {
+            //console.log(this.hexagons[country.elements[i]].neighbors);
+            possibleNeighbors = possibleNeighbors.combine(this.hexagons[country.elements[i]].neighbors);
+        }
+        console.log('all neighbors');
+        console.log(possibleNeighbors);
+        possibleNeighbors = possibleNeighbors.filter(function(item, index) {
+            console.log(item);
+            return this.hexagons[item].countryID != -1;
+        });
+        console.log('free neighbors');
+        console.log(possibleNeighbors);
+        
+        if (possibleNeighbors.length > 0)
+            return possibleNeighbors;
+        else
+            return false;*/
+            
+        var possibleNeighbors = new Array();
+        var amountOfHexagonsInCountry = country.elements.length;
+        //console.log(amountOfHexagonsInCountry);
+        for (var i = 0; i < amountOfHexagonsInCountry; i++) {
+            //console.log(this.hexagons[country.elements[i]].neighbors);
+            possibleNeighbors = possibleNeighbors.combine(this.hexagons[country.elements[i]].neighbors);
+        }
+        // console.log('all neighbors');
+        // console.log(possibleNeighbors);
+        var realNeighbors = new Array();
+        
+        for (var i = 0; i < possibleNeighbors.length; i++) {
+            // console.log(this.hexagons[possibleNeighbors[i]].countryID);
+            if (this.hexagons[possibleNeighbors[i]].countryID == -1)
+                realNeighbors.push(possibleNeighbors[i]);
+        }
+        
+        // console.log('free neighbors');
+        // console.log(realNeighbors);
+        
+        if (realNeighbors.length > 0)
+            return realNeighbors;
+        else
+            return false;
+    },
+    
+    testGenerator: function(countrySize, countrySizeVariance, maximumHoleSize) {        
+        this.usedHexagons = new Array();
+        this.unusedHexagons = this.hexagons.map(function(item, index) {
+            return item.ID; 
+        });
+        var factor = 4;
+        var countryCounter = 0;
+        var nextStartID;
+        var holeFails = 0;
+        
+        nextStartID = rand(0, this.unusedHexagons.length - 1);
+        
+        while (this.unusedHexagons.length > 20) {
+            holeFails = 0;
+            console.log('new country index: ' + countryCounter);
+            if (countryCounter > 0) {
+                var collectionCountry = new Country();
+                collectionCountry.elements = this.usedHexagons;
+                var freeNeighbors = this.getFreeNeighborHexagons(collectionCountry);
+                
+                if (!freeNeighbors) {
+                    console.error('Big Fail');
+                    return;
+                }
+                
+                do {
+                    holeFails++;
+                    
+                    if (holeFails > 10) {
+                        console.error('only holes?!');
+                        return;
+                    }
+                    
+                    nextStartID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
+                } while (this.isHexagonInAHole(nextStartID, maximumHoleSize))
+            }
+            holeFails = 0;
+            this.countries.push(new Country());
+            this.countries[countryCounter].ID = countryCounter;
+            this.countries[countryCounter].elements.push(nextStartID);
+            this.unusedHexagons.splice(this.unusedHexagons.indexOf(nextStartID), 1);
+            this.usedHexagons.push(nextStartID);
+            this.hexagons[nextStartID].countryID = countryCounter;
+            console.log('new start hex:' + nextStartID);
+            
+            var numberOfHexagons = countrySize - rand(0, countrySizeVariance);
+            
+            for (var i = 0; i < numberOfHexagons; i++) {
+                var freeNeighbors = this.getFreeNeighborHexagons(this.countries[countryCounter]);
+                var newHexagonID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
+                
+                if (!freeNeighbors) {
+                    console.error('Big Fail');
+                    return;
+                }
+                
+                if (this.isHexagonInAHole(newHexagonID, maximumHoleSize)) {
+                    holeFails++;
+                    
+                    if (holeFails > 10) {
+                        console.error('only holes?!');
+                        return;
+                    }
+                    i--;
+                }
+                else {
+                    this.countries[countryCounter].elements.push(newHexagonID);
+                    this.unusedHexagons.splice(this.unusedHexagons.indexOf(newHexagonID), 1);
+                    this.usedHexagons.push(newHexagonID);
+                    this.hexagons[newHexagonID].countryID = countryCounter;
+                    console.log('new country hex:' + newHexagonID);
+                }
+            }
+
+            countryCounter++;
+        }
+        
+        
+        /*console.info('Total amount of hexagons: ' + this.hexagons.length);
+        console.info('Amount of countries: ' + numberOfPlayers * countriesPerPlayer);
+        
+        var numberOfHexagons = this.hexagons.length;
+        
+        var usedTriangles = new Array();
+        var countries = new Array();
+            
+        var startID = rand(0, numberOfHexagons - 1);                
+            
+        for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
+            var tempCountry = new Country();
+            tempCountry.ID = countryID;
+            var tempHexagons = this.hexagons;
+            var tempUsedHexagons = usedHexagons;
+            
+            if (countryID != 0) {
+                var global = new Country();
+                var usedHexagonsLength = usedHexagons.length;
+                
+                for (var i = 0; i < usedHexagonsLength; i++) {
+                    global.elements.push(usedHexagons[i]);
+                }
+                
+                var possibleNeighbors = getPossibleNeighbors(global, Hexagons);
+                var startID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+                
+                if (isTriangleInAHole(Hexagons, startID, averageAmountOfHexagonsPerCountry)) {
+                    countryID--;
+                    // console.warn('triangle is in hole');
+                    continue;
+                }
+            }
+            
+            usedHexagons.push(startID);
+            tempCountry.triangleIDs.push(startID);
+            tempCountry.HexagonsInCountry.push(Hexagons[startID]);
+            Hexagons[startID].countryID = countryID;
+            
+            var difference = rand(0, averageAmountOfHexagonsPerCountry / 2);
+            for (var i = 0; i < averageAmountOfHexagonsPerCountry - difference; i++) {
+                var possibleNeighbors = getPossibleNeighbors(tempCountry, Hexagons);
+                // this should not happen at any time
+                if (possibleNeighbors.length == 0) {
+                    console.error('Something FAILED');
+                    return 'fail';
+                }
+                
+                do {
+                    var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+                } while(usedHexagons.contains(nextID))
+                usedHexagons.push(nextID);
+                Hexagons[nextID].countryID = countryID;
+                tempCountry.triangleIDs.push(nextID);
+                tempCountry.HexagonsInCountry.push(Hexagons[nextID]);
+            }
+            
+            countries.push(tempCountry);
+            drawCountry(tempCountry.HexagonsInCountry);
+        }
+        
+        return countries; */
+    },
+    
     getNewHexagonNeighborID: function(country) {
         var newHexagonNeighbors = new Array();
         
@@ -503,6 +693,7 @@ function getPossibleNeighbors(country, triangles)
                 possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
         }
     }
+    
     if (possibleNeighbors.length == 0) {
         console.log(country);
     }
