@@ -148,11 +148,13 @@ m.generateHexagonArray();
             return item.ID; 
         }));
 */
-m.testGenerator(10, 2, 3);
+m.testGenerator(5, 2, 5);
 //initMap();
 
-//console.log(m.countries.length);
-/*
-for (var i = 0; i < m.countries.length; i++) {
-    drawCountry(m.hexagons, m.countries[i].elements);
-}*/
+
+function draw()
+{
+    for (var i = 0; i < m.countries.length; i++) {
+        drawCountry(m.hexagons, m.countries[i].elements);
+    }
+}
