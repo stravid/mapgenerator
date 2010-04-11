@@ -7,7 +7,7 @@ var Point = new Class({
     y: 0    
 });
 
-var Hexagon = new Class({
+var Line = new Class({
     points = new Array(),
     neighbors = new Array()
 });
@@ -50,7 +50,7 @@ var Map = new Class({
 
 
 // BELOW THIS POINT ONLY OLD STUFF
-
+/*
 var Shape = new Class({
     elements: new Array(),
     ID: -1,
@@ -340,6 +340,8 @@ var Map = new Class({
         }
     },
 });
+*/
+// BELOW THIS POINT ONLY VERY OLD STUFF
 
 var Triangle = new Class({
     vertex: new Array(new Point(), new Point(), new Point()),
@@ -607,7 +609,7 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
     return returnValue;
 }
 
-function isDefined( variable)
+function isDefined(variable)
 {
     return (typeof(variable) == "undefined")?  false: true;
 }
