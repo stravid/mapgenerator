@@ -41,7 +41,8 @@ var Map = new Class({
     regions: new Array(),
     width: 0,
     height: 0,
-    hexagonSize:0,
+    hexagonSize: 0,
+    holeCounter: 0,
                     
     initialize: function(width, height, hexagonSize) {
         this.width = width;
@@ -120,7 +121,9 @@ var Map = new Class({
             return false;
         else
         {
-            console.warn('Hexagon is in a hole!');
+            //console.warn('Hexagon is in a hole!');
+            this.usedHexagons.combine(freeNeighbors);
+            this.holeCounter++;
             return true;  
         }
             
@@ -137,9 +140,11 @@ var Map = new Class({
         var realNeighbors = new Array();
         
         for (var i = 0; i < possibleNeighbors.length; i++) {
-            if (this.hexagons[possibleNeighbors[i]].countryID == -1)
+            if (this.hexagons[possibleNeighbors[i]].countryID == -1 && !this.usedHexagons.contains(possibleNeighbors[i]))
                 realNeighbors.push(possibleNeighbors[i]);
         }
+        
+        
         
         if (realNeighbors.length > 0)
             return realNeighbors;
@@ -175,9 +180,9 @@ var Map = new Class({
                 do {
                     holeFails++;
                     
-                    if (holeFails > 10) {
-                        console.error('only holes?!');
-                        return;
+                    if (holeFails > 20) {
+                        console.error('only holes?! ONE' + countryCounter);
+                        return false;
                     }
                     
                     nextStartID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
@@ -192,7 +197,12 @@ var Map = new Class({
             this.hexagons[nextStartID].countryID = countryCounter;
             console.log('new start hex:' + nextStartID);
             
-            var numberOfHexagons = countrySize - rand(0, countrySizeVariance);
+            if (rand(0, 1) == 1)
+                var f = 1;
+            else
+                var f = -1;
+                
+            var numberOfHexagons = (countrySize + rand(0, countrySizeVariance) * f);
             
             for (var i = 0; i < numberOfHexagons; i++) {
                 var freeNeighbors = this.getFreeNeighborHexagons(this.countries[countryCounter]);
@@ -206,9 +216,9 @@ var Map = new Class({
                 if (this.isHexagonInAHole(newHexagonID, maximumHoleSize)) {
                     holeFails++;
                     
-                    if (holeFails > 10) {
-                        console.error('only holes?!');
-                        return;
+                    if (holeFails > 20) {
+                        console.error('only holes?! TWO' + countryCounter);
+                        continue;
                     }
                     i--;
                 }
@@ -217,7 +227,7 @@ var Map = new Class({
                     this.unusedHexagons.splice(this.unusedHexagons.indexOf(newHexagonID), 1);
                     this.usedHexagons.push(newHexagonID);
                     this.hexagons[newHexagonID].countryID = countryCounter;
-                    console.log('new country hex:' + newHexagonID);
+                    //console.log('new country hex:' + newHexagonID);
                 }
             }
 

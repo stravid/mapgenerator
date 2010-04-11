@@ -139,18 +139,12 @@ function holeTest()
     console.log('false = ' + blupp(13, 3, triangles));
 }
 
-//holeTest();
+var m = new Map(500, 800, 10);
 
-var m = new Map(500, 400, 40);
-m.generateHexagonArray();
-
-/*console.log(m.hexagons.map(function(item, index) {
-            return item.ID; 
-        }));
-*/
-m.testGenerator(5, 2, 5);
-//initMap();
-
+window.addEvent('domready', function() {
+    m.generateHexagonArray();
+    m.testGenerator(50, 10, 60);
+});
 
 function draw()
 {
