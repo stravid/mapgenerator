@@ -61,6 +61,7 @@ function drawCountry(triangles)  //(country)
         
         line = map.path(line);
         line.attr("fill", color);
+        line.attr("stroke", color);
     }
 }
 
@@ -77,6 +78,7 @@ function drawCountryInColor(triangles, color)  //(country)
         
         line = map.path(line);
         line.attr("fill", color);
+        
     }
 }
 
