@@ -140,7 +140,8 @@ var Map = new Class({
         var realNeighbors = new Array();
         
         for (var i = 0; i < possibleNeighbors.length; i++) {
-            if (this.hexagons[possibleNeighbors[i]].countryID == -1 && !this.usedHexagons.contains(possibleNeighbors[i]))
+            // if (this.hexagons[possibleNeighbors[i]].countryID == -1 && !this.usedHexagons.contains(possibleNeighbors[i]))
+            if (!this.usedHexagons.contains(possibleNeighbors[i]))
                 realNeighbors.push(possibleNeighbors[i]);
         }
         
@@ -164,7 +165,7 @@ var Map = new Class({
         
         nextStartID = rand(0, this.unusedHexagons.length - 1);
         
-        while (this.unusedHexagons.length > maximumHoleSize * factor) {
+        while (this.hexagons.length - (this.usedHexagons.length + 250) > maximumHoleSize * factor) {
             holeFails = 0;
             console.log('new country index: ' + countryCounter);
             if (countryCounter > 0) {
@@ -173,7 +174,7 @@ var Map = new Class({
                 var freeNeighbors = this.getFreeNeighborHexagons(collectionCountry);
                 
                 if (!freeNeighbors) {
-                    console.error('Big Fail');
+                    console.error('Big Fail 1');
                     return;
                 }
                 
@@ -186,7 +187,7 @@ var Map = new Class({
                     }
                     
                     nextStartID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
-                } while (this.isHexagonInAHole(nextStartID, maximumHoleSize))
+                } while (this.isHexagonInAHole(nextStartID, maximumHoleSize + 1))
             }
             holeFails = 0;
             this.countries.push(new Country());
@@ -209,11 +210,13 @@ var Map = new Class({
                 var newHexagonID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
                 
                 if (!freeNeighbors) {
-                    console.error('Big Fail');
+                    console.log(numberOfHexagons);
+                    console.error('Big Fail 2');
                     return;
                 }
                 
-                if (this.isHexagonInAHole(newHexagonID, maximumHoleSize)) {
+                // if (this.isHexagonInAHole(newHexagonID, maximumHoleSize + 1)) {
+                if (false) {
                     holeFails++;
                     
                     if (holeFails > 20) {
