@@ -22,6 +22,7 @@ var Country = new Class({
     hexagons: new Array(),
     neighbors: new Array(),
     outline: new Array(),
+    
     getNeighborHexagons: function() {
         var allHexagons = new Array();
         
@@ -61,6 +62,18 @@ var Map = new Class({
         this.width = width;
         this.height = height;
         this.hexagonSize = hexagonSize;
+    },
+    
+    getRandomNeighborHexagon: function(country) {
+        var possibleNeighbors = new Array();
+        var allNeighbors = country.getNeighborHexagons();
+        
+        for (var i = 0; i < allNeighbors.length; i++) {
+            if (!this.usedHexagons.contains(allNeighbors[i]))
+                possibleNeighbors.push(allNeighbors[i]);
+        }
+        
+        return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
     }
 });
 
