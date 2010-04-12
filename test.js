@@ -142,8 +142,8 @@ function holeTest()
 var m = new Map(800, 400, 10);
 
 window.addEvent('domready', function() {
-    m.generateHexagonArray();
-    m.testGenerator(50, 10, 60);
+    //m.generateHexagonArray();
+    //m.testGenerator(50, 10, 60);
 });
 
 function draw()

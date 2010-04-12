@@ -22,20 +22,28 @@ var Country = new Class({
     hexagons: new Array(),
     neighbors: new Array(),
     outline: new Array(),
-    getNeighbors: function() {
-        var neighbors = new Array();
+    getNeighborHexagons: function() {
+        var allHexagons = new Array();
         
         for (var i = 0; i < this.hexagons.length; i++) {
-            if (this.hexagons.contains(this.neighbors[i].filter(function(item, index) { return !this.hexagons.contains(item) })))
-                neighbors = neighbors.combine()
+            allHexagons = allHexagons.combine(this.hexagons[i].neighbors);
         }
+        
+        var neighborHexagons = new Array();
+        
+        for (var i = 0; i < allHexagons.length; i++) {
+            if (!this.hexagons.contains(allHexagons[i]))
+                neighborHexagons.push(allHexagons[i]);
+        }
+        
+        return neighborHexagons;
     }
 });
 
 var Region = new Class({
     countries: new Array(),
-    neighbors: new Array()
-    outline: new Array(),
+    neighbors: new Array(),
+    outline: new Array()
 });
 
 var Map = new Class({
