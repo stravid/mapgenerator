@@ -8,26 +8,34 @@ var Point = new Class({
 });
 
 var Line = new Class({
-    points = new Array(),
-    neighbors = new Array()
+    points: new Array(),
+    neighbors: new Array()
 });
 
 var Hexagon = new Class({
-    lines = new Array(),
-    neighbors = new Array(),
-    outline = new Array()
+    lines: new Array(),
+    neighbors: new Array(),
+    outline: new Array()
 });
 
 var Country = new Class({
-    hexagons = new Array(),
-    neighbors = new Array(),
-    outline = new Array()
+    hexagons: new Array(),
+    neighbors: new Array(),
+    outline: new Array(),
+    getNeighbors: function() {
+        var neighbors = new Array();
+        
+        for (var i = 0; i < this.hexagons.length; i++) {
+            if (this.hexagons.contains(this.neighbors[i].filter(function(item, index) { return !this.hexagons.contains(item) })))
+                neighbors = neighbors.combine()
+        }
+    }
 });
 
 var Region = new Class({
-    countries = new Array(),
-    neighbors = new Array()
-    outline = new Array(),
+    countries: new Array(),
+    neighbors: new Array()
+    outline: new Array(),
 });
 
 var Map = new Class({
