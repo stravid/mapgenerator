@@ -1,3 +1,56 @@
+var Point = new Class({
+    initialize: function(x, y) {
+        this.x = x;
+        this.y = y;
+    },
+    x: 0,
+    y: 0    
+});
+
+var Line = new Class({
+    points = new Array(),
+    neighbors = new Array()
+});
+
+var Hexagon = new Class({
+    lines = new Array(),
+    neighbors = new Array(),
+    outline = new Array()
+});
+
+var Country = new Class({
+    hexagons = new Array(),
+    neighbors = new Array(),
+    outline = new Array()
+});
+
+var Region = new Class({
+    countries = new Array(),
+    neighbors = new Array()
+    outline = new Array(),
+});
+
+var Map = new Class({
+    points: new Array(),
+    lines: new Array(),
+    hexagons: new Array(),
+    usedHexagons: new Array(),
+    countries: new Array(),
+    regions: new Array(),
+    width: 0,
+    height: 0,
+    hexagonSize:0,
+                    
+    initialize: function(width, height, hexagonSize) {
+        this.width = width;
+        this.height = height;
+        this.hexagonSize = hexagonSize;
+    }
+});
+
+
+// BELOW THIS POINT ONLY OLD STUFF
+/*
 var Shape = new Class({
     elements: new Array(),
     ID: -1,
@@ -299,58 +352,10 @@ var Map = new Class({
                 topBorder = false;        
         }
     },
-                    
-    getOutline: function(hexagonIDs) {
-        var Points = getOutlinePoints(hexagonIDs);            
-                    
-        var outline = new Array();
-        var FirstHexagonPoint = hexagons[getTopHexagonPoint(hexagonIDs)];
-        var HexagonPoint = FirstHexagonPoint; 
-                    
-        do {
-            outline.push(hexagonPoint);
-            hexagonPoint = getNextHexagonPoint(hexagonIDs, hexagonPoint);
-        }
-        while (hexagonPoint != FirstHexagonPoint);
-                    
-        return outline;
-    },
-                    
-    getOutlinePoints: function(hexagonIDs) {
-        var points = new Array();
-                    
-        for (var i = hexagonIDs.length -1; i >= 0; i--) {
-            for (var j = 5; j >= 0; j--) {
-                var hexagonPoint = new Array();
-                hexagonPoint.push(hexagons[hexagonIds[i]].elements[j].x);
-                hexagonPoint.push(hexagons[hexagonIds[i]].elements[j].y);
-                points.push(hexagonPoint)
-            }
-        }
-                    
-        for (var i = points.length - 1; i >= 0; i--) {
-                        
-        } 
-    },
-                    
-    getTopHexagonPoint: function(hexagonIDs) {
-        var hexagonID = 100000000;
-        for (var i = 0; i < hexagonIDs.length; i++ ) {
-            if (hexagonIDs[i] < hexagonID)
-                hexagonID = hexagonIDs[i];
-        }
-            
-        return hexagons[hexagonID].elements[0];
-    },
-                    
-    getNextHexagonPoint: function(hexagonIDs, hexagonPoint) {
-        for (var i = hexagonIDs.length - 1; i >= 0; i--) {
-                        
-        } 
-    },
 });
+*/
+// BELOW THIS POINT ONLY VERY OLD STUFF
 
-// BELOW THIS POINT ONLY OLD STUFF
 var Triangle = new Class({
     vertex: new Array(new Point(), new Point(), new Point()),
     neighbors: new Array(),
@@ -617,7 +622,7 @@ function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCou
     return returnValue;
 }
 
-function isDefined( variable)
+function isDefined(variable)
 {
     return (typeof(variable) == "undefined")?  false: true;
 }
