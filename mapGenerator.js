@@ -74,6 +74,32 @@ var Map = new Class({
         }
         
         return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+    },
+    
+    holeChecker: function(hexagon, maximumHoleSize) {
+        var freeHexagons = new Array();
+        
+        freeHexagons.push(hexagon);
+        
+        for (var i = 0; i < freeHexagons.length; i++) {
+            if (freeHexagons.length >= maximumHoleSize)
+                return false;
+            
+            for (var j = 0; j < freeHexagons[i].neighbors.length; j++) {
+                if (!this.usedHexagons.contains(freeHexagons[i].neighbors[j])) {
+                    freeHexagons.include(freeHexagons[i].neighbors[j]);
+                }
+            }
+        }
+        
+        if (freeHexagons.length >= maximumHoleSize)
+            return false;
+        else
+        {
+            this.usedHexagons.combine(freeHexagons);
+            return true;  
+        }
+        
     }
 });
 
