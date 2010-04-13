@@ -73,7 +73,10 @@ var Map = new Class({
                 possibleNeighbors.push(allNeighbors[i]);
         }
         
-        return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+        if (possibleNeighbors.length > 0)
+            return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+        else
+            return false;
     },
     
     holeChecker: function(hexagon, maximumHoleSize) {
@@ -97,12 +100,43 @@ var Map = new Class({
         else
         {
             this.usedHexagons.combine(freeHexagons);
-            return true;  
+            return true;
+        }
+    },
+    
+    generateCountry: function(ID, neighborCountry, size, maximumHoleSize) {
+        var country = new Country();
+        var startHexagon;
+        country.ID = ID;
+        
+        if (size > maximumHoleSize)
+            maximumHoleSize = size;
+        
+        do {
+            startHexagon = this.getRandomNeighborHexagon(neighborCountry);
+            
+            // FIXME: Error handling, where and how should that happen?
+            if (!startHexagon)
+                log.error('Country has no free neighbor hexagons!');
+        } while(this.holeChecker(startHexagon, maximumHoleSize))
+        
+        country.hexagons.push(startHexagon);
+        this.usedHexagons.push(startHexagon);
+        
+        for (var i = 0; i < size - 1; i++) {
+            var newHexagon = this.getRandomNeighborHexagon(country);
+            country.hexagons.push(newHexagon);
+            this.usedHexagons.push(newHexagon);
         }
         
+        return country;
     }
 });
 
+function rand(minimum, maximum)
+{
+    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+}
 
 // BELOW THIS POINT ONLY OLD STUFF
 /*
