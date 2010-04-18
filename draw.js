@@ -46,5 +46,14 @@ function drawCountry(hexagons, hexagonIDs, color)
     }
 }
 
+function drawLines(lines)
+{       
+    for (var i = 0; i < lines.length; i++) {
+        var line = "M " + lines[i].points[0].x + " " + lines[i].points[0].y;
+        line += "L " + lines[i].points[1].x + " " + lines[i].points[1].y;
+        line = map.path(line);
+    }
+}
+
 
 
