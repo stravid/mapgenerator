@@ -317,8 +317,11 @@ var Map = new Class({
                 startHexagon = this.getRandomNeighborHexagon(neighborCountry);
                 
                 // FIXME: Error handling, where and how should that happen?
-                if (!startHexagon)
-                    log.error('Country has no free neighbor hexagons!');
+                if (!startHexagon) {
+                    console.error('Country has no free neighbor hexagons!');
+                    return null;   
+                }
+                
             } while(this.holeChecker(startHexagon, maximumHoleSize))
         }
         else
