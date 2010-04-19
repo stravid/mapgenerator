@@ -23,6 +23,8 @@ var Hexagon = new Class({
         this.lines.push(lineD);
         this.lines.push(lineE);
         this.lines.push(lineF);
+        
+        this.used = false;
     },
     lines: new Array(),
     neighbors: new Array(),
@@ -268,8 +270,10 @@ var Map = new Class({
         var allNeighbors = country.getNeighborHexagons();
         
         for (var i = 0; i < allNeighbors.length; i++) {
-            if (!this.usedHexagons.contains(allNeighbors[i]))
+            if (!allNeighbors[i].used)
                 possibleNeighbors.push(allNeighbors[i]);
+            //if (!this.usedHexagons.contains(allNeighbors[i]))
+                
         }
         
         if (possibleNeighbors.length > 0)
@@ -325,12 +329,14 @@ var Map = new Class({
         }
         else
             startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
-            
+          
+        startHexagon.used = true;    
         country.hexagons.push(startHexagon);
         this.usedHexagons.push(startHexagon);
         
         for (var i = 0; i < size - 1; i++) {
             var newHexagon = this.getRandomNeighborHexagon(country);
+            newHexagon.used = true;
             country.hexagons.push(newHexagon);
             this.usedHexagons.push(newHexagon);
         }
