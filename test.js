@@ -23,7 +23,7 @@ function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
     console.log(getPossibleNeighbors(testCountry, triangles));
 }
 
-var m = new Map(500, 250, 50);
+var m = new Map(500, 250, 10);
 m.generateHexagonArray();
 m.normalGenerator(3, 0.3, 1);
 
