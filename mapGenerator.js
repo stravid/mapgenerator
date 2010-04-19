@@ -23,6 +23,8 @@ var Hexagon = new Class({
         this.lines.push(lineD);
         this.lines.push(lineE);
         this.lines.push(lineF);
+        
+        this.used = false;
     },
     lines: new Array(),
     neighbors: new Array(),
@@ -271,8 +273,10 @@ var Map = new Class({
         var allNeighbors = country.getNeighborHexagons();
         
         for (var i = 0; i < allNeighbors.length; i++) {
-            if (!this.usedHexagons.contains(allNeighbors[i]))
+            if (!allNeighbors[i].used)
                 possibleNeighbors.push(allNeighbors[i]);
+            //if (!this.usedHexagons.contains(allNeighbors[i]))
+                
         }
         
         if (possibleNeighbors.length > 0)
@@ -319,18 +323,23 @@ var Map = new Class({
                 startHexagon = this.getRandomNeighborHexagon(neighborCountry);
                 
                 // FIXME: Error handling, where and how should that happen?
-                if (!startHexagon)
-                    log.error('Country has no free neighbor hexagons!');
+                if (!startHexagon) {
+                    console.error('Country has no free neighbor hexagons!');
+                    return null;   
+                }
+                
             } while(this.holeChecker(startHexagon, maximumHoleSize))
         }
         else
             startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
-            
+          
+        startHexagon.used = true;    
         country.hexagons.push(startHexagon);
         this.usedHexagons.push(startHexagon);
         
         for (var i = 0; i < size - 1; i++) {
             var newHexagon = this.getRandomNeighborHexagon(country);
+            newHexagon.used = true;
             country.hexagons.push(newHexagon);
             this.usedHexagons.push(newHexagon);
         }
@@ -339,7 +348,7 @@ var Map = new Class({
     },
     
     normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-        var averageCountrySize = parseInt(this.hexagons.length * 0.75 / numberOfCountries);        
+        var averageCountrySize = parseInt(this.hexagons.length * 0.65 / numberOfCountries);        
         
         console.info('Average Country Size: ' + averageCountrySize);
         
@@ -354,15 +363,13 @@ var Map = new Class({
             console.info('Size of Country #' + i + ': ' + countrySize);
             
             if (this.countries.length > 0) {
-                this.countries.push(this.generateCountry(i, this.countries[i - 1], countrySize, maximumHoleSize));
+                var globalCountry = new Country();
+                globalCountry.hexagons = this.usedHexagons;
+                this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
             }
-            else
-                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));
-            
+            else 
+                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
         }
-        
-        //this.countries.push(this.generateCountry(1, null, 5, 3));
-        //this.countries.push(this.generateCountry(1, this.countries[0], 5, 3));
     }
 });
 
