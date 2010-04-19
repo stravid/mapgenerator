@@ -23,123 +23,9 @@ function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
     console.log(getPossibleNeighbors(testCountry, triangles));
 }
 
-function holeTest()
-{
-    var triangles = generateTriangleArray(100, 100, 5);
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[0].countryID = -1;
-    triangles[1].countryID = -1;
-    triangles[2].countryID = -1;
-    triangles[3].countryID = -1;
-    triangles[4].countryID = -1;
-    triangles[5].countryID = -1;
-
-    console.log('false = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[0].countryID = -1;
-    triangles[1].countryID = -1;
-    triangles[2].countryID = -1;
-
-    console.log('false = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[0].countryID = -1;
-    triangles[1].countryID = -1;
-
-    console.log('true = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = -1;
-    }
-
-    console.log('false = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[0].countryID = -1;
-    triangles[1].countryID = -1;
-    triangles[2].countryID = 1;
-    triangles[11].countryID = 2;
-
-    console.log('true = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[0].countryID = -1;
-    triangles[1].countryID = -1;
-    triangles[2].countryID = -1;
-    triangles[3].countryID = 2;
-    triangles[11].countryID = 2;
-
-    console.log('false = ' + blupp(0, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[3].countryID = 1;
-    triangles[12].countryID = 1;
-    triangles[14].countryID = 1;
-    triangles[15].countryID = 1;
-    triangles[16].countryID = 1;
-    triangles[17].countryID = 1;
-    triangles[5].countryID = 1;
-
-    console.log('true = ' + blupp(13, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[3].countryID = 1;
-    triangles[12].countryID = 1;
-    triangles[15].countryID = 1;
-    triangles[16].countryID = 1;
-    triangles[17].countryID = 1;
-    triangles[5].countryID = 1;
-
-    console.log('true = ' + blupp(13, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[3].countryID = 1;
-    triangles[12].countryID = 1;
-    triangles[16].countryID = 1;
-    triangles[17].countryID = 1;
-    triangles[5].countryID = 1;
-
-    console.log('true = ' + blupp(13, 3, triangles));
-    
-    for (var i = 0; i < triangles.length; i++) {
-        triangles[i].countryID = 1;
-    }
-    
-    triangles[3].countryID = 1;
-    triangles[12].countryID = 1;
-    triangles[17].countryID = 1;
-    triangles[5].countryID = 1;
-
-    console.log('false = ' + blupp(13, 3, triangles));
-}
-
-var m = new Map(800, 400, 10);
+var m = new Map(500, 250, 50);
+m.generateHexagonArray();
+m.normalGenerator(3, 0.3, 1);
 
 window.addEvent('domready', function() {
     //m.generateHexagonArray();
@@ -151,4 +37,18 @@ function draw()
     for (var i = 0; i < m.countries.length; i++) {
         drawCountry(m.hexagons, m.countries[i].elements);
     }
+}
+
+function myDraw()
+{
+    drawLines(m.lines, '#cccccc');
+    
+    for (var i = 0; i < m.countries[0].hexagons.length; i++) {
+        drawLines(m.countries[0].hexagons[i].lines, '#ff0000');
+    }
+    
+    for (var i = 0; i < m.countries[1].hexagons.length; i++) {
+        drawLines(m.countries[1].hexagons[i].lines, '#00ff00');
+    }
+    
 }

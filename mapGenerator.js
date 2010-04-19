@@ -311,15 +311,19 @@ var Map = new Class({
         
         if (size > maximumHoleSize)
             maximumHoleSize = size;
-        
-        do {
-            startHexagon = this.getRandomNeighborHexagon(neighborCountry);
             
-            // FIXME: Error handling, where and how should that happen?
-            if (!startHexagon)
-                log.error('Country has no free neighbor hexagons!');
-        } while(this.holeChecker(startHexagon, maximumHoleSize))
-        
+        if (neighborCountry != null) {
+            do {
+                startHexagon = this.getRandomNeighborHexagon(neighborCountry);
+                
+                // FIXME: Error handling, where and how should that happen?
+                if (!startHexagon)
+                    log.error('Country has no free neighbor hexagons!');
+            } while(this.holeChecker(startHexagon, maximumHoleSize))
+        }
+        else
+            startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
+            
         country.hexagons.push(startHexagon);
         this.usedHexagons.push(startHexagon);
         
@@ -330,6 +334,27 @@ var Map = new Class({
         }
         
         return country;
+    },
+    
+    normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
+        var averageCountrySize = parseInt(this.hexagons.length * 0.75 / numberOfCountries);        
+        
+        console.info('Average Country Size: ' + averageCountrySize);
+        
+        for (var i = 0; i < numberOfCountries; i++) {
+            if (rand(0, 1) == 1)
+                var sign = 1;
+            else
+                var sign = -1;
+                
+            var countrySize = (averageCountrySize + rand(0, averageCountrySize * countrySizeVariance) * sign);
+            
+            console.info('Size of Country #' + i + ': ' + countrySize);
+            
+        }
+        
+        this.countries.push(this.generateCountry(1, null, 5, 3));
+        this.countries.push(this.generateCountry(1, this.countries[0], 5, 3));
     }
 });
 
