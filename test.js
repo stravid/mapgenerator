@@ -23,7 +23,9 @@ function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
     console.log(getPossibleNeighbors(testCountry, triangles));
 }
 
-var m = new Map(800, 400, 10);
+var m = new Map(500, 250, 50);
+m.generateHexagonArray();
+m.normalGenerator(3, 0.3, 1);
 
 window.addEvent('domready', function() {
     //m.generateHexagonArray();
@@ -35,4 +37,18 @@ function draw()
     for (var i = 0; i < m.countries.length; i++) {
         drawCountry(m.hexagons, m.countries[i].elements);
     }
+}
+
+function myDraw()
+{
+    drawLines(m.lines, '#cccccc');
+    
+    for (var i = 0; i < m.countries[0].hexagons.length; i++) {
+        drawLines(m.countries[0].hexagons[i].lines, '#ff0000');
+    }
+    
+    for (var i = 0; i < m.countries[1].hexagons.length; i++) {
+        drawLines(m.countries[1].hexagons[i].lines, '#00ff00');
+    }
+    
 }
