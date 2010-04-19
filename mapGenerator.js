@@ -7,27 +7,107 @@ var Point = new Class({
     y: 0    
 });
 
-var Hexagon = new Class({
-    points = new Array(),
-    neighbors = new Array()
+var Line = new Class({
+    initialize: function(pointA, pointB) {
+        this.points.push(pointA);
+        this.points.push(pointB);
+    },
+    points: new Array(),
 });
 
 var Hexagon = new Class({
-    lines = new Array(),
-    neighbors = new Array(),
-    outline = new Array()
+    initialize: function(lineA, lineB, lineC, lineD, lineE, lineF) {
+        this.lines.push(lineA);
+        this.lines.push(lineB);
+        this.lines.push(lineC);
+        this.lines.push(lineD);
+        this.lines.push(lineE);
+        this.lines.push(lineF);
+    },
+    lines: new Array(),
+    neighbors: new Array(),
+    outline: new Array()
 });
 
 var Country = new Class({
-    hexagons = new Array(),
-    neighbors = new Array(),
-    outline = new Array()
+    hexagons: new Array(),
+    neighbors: new Array(),
+    outline: new Array(),
+    
+    getNeighborHexagons: function() {
+        var allHexagons = new Array();
+        
+        for (var i = 0; i < this.hexagons.length; i++) {
+            allHexagons = allHexagons.combine(this.hexagons[i].neighbors);
+        }
+        
+        var neighborHexagons = new Array();
+        
+        for (var i = 0; i < allHexagons.length; i++) {
+            if (!this.hexagons.contains(allHexagons[i]))
+                neighborHexagons.push(allHexagons[i]);
+        }
+        
+        return neighborHexagons;
+    },
+    
+    generateOutline: function() {
+        
+        // lineArray containing only outlines
+        var outLines = new Array();
+        
+        for (var i = 0; i < this.hexagons.length; i++) {
+            for (var j = 0; j < 6; j++) {
+                var line = this.hexagons[i].lines[j];
+                if (outLines.contains(line))
+                    outLines = outLines.erase(line);
+                else
+                    outLines.push(line);
+            }
+        }
+        
+        // getting top left line
+        var line = outLines.getLast();
+        
+        for (var i = 0; i < outLines.length; i++) {
+            if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+                line = outLines[i];
+            else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
+                if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
+                    line = outLines[i];
+            }
+        }
+        
+        // creating the outline
+        this.outline.push(line.points[0]);
+        this.outline.push(line.points[1]);
+        outLines = outLines.erase(line);
+        var startPoint = line.points[0];
+        var point = line.points[1];
+        
+        while (startPoint != point) {
+            for (var i = 0; i < outLines.length; i++) {
+                var a = 0, b = 1;
+                
+                if (outLines[i].points[a] == point) {
+                    point = outLines[i].points[b];
+                    this.outline.push(outLines[i].points[b]);
+                    outLines = outLines.erase(outLines[i]);
+                }
+                else if (outLines[i].points[b] == point) {
+                    point = outLines[i].points[a];
+                    this.outline.push(outLines[i].points[a]);
+                    outLines = outLines.erase(outLines[i]);
+                }
+            }
+        }
+    }
 });
 
 var Region = new Class({
-    countries = new Array(),
-    neighbors = new Array()
-    outline = new Array(),
+    countries: new Array(),
+    neighbors: new Array(),
+    outline: new Array()
 });
 
 var Map = new Class({
@@ -39,18 +119,258 @@ var Map = new Class({
     regions: new Array(),
     width: 0,
     height: 0,
-    hexagonSize:0,
+    hexagonSize: 0,
                     
     initialize: function(width, height, hexagonSize) {
         this.width = width;
         this.height = height;
         this.hexagonSize = hexagonSize;
+    },
+    
+    generateHexagonArray: function() {
+        var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
+        var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
+        var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+        
+        // pointArray
+        for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
+            for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+                
+                var x, y;
+                
+                x = column * hexagonWidth;
+                if ((row % 2) == 1)
+                    y = row * this.hexagonSize * 0.75;
+                else
+                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                this.points.push(new Point(x, y));
+                    
+                x = (column + 0.5) * hexagonWidth;
+                if ((row % 2) == 1)
+                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                else
+                    y = row * this.hexagonSize * 0.75;
+                this.points.push(new Point(x, y));
+            }
+        }
+        
+        // lineArray
+        for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
+            var number = numberOfHexagonsInARow * 2 + 2;
+            
+            for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
+                var pointA, pointB;
+                pointA = this.points[(row * number) + column];
+                pointB = this.points[(row * number) + column + 1];
+                this.lines.push(new Line(pointA, pointB));
+            }
+            
+            if (row < numberOfHexagonsInAColumn) {
+                var oddrow = 0;
+                if ((row % 2) == 1)
+                    oddrow = 1;
+                
+                for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+                    var pointA, pointB;
+                    pointA = this.points[(row * number) + column * 2 + oddrow];
+                    pointB = this.points[((row + 1) * number) + column * 2 + oddrow];
+                    this.lines.push(new Line(pointA, pointB));
+                }
+            }
+        }
+        
+        // hexagonArray
+        var linesPerRow = numberOfHexagonsInARow * 3 + 2;
+        
+        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
+            var oddrow = 0;
+            if ((row % 2) == 1)
+                oddrow = 1;
+                
+            for (var column = 0; column < numberOfHexagonsInARow; column++) {
+                
+                var number = linesPerRow * row + column * 2 + oddrow;
+                var lineA = this.lines[number];
+                var lineB = this.lines[number+1];
+                
+                number = linesPerRow * row + (numberOfHexagonsInARow * 2 + 1) + column;
+                var lineC = this.lines[number];
+                var lineD = this.lines[number+1];
+                
+                number = linesPerRow * (row + 1) + column * 2 + oddrow;
+                var lineE = this.lines[number];
+                var lineF = this.lines[number+1];
+                
+                this.hexagons.push(new Hexagon(lineA, lineB, lineD, lineF, lineE, lineC));
+            }
+        }
+        
+        // hexagonNeighbors
+        var leftBorder = true;
+        var topBorder = true;
+        var rightBorder = false;
+        var bottomBorder = false;
+        var index = 0;
+        
+        for (var i = 0; i < numberOfHexagonsInAColumn; i++) {
+            leftBorder = true;
+            
+            if (i == (numberOfHexagonsInAColumn - 1))
+                bottomBorder = true;
+            
+            for (var j = 0; j < numberOfHexagonsInARow; j++) {
+                if (j == (numberOfHexagonsInARow - 1))
+                    rightBorder = true;
+                
+                if (!leftBorder)
+                    this.hexagons[index].neighbors.push(this.hexagons[index - 1]);
+                
+                if (!rightBorder)
+                    this.hexagons[index].neighbors.push(this.hexagons[index + 1]);
+                    
+                if (!topBorder) {
+                    this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                    if ((i % 2) == 1) {
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 - numberOfHexagonsInARow]);
+                    } else {
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 - numberOfHexagonsInARow]);
+                    }
+                }
+                
+                if (!bottomBorder) {
+                    this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                    if ((i % 2) == 1) {
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
+                    } else {
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 + numberOfHexagonsInARow]);
+                    }
+                }
+                    
+                if (leftBorder)
+                    leftBorder = false;
+                else if (rightBorder)
+                    rightBorder = false;
+                    
+                index++;
+            }
+            
+            if (topBorder)
+                topBorder = false;
+        }
+    },
+    
+    getRandomNeighborHexagon: function(country) {
+        var possibleNeighbors = new Array();
+        var allNeighbors = country.getNeighborHexagons();
+        
+        for (var i = 0; i < allNeighbors.length; i++) {
+            if (!this.usedHexagons.contains(allNeighbors[i]))
+                possibleNeighbors.push(allNeighbors[i]);
+        }
+        
+        if (possibleNeighbors.length > 0)
+            return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+        else
+            return false;
+    },
+    
+    holeChecker: function(hexagon, maximumHoleSize) {
+        var freeHexagons = new Array();
+        
+        freeHexagons.push(hexagon);
+        
+        for (var i = 0; i < freeHexagons.length; i++) {
+            if (freeHexagons.length >= maximumHoleSize)
+                return false;
+            
+            for (var j = 0; j < freeHexagons[i].neighbors.length; j++) {
+                if (!this.usedHexagons.contains(freeHexagons[i].neighbors[j])) {
+                    freeHexagons.include(freeHexagons[i].neighbors[j]);
+                }
+            }
+        }
+        
+        if (freeHexagons.length >= maximumHoleSize)
+            return false;
+        else
+        {
+            this.usedHexagons.combine(freeHexagons);
+            return true;
+        }
+    },
+    
+    generateCountry: function(ID, neighborCountry, size, maximumHoleSize) {
+        var country = new Country();
+        var startHexagon;
+        country.ID = ID;
+        
+        if (size > maximumHoleSize)
+            maximumHoleSize = size;
+            
+        if (neighborCountry != null) {
+            do {
+                startHexagon = this.getRandomNeighborHexagon(neighborCountry);
+                
+                // FIXME: Error handling, where and how should that happen?
+                if (!startHexagon) {
+                    console.error('Country has no free neighbor hexagons!');
+                    return null;   
+                }
+                
+            } while(this.holeChecker(startHexagon, maximumHoleSize))
+        }
+        else
+            startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
+            
+        country.hexagons.push(startHexagon);
+        this.usedHexagons.push(startHexagon);
+        
+        for (var i = 0; i < size - 1; i++) {
+            var newHexagon = this.getRandomNeighborHexagon(country);
+            country.hexagons.push(newHexagon);
+            this.usedHexagons.push(newHexagon);
+        }
+        
+        return country;
+    },
+    
+    normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
+        var averageCountrySize = parseInt(this.hexagons.length * 0.65 / numberOfCountries);        
+        
+        console.info('Average Country Size: ' + averageCountrySize);
+        
+        for (var i = 0; i < numberOfCountries; i++) {
+            if (rand(0, 1) == 1)
+                var sign = 1;
+            else
+                var sign = -1;
+                
+            var countrySize = (averageCountrySize + rand(0, averageCountrySize * countrySizeVariance) * sign);
+            
+            console.info('Size of Country #' + i + ': ' + countrySize);
+            
+            if (this.countries.length > 0) {
+                var globalCountry = new Country();
+                globalCountry.hexagons = this.usedHexagons;
+                this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
+            }
+            else 
+                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
+        }
     }
 });
 
+function rand(minimum, maximum)
+{
+    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+}
 
 // BELOW THIS POINT ONLY OLD STUFF
-
+/*
 var Shape = new Class({
     elements: new Array(),
     ID: -1,
@@ -94,7 +414,8 @@ var Map = new Class({
     regions: new Array(),
     width: 0,
     height: 0,
-    hexagonSize:0,
+    hexagonSize: 0,
+    holeCounter: 0,
                     
     initialize: function(width, height, hexagonSize) {
         this.width = width;
@@ -173,7 +494,9 @@ var Map = new Class({
             return false;
         else
         {
-            console.warn('Hexagon is in a hole!');
+            //console.warn('Hexagon is in a hole!');
+            this.usedHexagons.combine(freeNeighbors);
+            this.holeCounter++;
             return true;  
         }
             
@@ -190,9 +513,12 @@ var Map = new Class({
         var realNeighbors = new Array();
         
         for (var i = 0; i < possibleNeighbors.length; i++) {
-            if (this.hexagons[possibleNeighbors[i]].countryID == -1)
+            // if (this.hexagons[possibleNeighbors[i]].countryID == -1 && !this.usedHexagons.contains(possibleNeighbors[i]))
+            if (!this.usedHexagons.contains(possibleNeighbors[i]))
                 realNeighbors.push(possibleNeighbors[i]);
         }
+        
+        
         
         if (realNeighbors.length > 0)
             return realNeighbors;
@@ -212,7 +538,7 @@ var Map = new Class({
         
         nextStartID = rand(0, this.unusedHexagons.length - 1);
         
-        while (this.unusedHexagons.length > maximumHoleSize * factor) {
+        while (this.hexagons.length - (this.usedHexagons.length + 250) > maximumHoleSize * factor) {
             holeFails = 0;
             console.log('new country index: ' + countryCounter);
             if (countryCounter > 0) {
@@ -221,20 +547,20 @@ var Map = new Class({
                 var freeNeighbors = this.getFreeNeighborHexagons(collectionCountry);
                 
                 if (!freeNeighbors) {
-                    console.error('Big Fail');
+                    console.error('Big Fail 1');
                     return;
                 }
                 
                 do {
                     holeFails++;
                     
-                    if (holeFails > 10) {
-                        console.error('only holes?!');
-                        return;
+                    if (holeFails > 20) {
+                        console.error('only holes?! ONE' + countryCounter);
+                        return false;
                     }
                     
                     nextStartID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
-                } while (this.isHexagonInAHole(nextStartID, maximumHoleSize))
+                } while (this.isHexagonInAHole(nextStartID, maximumHoleSize + 1))
             }
             holeFails = 0;
             this.countries.push(new Country());
@@ -245,23 +571,30 @@ var Map = new Class({
             this.hexagons[nextStartID].countryID = countryCounter;
             console.log('new start hex:' + nextStartID);
             
-            var numberOfHexagons = countrySize - rand(0, countrySizeVariance);
+            if (rand(0, 1) == 1)
+                var f = 1;
+            else
+                var f = -1;
+                
+            var numberOfHexagons = (countrySize + rand(0, countrySizeVariance) * f);
             
             for (var i = 0; i < numberOfHexagons; i++) {
                 var freeNeighbors = this.getFreeNeighborHexagons(this.countries[countryCounter]);
                 var newHexagonID = freeNeighbors[rand(0, freeNeighbors.length - 1)];
                 
                 if (!freeNeighbors) {
-                    console.error('Big Fail');
+                    console.log(numberOfHexagons);
+                    console.error('Big Fail 2');
                     return;
                 }
                 
-                if (this.isHexagonInAHole(newHexagonID, maximumHoleSize)) {
+                // if (this.isHexagonInAHole(newHexagonID, maximumHoleSize + 1)) {
+                if (false) {
                     holeFails++;
                     
-                    if (holeFails > 10) {
-                        console.error('only holes?!');
-                        return;
+                    if (holeFails > 20) {
+                        console.error('only holes?! TWO' + countryCounter);
+                        continue;
                     }
                     i--;
                 }
@@ -270,7 +603,7 @@ var Map = new Class({
                     this.unusedHexagons.splice(this.unusedHexagons.indexOf(newHexagonID), 1);
                     this.usedHexagons.push(newHexagonID);
                     this.hexagons[newHexagonID].countryID = countryCounter;
-                    console.log('new country hex:' + newHexagonID);
+                    //console.log('new country hex:' + newHexagonID);
                 }
             }
 
@@ -340,275 +673,88 @@ var Map = new Class({
         }
     },
 });
-
-var Triangle = new Class({
-    vertex: new Array(new Point(), new Point(), new Point()),
-    neighbors: new Array(),
-    countryID: -1
-});
-
-function setNeighbors(triangles, numberOfTrianglesInARow)
-{
-    var leftBorder = true;
-    var topBorder = true;
-    var rightBorder = false;
-    var bottomBorder = false;    
-    var rows = triangles.length / numberOfTrianglesInARow;
-    var index = 0;
+*/
+/*
+// lineNeighbors
+for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
     
-    for (var i = 0; i < rows; i++) {
-        leftBorder = true;
+    var oddrow = 0;
+    if ((row % 2) == 1)
+        oddrow = 1;
+    
+    for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
+        var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + column;
+        var neighborLine;
         
-        if (i == (rows - 1))
-                bottomBorder = true;
-                
-        for (var j = 0; j < numberOfTrianglesInARow; j++) {
-            if (j == (numberOfTrianglesInARow - 1))
-                rightBorder = true;
+        if (column != 0) {
+            neighborLine = lineNumber - 1;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        
+        if ((row % 2) == 0) {
+            if (column != 0) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        if ((row % 2) == 1) {
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            if (column != numberOfHexagonsInARow) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
             
-            if (!leftBorder)
-                triangles[index].neighbors.push(index - 1);
+        if (column != numberOfHexagonsInARow) {
+            neighborLine = lineNumber + 1;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        
+        if ((row % 2) == 0 && ) {
+            if ((column % 2) == 0) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            } else {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
+        if ((row % 2) == 1) {
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            if (column != numberOfHexagonsInARow) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
+    }
+    
+    if (row < numberOfHexagonsInAColumn) {
+        for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+            var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + numberOfHexagonsInARow * 2 + 1 + column;
             
-            if (!rightBorder)
-                triangles[index].neighbors.push(index + 1);
+            var neighborLine;
             
-            if ((i % 2) == 1) {
-                if ((index % 2) == 1) {
-                    if (!topBorder)
-                        triangles[index].neighbors.push((i - 1) * numberOfTrianglesInARow + j);
+            if ((row % 2) == 0) {
+                if (column != 0) {
+                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
                 }
-                else {
-                    if (!bottomBorder)
-                        triangles[index].neighbors.push((i + 1) * numberOfTrianglesInARow + j);
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+            if ((row % 2) == 1) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+                if (column != numberOfHexagonsInARow) {
+                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
                 }
             }
-            else {
-                if ((index % 2) == 1) {
-                    if (!bottomBorder)
-                        triangles[index].neighbors.push((i + 1) * numberOfTrianglesInARow + j);
-                }
-                else {
-                    if (!topBorder)
-                        triangles[index].neighbors.push((i - 1) * numberOfTrianglesInARow + j);
-                }
-            }
-            
-            if (leftBorder)
-                leftBorder = false;
-            else if (rightBorder)
-                rightBorder = false;
-        
-            index++;
-        }
-        
-        if (topBorder)
-            topBorder = false;        
-    }
-    
-    return triangles;
-}
-
-function generateTriangleArray(mapWidth, mapHeight, numberOfTrianglesInARow)
-{
-    var triangleWidth = parseInt(mapWidth / numberOfTrianglesInARow);
-    var triangleHeight = Math.sqrt(triangleWidth * triangleWidth - (triangleWidth * triangleWidth)/4 );
-    var numberOfTrianglesInAColumn = parseInt(mapHeight / triangleHeight);
-    var numberOfTriangles = numberOfTrianglesInAColumn * numberOfTrianglesInARow;
-    var triangles = new Array();
-        
-    for (var row = 0; row < numberOfTrianglesInAColumn; row++) {
-        for (var column = 0; column < numberOfTrianglesInARow * 2; column++) {
-            var tempTriangle = new Triangle();
-            
-            if ((row % 2) == (column % 2)) {
-                tempTriangle.vertex[0].x = (column / 2) * triangleWidth;
-                tempTriangle.vertex[0].y = row * triangleHeight;
-                tempTriangle.vertex[1].x = ((column / 2) + 1) * triangleWidth;
-                tempTriangle.vertex[1].y = row * triangleHeight;
-                tempTriangle.vertex[2].x = (column / 2) * triangleWidth + triangleWidth / 2;
-                tempTriangle.vertex[2].y = (row + 1) * triangleHeight;
-            }
-            else {
-                tempTriangle.vertex[0].x = (column / 2) * triangleWidth;
-                tempTriangle.vertex[0].y = (row + 1) * triangleHeight;
-                tempTriangle.vertex[1].x = (column / 2) * triangleWidth + triangleWidth / 2;
-                tempTriangle.vertex[1].y = row * triangleHeight;
-                tempTriangle.vertex[2].x = ((column / 2) + 1) * triangleWidth;
-                tempTriangle.vertex[2].y = (row + 1) * triangleHeight;
-            }
-            
-            triangles.push(tempTriangle);
         }
     }
-    
-    triangles = setNeighbors(triangles, numberOfTrianglesInARow * 2);
-    
-    return triangles;    
 }
-
-function generateMap(triangles, numberOfPlayers)
-{
-    var numberOfTriangles = triangles.length;
-    var countriesPerPlayer = 10;
-    var averageAmountOfTrianglesPerCountry = numberOfTriangles / (numberOfPlayers * countriesPerPlayer) * 2 / 3;
-    var usedTriangles = new Array();
-    var countries = new Array();
-    
-    var startID = rand(0, numberOfTriangles - 1);    
-    
-    /*
-    do {
-        var startID = rand(0, numberOfTriangles - 1);    
-    }while (!isValidStartID(startID, triangles));
-*/    
-    
-    
-    for (var countryID = 0; countryID < countriesPerPlayer * numberOfPlayers; countryID++) {
-        var tempCountry = new Country();
-        tempCountry.ID = countryID;
-        var tempTriangles = triangles;
-        var tempUsedTriangles = usedTriangles;
-        
-        if (countryID != 0) {
-            var global = new Country();
-            var usedTrianglesLength = usedTriangles.length;
-            for (var i = 0; i < usedTrianglesLength; i++) {
-                global.triangleIDs.push(usedTriangles[i]);
-            }
-            var possibleNeighbors = getPossibleNeighbors(global, triangles);
-            var startID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
-            
-            if (isTriangleInAHole(triangles, startID, averageAmountOfTrianglesPerCountry)) {
-                countryID--;
-                // console.warn('triangle is in hole');
-                continue;
-            }
-        }
-        
-        usedTriangles.push(startID);
-        tempCountry.triangleIDs.push(startID);
-        tempCountry.trianglesInCountry.push(triangles[startID]);
-        triangles[startID].countryID = countryID;
-        
-        var difference = rand(0, averageAmountOfTrianglesPerCountry / 2);
-        for (var i = 0; i < averageAmountOfTrianglesPerCountry - difference; i++) {
-            var possibleNeighbors = getPossibleNeighbors(tempCountry, triangles);
-            // this should not happen at any time
-            if (possibleNeighbors.length == 0) {
-                console.error('Something FAILED');
-                return 'fail';
-            }
-            
-            do {
-                var nextID = possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
-            } while(usedTriangles.contains(nextID))
-            usedTriangles.push(nextID);
-            triangles[nextID].countryID = countryID;
-            tempCountry.triangleIDs.push(nextID);
-            tempCountry.trianglesInCountry.push(triangles[nextID]);
-        }
-        
-        countries.push(tempCountry);
-        drawCountry(tempCountry.trianglesInCountry);
-    }
-    
-    return countries;
-}
-
-function isValidStartID(startID, triangles)
-{
-    // TODO
-    return true;
-}
-
-function getPossibleNeighbors(country, triangles)
-{
-    var possibleNeighbors = new Array();
-    var amountOfTrianglesInCountry = country.triangleIDs.length;
-    
-    for (var i = 0; i < amountOfTrianglesInCountry; i++) {
-        var triangleIndex = country.triangleIDs[i];
-        var currentNeighbors = triangles[triangleIndex].neighbors;
-        var amountOfNeighbors = currentNeighbors.length;
-        
-        for (var j = 0; j < amountOfNeighbors; j++) {
-            if (triangles[currentNeighbors[j]].countryID == -1)
-                possibleNeighbors.push(triangles[triangleIndex].neighbors[j]);
-        }
-    }
-    
-    if (possibleNeighbors.length == 0) {
-        console.log(country);
-    }
-    return possibleNeighbors;
-}
-
-function rand(minimum, maximum)
-{
-    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-}
-
-function isTriangleInAHole(triangles, triangleID, averageAmountOfTrianglesPerCountry)
-{
-    var takenNeighbors = new Array();
-    var freeNeighbors = new Array();
-    if (!isDefined(triangleID))
-        console.warn('FAIL BOY');
-    freeNeighbors.push(triangleID);
-    var freeNeighborsCounter = 1;
-    var i = 0;
-    var addedNewFreeNeighbor = true;
-    var length;
-    
-    while (freeNeighborsCounter < averageAmountOfTrianglesPerCountry && addedNewFreeNeighbor) {
-        addedNewFreeNeighbor = false;
-        length = freeNeighbors.length;
-        if (!isDefined(triangles[freeNeighbors[i]])) {
-            console.log('index:' + i);
-            console.log(freeNeighbors[i]);
-        }
-        for (i; i < length; i++) {
-            for (var j = 0; j < triangles[freeNeighbors[i]].neighbors.length; j++) {
-                var id = triangles[freeNeighbors[i]].neighbors[j];
-                
-                if (triangles[id].countryID == -1) {
-                    if (!freeNeighbors.contains(id)) {
-                        freeNeighborsCounter++;
-                        freeNeighbors.push(id);
-                        addedNewFreeNeighbor = true;
-                    }
-                }
-                else
-                    takenNeighbors.push(triangles[id].countryID);
-            }
-        }
-    }
-    
-    var returnValue;
-    var enoughNeighbors = false;
-    
-    if (freeNeighborsCounter >= averageAmountOfTrianglesPerCountry) {
-        returnValue = false;
-        enoughNeighbors = true;
-    }
-    else {
-        var firstElement = takenNeighbors[0];
-        
-        for (var i = 0; i < takenNeighbors.length; i++) {
-            if (firstElement != takenNeighbors[i])
-                returnValue = false;
-        }
-        
-        returnValue = true;
-    }
-    
-
-    
-    return returnValue;
-}
-
-function isDefined( variable)
-{
-    return (typeof(variable) == "undefined")?  false: true;
-}
-
+*/

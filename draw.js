@@ -20,9 +20,10 @@ function toHex(dec) {
 
 function initMap()
 {
-    map = Raphael("map", 1000, 500);
+    map = Raphael("map", 1600, 600);
 }
 
+/*
 function drawCountry(hexagons, hexagonIDs, color)
 {   
     if (!isDefined(color)) {
@@ -43,6 +44,32 @@ function drawCountry(hexagons, hexagonIDs, color)
         line = map.path(line);
         line.attr("stroke", color);
         line.attr("fill", color);
+    }
+}*/
+
+function drawCountry(points, color) {
+    
+    if (!$defined(color)) {
+        var color = "#"+toHex(rand(0,255));
+        color += toHex(rand(0,255));
+        color += toHex(rand(0,255));
+    }
+    
+    var line = "M " + points[0].x + " " + points[0].y;
+    for (var i = 1; i < points.length; i++) {
+        line += "L " + points[i].x + " " + points[i].y;
+    }
+    line += " Z";
+    
+    line = map.path(line).attr("fill", color);
+}
+
+function drawLines(lines, color)
+{       
+    for (var i = 0; i < lines.length; i++) {
+        var line = "M " + lines[i].points[0].x + " " + lines[i].points[0].y;
+        line += "L " + lines[i].points[1].x + " " + lines[i].points[1].y;
+        line = map.path(line).attr({stroke: color});
     }
 }
 
