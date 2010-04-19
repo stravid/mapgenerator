@@ -49,7 +49,7 @@ var Country = new Class({
         }
         
         return neighborHexagons;
-    }
+    },
     
     generateOutline: function() {
         
@@ -102,7 +102,7 @@ var Country = new Class({
                 }
             }
         }
-    },
+    }
 });
 
 var Region = new Class({
