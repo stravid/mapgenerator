@@ -51,4 +51,8 @@ function myDraw()
         drawLines(m.countries[1].hexagons[i].lines, '#00ff00');
     }
     
+    for (var i = 0; i < m.countries[2].hexagons.length; i++) {
+        drawLines(m.countries[2].hexagons[i].lines, '#0000ff');
+    }
+    
 }
