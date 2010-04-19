@@ -50,6 +50,59 @@ var Country = new Class({
         
         return neighborHexagons;
     }
+    
+    generateOutline: function() {
+        
+        // lineArray containing only outlines
+        var outLines = new Array();
+        
+        for (var i = 0; i < this.hexagons.length; i++) {
+            for (var j = 0; j < 6; j++) {
+                var line = this.hexagons[i].lines[j]);
+                if (outLines.contains(line))
+                    outLines = outLines.erase(line);
+                else
+                    outLines.push(line);
+            }
+        }
+        
+        // getting top left line
+        var line = outLines.getLast();
+        
+        for (var i = 0; i < outLines.length; i++) {
+            if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+                line = outLines[i];
+            else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
+                if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
+                    line = outLines[i];
+            }
+        }
+        
+        // creating the outline
+        this.outline.push(line.points[0]);
+        this.outline.push(line.points[1]);
+        outLines = outLines.erase(line);
+        var startPoint = line.points[0];
+        var point = line.points[1];
+        
+        while (startPoint != point) {
+            for (var i = 0; i < outLines.length; i++) {
+                var a = 0, b = 1;
+                
+                if (outLines[i].points[a] == point) {
+                    point = outLines[i].points[b];
+                    this.outline.push(outLines[i].points[b]);
+                    outLines = outLines.erase(outLines[i]);
+                }
+                
+                if (outLines[i].points[b] == point) {
+                    point = outLines[i].points[a];
+                    this.outline.push(outLines[i].points[a]);
+                    outLines = outLines.erase(outLines[i]);
+                }
+            }
+        }
+    },
 });
 
 var Region = new Class({
