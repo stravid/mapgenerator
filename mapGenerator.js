@@ -13,7 +13,6 @@ var Line = new Class({
         this.points.push(pointB);
     },
     points: new Array(),
-    neighbors: new Array()
 });
 
 var Hexagon = new Class({
@@ -80,7 +79,6 @@ var Map = new Class({
         var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
         var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
         var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
-        var hexagonNumber = 0;
         
         // pointArray
         for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
@@ -88,23 +86,19 @@ var Map = new Class({
                 
                 var x, y;
                 
-                if ((row % 2) == 1) {
-                    x = column * hexagonWidth;
+                x = column * hexagonWidth;
+                if ((row % 2) == 1)
                     y = row * this.hexagonSize * 0.75;
-                    this.points.push(new Point(x, y));
-                    
-                    x = (column + 0.5) * hexagonWidth;
+                else
                     y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                    this.points.push(new Point(x, y));
-                } else {
-                    x = column * hexagonWidth;
-                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                    this.points.push(new Point(x, y));
+                this.points.push(new Point(x, y));
                     
-                    x = (column + 0.5) * hexagonWidth;
+                x = (column + 0.5) * hexagonWidth;
+                if ((row % 2) == 1)
+                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                else
                     y = row * this.hexagonSize * 0.75;
-                    this.points.push(new Point(x, y));
-                }
+                this.points.push(new Point(x, y));
             }
         }
         
@@ -132,125 +126,92 @@ var Map = new Class({
                 }
             }
         }
-        /*
-        // lineNeighbors
-        for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
-            
+        
+        // hexagonArray
+        var linesPerRow = numberOfHexagonsInARow * 3 + 2;
+        
+        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
             var oddrow = 0;
             if ((row % 2) == 1)
                 oddrow = 1;
-            
-            for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
-                var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + column;
-                var neighborLine;
                 
-                if (column != 0) {
-                    neighborLine = lineNumber - 1;
-                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                }
-                
-                if ((row % 2) == 0) {
-                    if (column != 0) {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    }
-                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                }
-                if ((row % 2) == 1) {
-                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    if (column != numberOfHexagonsInARow) {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    }
-                }
-                    
-                if (column != numberOfHexagonsInARow) {
-                    neighborLine = lineNumber + 1;
-                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                }
-                
-                if ((row % 2) == 0 && ) {
-                    if ((column % 2) == 0) {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    } else {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    }
-                }
-                if ((row % 2) == 1) {
-                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    if (column != numberOfHexagonsInARow) {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    }
-                }
-            }
-            
-            if (row < numberOfHexagonsInAColumn) {
-                for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
-                    var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + numberOfHexagonsInARow * 2 + 1 + column;
-                    
-                    var neighborLine;
-                    
-                    if ((row % 2) == 0) {
-                        if (column != 0) {
-                            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
-                            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                        }
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                    }
-                    if ((row % 2) == 1) {
-                        neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
-                        this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                        if (column != numberOfHexagonsInARow) {
-                            neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
-                            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
-                        }
-                    }
-                }
-            }
-        }
-        
-        /*
-        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
             for (var column = 0; column < numberOfHexagonsInARow; column++) {
                 
-                var tempHexagon = new Hexagon();
-                var oddrow = 0;
-                    
-                if ((row % 2) == 1)
-                    oddrow = hexagonWidth / 2;
-                    
-                tempHexagon.elements[0].x = (column + 0.5) * hexagonWidth + oddrow;
-                tempHexagon.elements[0].y = row * this.hexagonSize * 0.75;
-                    
-                tempHexagon.elements[1].x = (column + 1) * hexagonWidth + oddrow;
-                tempHexagon.elements[1].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                    
-                tempHexagon.elements[2].x = (column + 1) * hexagonWidth + oddrow;
-                tempHexagon.elements[2].y = (row + 1) * this.hexagonSize * 0.75;
-                    
-                tempHexagon.elements[3].x = (column + 0.5) * hexagonWidth + oddrow;
-                tempHexagon.elements[3].y = row * this.hexagonSize * 0.75 + this.hexagonSize;
-                    
-                tempHexagon.elements[4].x = column * hexagonWidth + oddrow;
-                tempHexagon.elements[4].y = (row + 1) * this.hexagonSize * 0.75;
-                    
-                tempHexagon.elements[5].x = column * hexagonWidth + oddrow;
-                tempHexagon.elements[5].y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                    
-                this.hexagons.push(tempHexagon);
-                hexagonID++;
+                var number = linesPerRow * row + column * 2 + oddrow;
+                var lineA = this.lines[number];
+                var lineB = this.lines[number+1];
+                
+                number = linesPerRow * row + (numberOfHexagonsInARow * 2 + 1) + column;
+                var lineC = this.lines[number];
+                var lineD = this.lines[number+1];
+                
+                number = linesPerRow * (row + 1) + column * 2 + oddrow;
+                var lineE = this.lines[number];
+                var lineF = this.lines[number+1];
+                
+                this.hexagons.push(new Hexagon(lineA, lineB, lineD, lineF, lineE, lineC));
             }
         }
         
-        this.setHexagonNeighbors(numberOfHexagonsInARow);
-        */
+        // hexagonNeighbors
+        var leftBorder = true;
+        var topBorder = true;
+        var rightBorder = false;
+        var bottomBorder = false;
+        var index = 0;
+        
+        for (var i = 0; i < numberOfHexagonsInAColumn; i++) {
+            leftBorder = true;
+            
+            if (i == (numberOfHexagonsInAColumn - 1))
+                bottomBorder = true;
+            
+            for (var j = 0; j < numberOfHexagonsInARow; j++) {
+                if (j == (numberOfHexagonsInARow - 1))
+                    rightBorder = true;
+                
+                if (!leftBorder)
+                    this.hexagons[index].neighbors.push(this.hexagons[index - 1]);
+                
+                if (!rightBorder)
+                    this.hexagons[index].neighbors.push(this.hexagons[index + 1]);
+                
+                if ((i % 2) == 1) {
+                    if (!topBorder) {
+                        this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 - numberOfHexagonsInARow]);
+                    }
+                    if (!bottomBorder) {
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
+                        this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                    }
+                }
+                else {
+                    if (!topBorder) {
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 - numberOfHexagonsInARow]);
+                        this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                    }
+                    if (!bottomBorder) {
+                        this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                        if (!leftBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 + numberOfHexagonsInARow]);
+                    }
+                }
+                    
+                if (leftBorder)
+                    leftBorder = false;
+                else if (rightBorder)
+                    rightBorder = false;
+                    
+                index++;
+            }
+            
+            if (topBorder)
+                topBorder = false;
+        }
     },
     
     getRandomNeighborHexagon: function(country) {
@@ -631,4 +592,88 @@ var Map = new Class({
         }
     },
 });
+*/
+/*
+// lineNeighbors
+for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
+    
+    var oddrow = 0;
+    if ((row % 2) == 1)
+        oddrow = 1;
+    
+    for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
+        var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + column;
+        var neighborLine;
+        
+        if (column != 0) {
+            neighborLine = lineNumber - 1;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        
+        if ((row % 2) == 0) {
+            if (column != 0) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        if ((row % 2) == 1) {
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            if (column != numberOfHexagonsInARow) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
+            
+        if (column != numberOfHexagonsInARow) {
+            neighborLine = lineNumber + 1;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+        }
+        
+        if ((row % 2) == 0 && ) {
+            if ((column % 2) == 0) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            } else {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
+        if ((row % 2) == 1) {
+            neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+            this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            if (column != numberOfHexagonsInARow) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+        }
+    }
+    
+    if (row < numberOfHexagonsInAColumn) {
+        for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+            var lineNumber = (row * (numberOfHexagonsInARow * 3 + 2)) + numberOfHexagonsInARow * 2 + 1 + column;
+            
+            var neighborLine;
+            
+            if ((row % 2) == 0) {
+                if (column != 0) {
+                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 2 + column;
+                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+                }
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+            }
+            if ((row % 2) == 1) {
+                neighborLine = lineNumber - numberOfHexagonsInARow * 2 - 1 + column;
+                this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+                if (column != numberOfHexagonsInARow) {
+                    neighborLine = lineNumber - numberOfHexagonsInARow * 2 + column;
+                    this.lines[lineNumber].neighbors.push(this.lines[neighborLine]);
+                }
+            }
+        }
+    }
+}
 */
