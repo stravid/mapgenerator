@@ -23,9 +23,9 @@ function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
     console.log(getPossibleNeighbors(testCountry, triangles));
 }
 
-var m = new Map(1200, 600, 10);
+var m = new Map(1200, 600, 30);
 m.generateHexagonArray();
-m.normalGenerator(200, 0.05, 1);
+m.normalGenerator(30, 0.1, 1);
 
 for (var i = 0; i < m.countries.length; i++) {
     m.countries[i].generateOutline();

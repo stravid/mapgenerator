@@ -89,12 +89,10 @@ var Country = new Class({
         var point = line.points[1];
         
         while (startPoint != point) {
-            var length = outLines.length;
-            
-            for (var i = 0; i < length; i++) {
+            for (var i = 0; i < outLines.length; i++) {
                 var a = 0, b = 1;
-                
-                if (outLines[i].points[a] == point) {
+            
+                if (outLines[i].points[a] == point) {   
                     point = outLines[i].points[b];
                     this.outline.push(outLines[i].points[b]);
                     outLines = outLines.erase(outLines[i]);
@@ -295,7 +293,8 @@ var Map = new Class({
                 return false;
             
             for (var j = 0; j < freeHexagons[i].neighbors.length; j++) {
-                if (!this.usedHexagons.contains(freeHexagons[i].neighbors[j])) {
+                if (!freeHexagons[i].neighbors[j].used) {
+                // if (!this.usedHexagons.contains(freeHexagons[i].neighbors[j])) {
                     freeHexagons.include(freeHexagons[i].neighbors[j]);
                 }
             }
@@ -306,6 +305,9 @@ var Map = new Class({
         else
         {
             this.usedHexagons.combine(freeHexagons);
+            freeHexagons.each(function(hexagon) {
+                hexagon.used = true;
+            });
             return true;
         }
     },
