@@ -351,10 +351,16 @@ var Map = new Class({
             
             console.info('Size of Country #' + i + ': ' + countrySize);
             
+            if (this.countries.length > 0) {
+                this.countries.push(this.generateCountry(i, this.countries[i - 1], countrySize, maximumHoleSize));
+            }
+            else
+                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));
+            
         }
         
-        this.countries.push(this.generateCountry(1, null, 5, 3));
-        this.countries.push(this.generateCountry(1, this.countries[0], 5, 3));
+        //this.countries.push(this.generateCountry(1, null, 5, 3));
+        //this.countries.push(this.generateCountry(1, this.countries[0], 5, 3));
     }
 });
 
