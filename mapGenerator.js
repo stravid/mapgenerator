@@ -40,14 +40,16 @@ var Country = new Class({
         var allHexagons = new Array();
         
         for (var i = 0; i < this.hexagons.length; i++) {
-            allHexagons = allHexagons.combine(this.hexagons[i].neighbors);
+            // allHexagons = allHexagons.combine(this.hexagons[i].neighbors);
+            allHexagons.extend(this.hexagons[i].neighbors);
         }
         
         var neighborHexagons = new Array();
         
         for (var i = 0; i < allHexagons.length; i++) {
-            if (!this.hexagons.contains(allHexagons[i]))
-                neighborHexagons.push(allHexagons[i]);
+            if (!allHexagons[i].used)
+                neighborHexagons.include(allHexagons[i]);
+                // neighborHexagons.push(allHexagons[i]);
         }
         
         return neighborHexagons;
@@ -267,15 +269,14 @@ var Map = new Class({
     },
     
     getRandomNeighborHexagon: function(country) {
-        var possibleNeighbors = new Array();
-        var allNeighbors = country.getNeighborHexagons();
-        
+        // var possibleNeighbors = new Array();
+        var possibleNeighbors = country.getNeighborHexagons();
+        /*
         for (var i = 0; i < allNeighbors.length; i++) {
             if (!allNeighbors[i].used)
                 possibleNeighbors.push(allNeighbors[i]);
-            //if (!this.usedHexagons.contains(allNeighbors[i]))
-                
-        }
+            //if (!this.usedHexagons.contains(allNeighbors[i]))      
+        }*/
         
         if (possibleNeighbors.length > 0)
             return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
@@ -350,7 +351,7 @@ var Map = new Class({
     },
     
     normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-        var averageCountrySize = parseInt(this.hexagons.length * 0.65 / numberOfCountries);        
+        var averageCountrySize = parseInt(this.hexagons.length * 0.8 / numberOfCountries);        
         
         console.info('Average Country Size: ' + averageCountrySize);
         
