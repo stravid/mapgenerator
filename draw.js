@@ -20,7 +20,7 @@ function toHex(dec) {
 
 function initMap()
 {
-    map = Raphael("map", 1000, 500);
+    map = Raphael("map", 1600, 600);
 }
 
 /*

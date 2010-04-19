@@ -339,7 +339,7 @@ var Map = new Class({
     },
     
     normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-        var averageCountrySize = parseInt(this.hexagons.length * 0.75 / numberOfCountries);        
+        var averageCountrySize = parseInt(this.hexagons.length * 0.65 / numberOfCountries);        
         
         console.info('Average Country Size: ' + averageCountrySize);
         
@@ -354,15 +354,13 @@ var Map = new Class({
             console.info('Size of Country #' + i + ': ' + countrySize);
             
             if (this.countries.length > 0) {
-                this.countries.push(this.generateCountry(i, this.countries[i - 1], countrySize, maximumHoleSize));
+                var globalCountry = new Country();
+                globalCountry.hexagons = this.usedHexagons;
+                this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
             }
-            else
-                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));
-            
+            else 
+                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
         }
-        
-        //this.countries.push(this.generateCountry(1, null, 5, 3));
-        //this.countries.push(this.generateCountry(1, this.countries[0], 5, 3));
     }
 });
 
