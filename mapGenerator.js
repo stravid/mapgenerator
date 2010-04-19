@@ -94,8 +94,7 @@ var Country = new Class({
                     this.outline.push(outLines[i].points[b]);
                     outLines = outLines.erase(outLines[i]);
                 }
-                
-                if (outLines[i].points[b] == point) {
+                else if (outLines[i].points[b] == point) {
                     point = outLines[i].points[a];
                     this.outline.push(outLines[i].points[a]);
                     outLines = outLines.erase(outLines[i]);
