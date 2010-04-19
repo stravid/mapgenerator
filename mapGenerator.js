@@ -58,7 +58,7 @@ var Country = new Class({
         
         for (var i = 0; i < this.hexagons.length; i++) {
             for (var j = 0; j < 6; j++) {
-                var line = this.hexagons[i].lines[j]);
+                var line = this.hexagons[i].lines[j];
                 if (outLines.contains(line))
                     outLines = outLines.erase(line);
                 else
