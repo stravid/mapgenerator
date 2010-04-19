@@ -27,6 +27,10 @@ var m = new Map(500, 250, 10);
 m.generateHexagonArray();
 m.normalGenerator(3, 0.3, 1);
 
+for (var i = 0; i < m.countries.length; i++) {
+    m.countries[i].generateOutline();
+}
+
 window.addEvent('domready', function() {
     //m.generateHexagonArray();
     //m.testGenerator(50, 10, 60);
@@ -43,16 +47,8 @@ function myDraw()
 {
     drawLines(m.lines, '#cccccc');
     
-    for (var i = 0; i < m.countries[0].hexagons.length; i++) {
-        drawLines(m.countries[0].hexagons[i].lines, '#ff0000');
-    }
-    
-    for (var i = 0; i < m.countries[1].hexagons.length; i++) {
-        drawLines(m.countries[1].hexagons[i].lines, '#00ff00');
-    }
-    
-    for (var i = 0; i < m.countries[2].hexagons.length; i++) {
-        drawLines(m.countries[2].hexagons[i].lines, '#0000ff');
+    for (var i = 0; i < m.countries.length; i++) {
+        drawCountry(m.countries[i].outline);
     }
     
 }
