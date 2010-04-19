@@ -175,27 +175,24 @@ var Map = new Class({
                 
                 if (!rightBorder)
                     this.hexagons[index].neighbors.push(this.hexagons[index + 1]);
-                
-                if ((i % 2) == 1) {
-                    if (!topBorder) {
-                        this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                    
+                if (!topBorder) {
+                    this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                    if ((i % 2) == 1) {
                         if (!rightBorder)
                             this.hexagons[index].neighbors.push(this.hexagons[index + 1 - numberOfHexagonsInARow]);
-                    }
-                    if (!bottomBorder) {
-                        if (!rightBorder)
-                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
-                        this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
-                    }
-                }
-                else {
-                    if (!topBorder) {
+                    } else {
                         if (!leftBorder)
                             this.hexagons[index].neighbors.push(this.hexagons[index - 1 - numberOfHexagonsInARow]);
-                        this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
                     }
-                    if (!bottomBorder) {
-                        this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                }
+                
+                if (!bottomBorder) {
+                    this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                    if ((i % 2) == 1) {
+                        if (!rightBorder)
+                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
+                    } else {
                         if (!leftBorder)
                             this.hexagons[index].neighbors.push(this.hexagons[index - 1 + numberOfHexagonsInARow]);
                     }
