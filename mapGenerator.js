@@ -55,8 +55,9 @@ var Country = new Class({
         
         // lineArray containing only outlines
         var outLines = new Array();
+        var length = this.hexagons.length;
         
-        for (var i = 0; i < this.hexagons.length; i++) {
+        for (var i = 0; i < length; i++) {
             for (var j = 0; j < 6; j++) {
                 var line = this.hexagons[i].lines[j];
                 if (outLines.contains(line))
@@ -86,7 +87,9 @@ var Country = new Class({
         var point = line.points[1];
         
         while (startPoint != point) {
-            for (var i = 0; i < outLines.length; i++) {
+            var length = outLines.length;
+            
+            for (var i = 0; i < length; i++) {
                 var a = 0, b = 1;
                 
                 if (outLines[i].points[a] == point) {
