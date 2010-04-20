@@ -48,11 +48,23 @@ var Country = new Class({
         
         for (var i = 0; i < allHexagons.length; i++) {
             if (!allHexagons[i].used)
-                neighborHexagons.include(allHexagons[i]);
-                // neighborHexagons.push(allHexagons[i]);
+                // neighborHexagons.include(allHexagons[i]);
+                neighborHexagons.push(allHexagons[i]);
         }
         
         return neighborHexagons;
+    },
+    
+    getBase: function() {
+        var sumX = 0;
+        var sumY = 0;
+        var length = this.outline.length;
+        for (var i = 0; i < length; i++) {
+            sumX += this.outline[i].x;
+            sumY += this.outline[i].y;
+        }
+        
+        this.base = new Point(sumX/length, sumY/length);
     },
     
     generateOutline: function() {
@@ -106,7 +118,9 @@ var Country = new Class({
                 }
             }
         }
-    }
+        
+        this.getBase();
+    },
 });
 
 var Region = new Class({
