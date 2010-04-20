@@ -373,6 +373,23 @@ var Map = new Class({
             else 
                 this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
         }
+    },
+    
+    getCountryNeighbors: function() {
+        var length = this.countries.length;
+        for (var i = 0; i < length; i++) {
+            for (var j = i + 1; j < length; j++) {
+                var outlineLength = this.countries[j].outline.length;
+                var countryOutline = this.countries[i].outline;
+                for (var k = 0; k < outlineLength; k++) {
+                    if (countryOutline.contains(this.countries[j].outline[k])) {
+                        this.countries[i].neighbors.push(this.countries[j]);
+                        this.countries[j].neighbors.push(this.countries[i]);
+                        break;
+                    }
+                }
+            }
+        }
     }
 });
 

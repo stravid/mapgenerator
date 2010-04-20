@@ -30,6 +30,7 @@ m.normalGenerator(100, 0.1, 1);
 for (var i = 0; i < m.countries.length; i++) {
     m.countries[i].generateOutline();
 }
+m.getCountryNeighbors();
 
 window.addEvent('domready', function() {
     //m.generateHexagonArray();
