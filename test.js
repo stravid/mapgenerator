@@ -37,11 +37,9 @@ window.addEvent('domready', function() {
     //m.testGenerator(50, 10, 60);
 });
 
-function draw()
+function draw(number)
 {
-    for (var i = 0; i < m.countries.length; i++) {
-        drawCountry(m.hexagons, m.countries[i].elements);
-    }
+    drawCountry(m.countries[number].outline, m.countries[number].center);
 }
 
 function myDraw()
