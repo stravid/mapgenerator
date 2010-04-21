@@ -50,8 +50,8 @@ var Country = new Class({
         
         for (var i = 0; i < allHexagons.length; i++) {
             if (!allHexagons[i].used)
-                neighborHexagons.include(allHexagons[i]);
-                // neighborHexagons.push(allHexagons[i]);
+                // neighborHexagons.include(allHexagons[i]);
+                neighborHexagons.push(allHexagons[i]);
         }
         
         return neighborHexagons;
@@ -544,7 +544,7 @@ var Map = new Class({
     },
     
     normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-        var averageCountrySize = parseInt(this.hexagons.length * 0.8 / numberOfCountries);        
+        var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
         
         console.info('Average Country Size: ' + averageCountrySize);
         
