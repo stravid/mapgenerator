@@ -297,8 +297,8 @@ var Country = new Class({
                 }
             }
         }
-        
-        this.getCenter();
+        if (outLines.length > 0)
+            this.holeLines = outLines;
     },
 });
 
@@ -579,6 +579,27 @@ var Map = new Class({
                         this.countries[i].neighbors.push(this.countries[j]);
                         this.countries[j].neighbors.push(this.countries[i]);
                         break;
+                    }
+                }
+            }
+        }
+    },
+    
+    deleteCountryHoles: function() {
+        var length = this.countries.length
+        for (var i =  0; i < length; i++) {
+            if ($defined(this.countries[i].holeLines)) {
+                var country = this.countries[i];
+                for (var j = 0; j < country.holeLines.length; j++) {
+                    var hexLength = this.hexagons.length;
+                    for (var k = 0; k < hexLength; k++) {
+                        if (this.hexagons[k].lines.contains(country.holeLines[j]) && 
+                            !country.hexagons.contains(this.hexagons[k])) {
+                            
+                            country.hexagons.push(this.hexagons[k]);
+                            country.holeLines.erase(this.hexagons[k].lines);
+                            break;
+                        }
                     }
                 }
             }

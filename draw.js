@@ -21,7 +21,7 @@ function toHex(dec) {
 function initMap()
 {
     map = Raphael("map", 1600, 600);
-    var fill = map.rect(0, 0, 1600, 600).attr("fill", "#2F8EFF");
+    // var fill = map.rect(0, 0, 1600, 600).attr("fill", /*"#0C45CF"*/"#111133");
     for (var i = 0; i < m.countries.length; i++) {
         drawCountry(m.countries[i].outline, m.countries[i].center);
     }
@@ -30,9 +30,14 @@ function initMap()
 function drawCountry(points, center, color) {
     
     if (!$defined(color)) {
+        var color = "#"+toHex(rand(50,200));
+        color += toHex(rand(50,200));
+        color += toHex(rand(50,200));
+/*
         var color = "#"+toHex(rand(100,200));
         color += toHex(rand(150,200));
-        color += toHex(rand(0,100));
+        color += toHex(rand(0,100));*/
+
     }
     
     var line = "M " + points[0].x + " " + points[0].y;

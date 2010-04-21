@@ -1,35 +1,15 @@
-function test(width, height, trianglesPerRow, players)
-{
-    map.clear();
-    var triangles = generateTriangleArray(width, height, trianglesPerRow);
-    var countries = generateMap(triangles, players);
-    
-    
-    for (var i = 0; i < countries.length; i++) {
-        // console.log(countries[i].triangles.length);
-        //drawCountry(countries[i].trianglesInCountry);
-    }
-    
-    console.info('Test finished');
-}
-
-function testGetPossibleNeighbors(width, height, trianglesPerRow, ID)
-{
-    var triangles = generateTriangleArray(width, height, trianglesPerRow);
-    var testCountry = new Country();
-    
-    testCountry.triangleIDs.push(ID);
-    testCountry.trianglesInCountry.push(triangles[ID]);
-    console.log(getPossibleNeighbors(testCountry, triangles));
-}
-
 var m = new Map(1200, 600, 20);
 m.generateHexagonArray();
 m.normalGenerator(50, 0.1, 1);
 
-for (var i = 0; i < m.countries.length; i++) {
+for (var i = 0; i < m.countries.length; i++)
     m.countries[i].generateOutline();
-}
+    
+m.deleteCountryHoles();
+    
+for (var i = 0; i < m.countries.length; i++)
+    m.countries[i].getCenter();
+    
 m.getCountryNeighbors();
 
 window.addEvent('domready', function() {
