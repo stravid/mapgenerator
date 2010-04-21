@@ -35,6 +35,8 @@ var Country = new Class({
     hexagons: new Array(),
     neighbors: new Array(),
     outline: new Array(),
+    inLines: new Array(),
+    doubleLines: new Array(),
     
     getNeighborHexagons: function() {
         var allHexagons = new Array();
@@ -55,6 +57,193 @@ var Country = new Class({
         return neighborHexagons;
     },
     
+    getLineField: function() {
+        var connectedLines = new Array();
+        connectedLines.push(this.doubleLines[0]);
+        this.doubleLines.erase(this.doubleLines[0]);
+        var found = true;
+        
+        while (found) {
+            found = false;
+            for (var i = 0; i < connectedLines.length; i++) {
+                for (var j = 0; j < this.doubleLines.length; j++) {
+                    if ((this.doubleLines[j].points[0] == connectedLines[i].points[0]) || 
+                        (this.doubleLines[j].points[1] == connectedLines[i].points[1]) || 
+                        (this.doubleLines[j].points[1] == connectedLines[i].points[0]) || 
+                        (this.doubleLines[j].points[0] == connectedLines[i].points[1])) {
+                        
+                        var line = this.doubleLines[j];
+                        connectedLines.push(line);
+                        this.doubleLines.erase(line);
+                        
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+        }
+        return connectedLines;
+    },
+    
+    getHexagonField: function(hexagons) {
+        var connectedHexagons = new Array();
+        connectedHexagons.push(hexagons[0]);
+        hexagons.erase(hexagons[0]);
+        var found = true;
+        
+        while (found) {
+            found = false;
+            for (var i = 0; i < connectedHexagons.length; i++) {
+                for (var j = 0; j < hexagons.length; j++) {
+                    if (hexagons[j].neighbors.contains(connectedHexagons[i])) {
+                        
+                        var hex = hexagons[j];
+                        connectedHexagons.push(hex);
+                        hexagons.erase(hex);
+                        
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+        }
+        return connectedHexagons;
+    },
+    
+    getBase: function() {
+        var sumX = 0;
+        var sumY = 0;
+        var length = this.outline.length;
+        for (var i = 0; i < length; i++) {
+            sumX += this.outline[i].x;
+            sumY += this.outline[i].y;
+        }
+        
+        this.center = new Point(sumX/length, sumY/length);
+    },
+    
+    getCenter: function() {
+        
+        var triplePoints = new Array();
+        var points = new Array();
+        var length = this.inLines.length;
+        for (var i = 0; i < length; i++) {
+            for (var j = 0; j < 2; j++) {
+                var point = this.inLines[i].points[j];
+                if (points.contains(point)) {
+                    if (!triplePoints.contains(point))
+                        triplePoints.push(point);
+                }
+                else
+                    points.push(point);            }
+        }
+        
+        // TODO: check if triplePoints
+        if (triplePoints.length < 1) {
+            console.info('triplePoints: ' + this.ID);
+            this.getBase();
+            return;
+        }
+        
+        length = this.inLines.length;
+        for (var i = 0; i < length; i++) {
+            if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
+                this.doubleLines.push(this.inLines[i]);
+        }
+        
+        // TODO: check if doubleLines
+        if (this.doubleLines.length < 1) {
+            console.info('doubleLines: ' + this.ID);
+            this.getBase();
+            return;
+        }
+        
+        var lineFields = new Array();
+        while (this.doubleLines.length > 0) {
+            lineFields.push(this.getLineField());
+        }
+        
+        // TODO: check if lineField
+        if (lineFields.length < 1) {
+            console.info('lineField: ' + this.ID);
+            this.getBase();
+            return;
+        }
+        
+        var lineField = lineFields[0];
+        for (var i = 1; i < lineFields.length; i++) {
+            if (lineFields[i].length > lineField.length)
+                lineField = lineFields[i];
+        }
+        
+        var inLineHexagons = new Array();
+        length = this.hexagons.length;
+        for (var i = 0; i < length; i++) {
+            var containsHex = true;
+            
+            for (var j = 0; j < 6; j++) {
+                if (!lineField.contains(this.hexagons[i].lines[j]))
+                    containsHex = false;
+            }
+            
+            if (containsHex) 
+                inLineHexagons.push(this.hexagons[i]);
+        }
+        
+        // TODO: check if inLineHexagons
+        if (inLineHexagons.length < 1) {
+            console.info('inLineHexagons: ' + this.ID);
+            this.getBase();
+            return;
+        }
+        
+        var hexagonFields = new Array();
+        while (inLineHexagons.length > 0) {
+            hexagonFields.push(this.getHexagonField(inLineHexagons));
+        }
+        
+        // TODO: check if hexagonField
+        if (hexagonFields.length < 1) {
+            console.info('hexagonField: ' + this.ID);
+            this.getBase();
+            return;
+        }
+        
+        var hexagonField = hexagonFields[0];
+        for (var i = 1; i < hexagonFields.length; i++) {
+            if (hexagonFields[i].length > hexagonField.length)
+                hexagonField = hexagonFields[i];
+        }
+        
+        var sumX = 0;
+        var sumY = 0;
+        length = hexagonField.length;
+        for (var i = 0; i < length; i++) {
+            for (var j = 0; j < 6; j++) {
+                sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
+                sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
+            }
+        }
+        
+        this.center = new Point(sumX/length/12, sumY/length/12);
+        
+        // average Point of LineField
+        /*
+        var sumX = 0;
+        var sumY = 0;
+        length = lineField.length;
+        for (var i = 0; i < length; i++) {
+            sumX += lineField[i].points[0].x + lineField[i].points[1].x;
+            sumY += lineField[i].points[0].y + lineField[i].points[1].y;
+        }
+        
+        this.center = new Point(sumX/length/2, sumY/length/2);
+        console.info('final lineField');
+        */
+    },
+    
     generateOutline: function() {
         
         // lineArray containing only outlines
@@ -64,8 +253,10 @@ var Country = new Class({
         for (var i = 0; i < length; i++) {
             for (var j = 0; j < 6; j++) {
                 var line = this.hexagons[i].lines[j];
-                if (outLines.contains(line))
+                if (outLines.contains(line)) {
                     outLines = outLines.erase(line);
+                    this.inLines.push(line);
+                }
                 else
                     outLines.push(line);
             }
@@ -106,7 +297,9 @@ var Country = new Class({
                 }
             }
         }
-    }
+        
+        this.getCenter();
+    },
 });
 
 var Region = new Class({
@@ -372,6 +565,23 @@ var Map = new Class({
             }
             else 
                 this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
+        }
+    },
+    
+    getCountryNeighbors: function() {
+        var length = this.countries.length;
+        for (var i = 0; i < length; i++) {
+            for (var j = i + 1; j < length; j++) {
+                var outlineLength = this.countries[j].outline.length;
+                var countryOutline = this.countries[i].outline;
+                for (var k = 0; k < outlineLength; k++) {
+                    if (countryOutline.contains(this.countries[j].outline[k])) {
+                        this.countries[i].neighbors.push(this.countries[j]);
+                        this.countries[j].neighbors.push(this.countries[i]);
+                        break;
+                    }
+                }
+            }
         }
     }
 });
