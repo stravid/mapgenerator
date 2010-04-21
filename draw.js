@@ -47,7 +47,7 @@ function drawCountry(hexagons, hexagonIDs, color)
     }
 }*/
 
-function drawCountry(points, base, color) {
+function drawCountry(points, center, color) {
     
     if (!$defined(color)) {
         var color = "#"+toHex(rand(0,255));
@@ -63,7 +63,8 @@ function drawCountry(points, base, color) {
     
     line = map.path(line).attr("fill", color);
     
-    var b = map.circle(base.x, base.y, 10).attr("fill", color);
+    if ($defined(center))
+        var b = map.circle(center.x, center.y, 10).attr("fill", color);
 }
 
 function drawLines(lines, color)

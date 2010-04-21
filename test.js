@@ -49,7 +49,7 @@ function myDraw()
     //drawLines(m.lines, '#cccccc');
     
     for (var i = 0; i < m.countries.length; i++) {
-        drawCountry(m.countries[i].outline, m.countries[i].base);
+        drawCountry(m.countries[i].outline, m.countries[i].center);
     }
     
 }

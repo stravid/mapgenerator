@@ -35,6 +35,8 @@ var Country = new Class({
     hexagons: new Array(),
     neighbors: new Array(),
     outline: new Array(),
+    inLines: new Array(),
+    doubleLines: new Array(),
     
     getNeighborHexagons: function() {
         var allHexagons = new Array();
@@ -55,6 +57,28 @@ var Country = new Class({
         return neighborHexagons;
     },
     
+    getLineField: function() {
+        var lines = this.doubleLines;
+        var connectedLines = new Array();
+        connectedLines.push(lines[0]);
+        lines.erase(lines[0]);
+        var found = true;
+        
+        while (found) {
+            found = false;
+            for (var i = 0; i < connectedLines.length; i++) {
+                for (var j = 0; j < lines.length; j++) {
+                    if (lines[j].contains(connectedLines[i].points[0]) || lines[j].contains(connectedLines[i].points[1])) {
+                        connectedLines.push(lines[i]);
+                        lines.erase(lines[i]);
+                        found = true;
+                    }
+                }
+            }
+        }
+        return connectedLines;
+    },
+    
     getBase: function() {
         var sumX = 0;
         var sumY = 0;
@@ -64,7 +88,73 @@ var Country = new Class({
             sumY += this.outline[i].y;
         }
         
-        this.base = new Point(sumX/length, sumY/length);
+        this.center = new Point(sumX/length, sumY/length);
+        console.info('base');
+    },
+    
+    getCenter: function() {
+        
+        var triplePoints = new Array();
+        var points = new Array();
+        var length = this.inLines.length;
+        for (var i = 0; i < length; i++) {
+            for (var j = 0; j < 2; j++) {
+                var point = this.inLines[i].points[j];
+                if (points.contains(point)) {
+                    if (!triplePoints.contains(point))
+                        triplePoints.push(point);
+                }
+                else
+                    points.push(point);
+                // if (triplePoints.contains(this.inLines[i].points[0]) || triplePoints.contains(this.inLines[i].points[1]))
+            }
+        }
+        
+        // TODO: check if triplePoints
+        if (triplePoints.length < 1) {
+            this.getBase();
+            return;
+        }
+        
+        length = this.inLines.length;
+        for (var i = 0; i < length; i++) {
+            if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
+                this.doubleLines.push(this.inLines[i]);
+        }
+        
+        // TODO: check if doubleLines
+        if (this.doubleLines.length < 1) {
+            this.getBase();
+            return;
+        }
+        
+        var lineFields = new Array();
+        while (0 < this.doubleLines.length) {
+            lineFields.push(this.getLineField());
+        }
+        
+        // TODO: check if lineField
+        if (lineFields.length < 1) {
+            this.getBase();
+            return;
+        }
+        
+        var lineField = lineFields[0];
+        for (var i = 1; i < lineFields.length; i++) {
+            if (lineFields[i].length > lineField.length)
+                lineField = lineFields[i];
+        }
+        
+        var sumX = 0;
+        var sumY = 0;
+        var length = lineField.length;
+        for (var i = 0; i < length; i++) {
+            sumX += lineField[i].points[0].x + lineField[i].points[1].x;
+            sumY += lineField[i].points[0].y + lineField[i].points[1].y;
+        }
+        
+        this.center = new Point(sumX/length, sumY/length);
+        console.info('lineField');
     },
     
     generateOutline: function() {
@@ -76,8 +166,10 @@ var Country = new Class({
         for (var i = 0; i < length; i++) {
             for (var j = 0; j < 6; j++) {
                 var line = this.hexagons[i].lines[j];
-                if (outLines.contains(line))
+                if (outLines.contains(line)) {
                     outLines = outLines.erase(line);
+                    this.inLines.push(line);
+                }
                 else
                     outLines.push(line);
             }
