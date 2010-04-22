@@ -1,6 +1,6 @@
-var m = new Map(1200, 600, 30);
+var m = new Map(1200, 600, 20);
 m.generateHexagonArray();
-m.normalGenerator(30, 0.1, 1);
+m.normalGenerator(50, 0.1, 1);
 
 for (var i = 0; i < m.countries.length; i++)
     m.countries[i].generateOutline();

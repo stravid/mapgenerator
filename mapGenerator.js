@@ -329,18 +329,28 @@ var Map = new Class({
         var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
         var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
         var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+        var distort = true;
         
         // pointArray
         for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
             for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
                 
-                var x, y;
+                var x, y, phi, r;
                 
                 x = column * hexagonWidth;
                 if ((row % 2) == 1)
                     y = row * this.hexagonSize * 0.75;
                 else
                     y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+                 
+                if (distort) {   
+                    phi = Math.random() * 2 * Math.PI;
+                    r = Math.random() * this.hexagonSize/4;
+                    
+                    x += r * Math.cos(phi);
+                    x += r * Math.sin(phi);
+                }
+                
                 this.points.push(new Point(x, y));
                     
                 x = (column + 0.5) * hexagonWidth;
@@ -348,6 +358,15 @@ var Map = new Class({
                     y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
                 else
                     y = row * this.hexagonSize * 0.75;
+                    
+                if (distort) {   
+                    phi = Math.random() * 2 * Math.PI;
+                    r = Math.random() * this.hexagonSize/4;
+
+                    x += r * Math.cos(phi);
+                    x += r * Math.sin(phi);
+                }
+                    
                 this.points.push(new Point(x, y));
             }
         }
