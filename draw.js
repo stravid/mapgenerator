@@ -21,38 +21,23 @@ function toHex(dec) {
 function initMap()
 {
     map = Raphael("map", 1600, 600);
+    // var fill = map.rect(0, 0, 1600, 600).attr("fill", /*"#0C45CF"*/"#111133");
+    for (var i = 0; i < m.countries.length; i++) {
+        drawCountry(m.countries[i].outline, m.countries[i].center);
+    }
 }
-
-/*
-function drawCountry(hexagons, hexagonIDs, color)
-{   
-    if (!isDefined(color)) {
-        var color = "#"+toHex(rand(0,255));
-        color += toHex(rand(0,255));
-        color += toHex(rand(0,255));
-    }
-    
-    for (var i = 0; i < hexagonIDs.length; i++) {
-        
-        var line = "M " + hexagons[hexagonIDs[i]].elements[0].x + " " + hexagons[hexagonIDs[i]].elements[0].y;
-        line += "L " + hexagons[hexagonIDs[i]].elements[1].x + " " + hexagons[hexagonIDs[i]].elements[1].y;
-        line += "L " + hexagons[hexagonIDs[i]].elements[2].x + " " + hexagons[hexagonIDs[i]].elements[2].y;
-        line += "L " + hexagons[hexagonIDs[i]].elements[3].x + " " + hexagons[hexagonIDs[i]].elements[3].y;
-        line += "L " + hexagons[hexagonIDs[i]].elements[4].x + " " + hexagons[hexagonIDs[i]].elements[4].y;
-        line += "L " + hexagons[hexagonIDs[i]].elements[5].x + " " + hexagons[hexagonIDs[i]].elements[5].y + " Z";
-        
-        line = map.path(line);
-        line.attr("stroke", color);
-        line.attr("fill", color);
-    }
-}*/
 
 function drawCountry(points, center, color) {
     
     if (!$defined(color)) {
-        var color = "#"+toHex(rand(0,255));
-        color += toHex(rand(0,255));
-        color += toHex(rand(0,255));
+        var color = "#"+toHex(rand(50,200));
+        color += toHex(rand(50,200));
+        color += toHex(rand(50,200));
+/*
+        var color = "#"+toHex(rand(100,200));
+        color += toHex(rand(150,200));
+        color += toHex(rand(0,100));*/
+
     }
     
     var line = "M " + points[0].x + " " + points[0].y;
@@ -64,7 +49,7 @@ function drawCountry(points, center, color) {
     line = map.path(line).attr("fill", color);
     
     if ($defined(center))
-        var b = map.circle(center.x, center.y, 10).attr("fill", color);
+        var b = map.circle(center.x, center.y, 5).attr("fill", color);
 }
 
 function drawLines(lines, color)
