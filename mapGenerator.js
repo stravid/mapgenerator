@@ -50,8 +50,8 @@ var Country = new Class({
         
         for (var i = 0; i < allHexagons.length; i++) {
             if (!allHexagons[i].used)
-                // neighborHexagons.include(allHexagons[i]);
-                neighborHexagons.push(allHexagons[i]);
+                neighborHexagons.include(allHexagons[i]);
+                // neighborHexagons.push(allHexagons[i]);
         }
         
         return neighborHexagons;
@@ -587,17 +587,22 @@ var Map = new Class({
     
     deleteCountryHoles: function() {
         var length = this.countries.length
-        for (var i =  0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             if ($defined(this.countries[i].holeLines)) {
                 var country = this.countries[i];
-                for (var j = 0; j < country.holeLines.length; j++) {
+                console.info('holes deleted: ' + country.ID);
+                while ( 0 < country.holeLines.length) {
                     var hexLength = this.hexagons.length;
-                    for (var k = 0; k < hexLength; k++) {
-                        if (this.hexagons[k].lines.contains(country.holeLines[j]) && 
-                            !country.hexagons.contains(this.hexagons[k])) {
+                    for (var j = 0; j < hexLength; j++) {
+                        if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
+                            !country.hexagons.contains(this.hexagons[j])) {
                             
-                            country.hexagons.push(this.hexagons[k]);
-                            country.holeLines.erase(this.hexagons[k].lines);
+                            country.hexagons.push(this.hexagons[j]);
+                            for (var k = 0; k < 6; k++)
+                                if (!country.inLines.contains(this.hexagons[j].lines[k]))
+                                    country.inLines.push(this.hexagons[j].lines[k]);
+                            for (var k = 0; k < 6; k++)
+                                country.holeLines.erase(this.hexagons[j].lines[k]);
                             break;
                         }
                     }
@@ -607,7 +612,6 @@ var Map = new Class({
     }
 });
 
-function rand(minimum, maximum)
-{
+function rand(minimum, maximum) {
     return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 }
