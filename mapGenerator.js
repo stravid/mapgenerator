@@ -147,13 +147,20 @@ var Country = new Class({
             // set center in middle of a hexagon
             length = this.hexagons.length;
             for (var i = 0; i < length; i++) {
-                if (this.hexagons[i].neighbors.length == 3) {
-                    for (var i = 0; i < 6; i++) {
-                        sumX += this.hexagons[i].lines[i].points[0].x + this.hexagons[i].lines[i].points[1].x;
-                        sumY += this.hexagons[i].lines[i].points[0].y + this.hexagons[i].lines[i].points[1].y;
+                var inCountryNeighbors = 0;
+                for (var j = 0; j < 6; j++) {
+                    if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
+                        inCountryNeighbors++;
+                        
+                        if (inCountryNeighbors == 3) {
+                            for (var k = 0; k < 6; k++) {
+                                sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
+                                sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
+                            }
+                            this.center = new Point(sumX/12, sumY/12);
+                            return;
+                        }
                     }
-                    this.center = new Point(sumX/12, sumY/12);
-                    return;
                 }
             }
             
