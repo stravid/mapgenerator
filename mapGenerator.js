@@ -1,10 +1,12 @@
+// FIXME: mootools.rand() everywhere
+
 var Point = new Class({
     initialize: function(x, y) {
         this.x = x;
         this.y = y;
     },
     x: 0,
-    y: 0    
+    y: 0
 });
 
 var Line = new Class({
@@ -61,6 +63,8 @@ var Country = new Class({
         var connectedLines = new Array();
         connectedLines.push(this.doubleLines[0]);
         this.doubleLines.erase(this.doubleLines[0]);
+        
+        // FIXME: found what?
         var found = true;
         
         while (found) {
@@ -80,7 +84,8 @@ var Country = new Class({
                         break;
                     }
                 }
-                if (found) break;
+                if (found)
+                    break;
             }
         }
         return connectedLines;
@@ -121,7 +126,7 @@ var Country = new Class({
             sumY += this.outline[i].y;
         }
         
-        this.center = new Point(sumX/length, sumY/length);
+        this.center = new Point(sumX / length, sumY / length);
     },
     
     getCenter: function() {
@@ -325,11 +330,11 @@ var Map = new Class({
         this.hexagonSize = hexagonSize;
     },
     
-    generateHexagonArray: function() {
+    generateHexagonArray: function(distort) {
         var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
         var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
         var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
-        var distort = true;
+        // var distort = false;
         
         // pointArray
         for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
@@ -572,8 +577,11 @@ var Map = new Class({
                 var sign = 1;
             else
                 var sign = -1;
-                
-            var countrySize = (averageCountrySize + rand(0, averageCountrySize * countrySizeVariance) * sign);
+            
+            if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
+                countrySizeVariance = 0;
+            
+            var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * sign);
             
             console.info('Size of Country #' + i + ': ' + countrySize);
             
@@ -628,6 +636,18 @@ var Map = new Class({
                 }
             }
         }
+    },
+    
+    calculateOutlines: function() {
+        for (var i = 0; i < this.countries.length; i++) {
+            this.countries[i].generateOutline();
+        }        
+    },
+    
+    calculateCenters: function() {
+       for (var i = 0; i < this.countries.length; i++) {
+            this.countries[i].getCenter();
+        } 
     }
 });
 

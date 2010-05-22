@@ -45,7 +45,7 @@ function drawCountry(points, center, color) {
         line += "L " + points[i].x + " " + points[i].y;
     }
     line += " Z";
-    
+        
     line = map.path(line).attr("fill", color);
     
     if ($defined(center))
