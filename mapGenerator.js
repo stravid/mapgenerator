@@ -4,9 +4,7 @@ var Point = new Class({
     initialize: function(x, y) {
         this.x = x;
         this.y = y;
-    },
-    x: 0,
-    y: 0
+    },   
 });
 
 var Line = new Class({
@@ -38,7 +36,6 @@ var Country = new Class({
     neighbors: new Array(),
     outline: new Array(),
     inLines: new Array(),
-    doubleLines: new Array(),
     
     getNeighborHexagons: function() {
         var allHexagons = new Array();
@@ -59,10 +56,10 @@ var Country = new Class({
         return neighborHexagons;
     },
     
-    getLineField: function() {
+    getLineField: function(lines) {
         var connectedLines = new Array();
-        connectedLines.push(this.doubleLines[0]);
-        this.doubleLines.erase(this.doubleLines[0]);
+        connectedLines.push(lines[0]);
+        lines.erase(lines[0]);
         
         // FIXME: found what?
         var found = true;
@@ -70,15 +67,15 @@ var Country = new Class({
         while (found) {
             found = false;
             for (var i = 0; i < connectedLines.length; i++) {
-                for (var j = 0; j < this.doubleLines.length; j++) {
-                    if ((this.doubleLines[j].points[0] == connectedLines[i].points[0]) || 
-                        (this.doubleLines[j].points[1] == connectedLines[i].points[1]) || 
-                        (this.doubleLines[j].points[1] == connectedLines[i].points[0]) || 
-                        (this.doubleLines[j].points[0] == connectedLines[i].points[1])) {
+                for (var j = 0; j < lines.length; j++) {
+                    if ((lines[j].points[0] == connectedLines[i].points[0]) || 
+                        (lines[j].points[1] == connectedLines[i].points[1]) || 
+                        (lines[j].points[1] == connectedLines[i].points[0]) || 
+                        (lines[j].points[0] == connectedLines[i].points[1])) {
                         
-                        var line = this.doubleLines[j];
+                        var line = lines[j];
                         connectedLines.push(line);
-                        this.doubleLines.erase(line);
+                        lines.erase(line);
                         
                         found = true;
                         break;
@@ -117,18 +114,6 @@ var Country = new Class({
         return connectedHexagons;
     },
     
-    getBase: function() {
-        var sumX = 0;
-        var sumY = 0;
-        var length = this.outline.length;
-        for (var i = 0; i < length; i++) {
-            sumX += this.outline[i].x;
-            sumY += this.outline[i].y;
-        }
-        
-        this.center = new Point(sumX / length, sumY / length);
-    },
-    
     getCenter: function() {
         
         var triplePoints = new Array();
@@ -145,36 +130,55 @@ var Country = new Class({
                     points.push(point);            }
         }
         
-        // TODO: check if triplePoints
+        var sumX = 0;
+        var sumY = 0;
         if (triplePoints.length < 1) {
-            console.info('triplePoints: ' + this.ID);
-            this.getBase();
+            
+            // set center in middle of a hexagon
+            length = this.hexagons.length;
+            for (var i = 0; i < length; i++) {
+                var inCountryNeighbors = 0;
+                for (var j = 0; j < 6; j++) {
+                    if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
+                        inCountryNeighbors++;
+                        
+                        if (inCountryNeighbors == 3) {
+                            for (var k = 0; k < 6; k++) {
+                                sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
+                                sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
+                            }
+                            this.center = new Point(sumX/12, sumY/12);
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            for (var i = 0; i < 6; i++) {
+                sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
+                sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
+            }
+            this.center = new Point(sumX/12, sumY/12);
             return;
         }
         
+        var doubleLines = new Array();
         length = this.inLines.length;
         for (var i = 0; i < length; i++) {
             if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
-                this.doubleLines.push(this.inLines[i]);
+                doubleLines.push(this.inLines[i]);
         }
         
-        // TODO: check if doubleLines
-        if (this.doubleLines.length < 1) {
-            console.info('doubleLines: ' + this.ID);
-            this.getBase();
+        if (doubleLines.length < 1) {
+        
+            // set center to a triple point
+            this.center = new Point(triplePoints[0].x, triplePoints[0].y);
             return;
         }
         
         var lineFields = new Array();
-        while (this.doubleLines.length > 0) {
-            lineFields.push(this.getLineField());
-        }
-        
-        // TODO: check if lineField
-        if (lineFields.length < 1) {
-            console.info('lineField: ' + this.ID);
-            this.getBase();
-            return;
+        while (doubleLines.length > 0) {
+            lineFields.push(this.getLineField(doubleLines));
         }
         
         var lineField = lineFields[0];
@@ -197,10 +201,30 @@ var Country = new Class({
                 inLineHexagons.push(this.hexagons[i]);
         }
         
-        // TODO: check if inLineHexagons
         if (inLineHexagons.length < 1) {
-            console.info('inLineHexagons: ' + this.ID);
-            this.getBase();
+            
+            // average Point of LineField
+            var lineCenters = new Array();
+            length = lineField.length;
+            for (var i = 0; i < length; i++) {
+                var x = lineField[i].points[0].x + lineField[i].points[1].x;
+                var y = lineField[i].points[0].y + lineField[i].points[1].y;
+                lineCenters.push(new Point(x/2,y/2));
+                sumX += x;
+                sumY += y;
+            }
+            var centerPoint = new Point(sumX/length/2, sumY/length/2);
+            var j;
+            var distance = 100000000;
+            for (var i = 0; i < length; i++) {
+                var lineDistance = Math.sqrt(((centerPoint.x - lineCenters[i].x) * (centerPoint.x - lineCenters[i].x) + 
+                    (centerPoint.y - lineCenters[i].y) * (centerPoint.y - lineCenters[i].y)));
+                if (distance > lineDistance) {
+                    j = i;
+                    distance = lineDistance;
+                }
+            }
+            this.center = new Point(lineCenters[j].x, lineCenters[j].y);
             return;
         }
         
@@ -209,21 +233,12 @@ var Country = new Class({
             hexagonFields.push(this.getHexagonField(inLineHexagons));
         }
         
-        // TODO: check if hexagonField
-        if (hexagonFields.length < 1) {
-            console.info('hexagonField: ' + this.ID);
-            this.getBase();
-            return;
-        }
-        
         var hexagonField = hexagonFields[0];
         for (var i = 1; i < hexagonFields.length; i++) {
             if (hexagonFields[i].length > hexagonField.length)
                 hexagonField = hexagonFields[i];
         }
         
-        var sumX = 0;
-        var sumY = 0;
         length = hexagonField.length;
         for (var i = 0; i < length; i++) {
             for (var j = 0; j < 6; j++) {
@@ -234,19 +249,35 @@ var Country = new Class({
         
         this.center = new Point(sumX/length/12, sumY/length/12);
         
-        // average Point of LineField
-        /*
-        var sumX = 0;
-        var sumY = 0;
-        length = lineField.length;
+// setting center to the hexagon nearest average hexagonField-center
+/*        var hexagonCenters = new Array();
+        length = hexagonField.length;
         for (var i = 0; i < length; i++) {
-            sumX += lineField[i].points[0].x + lineField[i].points[1].x;
-            sumY += lineField[i].points[0].y + lineField[i].points[1].y;
+            var x = 0;
+            var y = 0;
+            for (var j = 0; j < 6; j++) {
+                x += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
+                y += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
+            }
+            x /= 12;
+            y /= 12;
+            hexagonCenters.push(new Point(x, y));
+            sumX += x;
+            sumY += y;
         }
-        
-        this.center = new Point(sumX/length/2, sumY/length/2);
-        console.info('final lineField');
-        */
+        var centerPoint = new Point(sumX/length, sumY/length);
+        var j;
+        var distance = 100000000;
+        for (var i = 0; i < length; i++) {
+            var hexagonDistance = Math.sqrt(((centerPoint.x - hexagonCenters[i].x) * (centerPoint.x - hexagonCenters[i].x)) + 
+                ((centerPoint.y - hexagonCenters[i].y) * (centerPoint.y - hexagonCenters[i].y)));
+            if (distance > hexagonDistance) {
+                j = i;
+                distance = hexagonDistance;
+            }
+        }
+        this.center = new Point(hexagonCenters[j].x, hexagonCenters[j].y);
+        return;*/
     },
     
     generateOutline: function() {
@@ -349,7 +380,7 @@ var Map = new Class({
                     y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
                  
                 if (distort) {   
-                    phi = Math.random() * 2 * Math.PI;
+                    phi = Math.random() * Math.PI * 2;
                     r = Math.random() * this.hexagonSize/4;
                     
                     x += r * Math.cos(phi);
@@ -617,7 +648,6 @@ var Map = new Class({
         for (var i = 0; i < length; i++) {
             if ($defined(this.countries[i].holeLines)) {
                 var country = this.countries[i];
-                console.info('holes deleted: ' + country.ID);
                 while ( 0 < country.holeLines.length) {
                     var hexLength = this.hexagons.length;
                     for (var j = 0; j < hexLength; j++) {
