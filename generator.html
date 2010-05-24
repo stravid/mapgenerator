@@ -7,8 +7,9 @@
     <script src="generator.js" type="text/javascript"></script>
     <script src="draw.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var generator = new MapGenerator(1200, 600, 30);
+        var generator = new MapGenerator(1200, 600, 35);
         var countries;
+        var ut;
         
         window.addEvent('domready', function() {
             
@@ -19,8 +20,27 @@
             
             map = Raphael("map", 1600, 600);
             var fill = map.rect(0, 0, 1600, 600).attr("fill", /*"#0C45CF"*/"#111133");
-            for (var i = 0; i < generator.map.countries.length; i++) {
+            /*for (var i = 0; i < generator.map.countries.length; i++) {
                 drawCountry(generator.map.countries[i].outline, generator.map.countries[i].center);
+            }*/
+            
+            ut = generator.getUnitacsClientMap();
+            
+            for (var i = 0; i < ut.countries.length; i++) {
+                var color = "#"+toHex(rand(50,200));
+                color += toHex(rand(50,200));
+                color += toHex(rand(50,200));
+                
+                map.path(ut.countries[i].pathString).attr("fill", color);
+                map.circle(ut.countries[i].center.x, ut.countries[i].center.y, 5).attr("fill", '#ff0000');
+            }
+    
+            console.log(ut.toSource());
+            
+            for (var i = 0; i < ut.countries.length; i++) {
+                for (var j = 0; j < ut.countries[i].neighborIDs.length; j++) {
+                    map.path('M' + ut.countries[i].center.x + ',' + ut.countries[i].center.y + 'L' +  ut.countries[ut.countries[i].neighborIDs[j]].center.x + ',' + ut.countries[ut.countries[i].neighborIDs[j]].center.y + 'Z');
+                }
             }
         });
     

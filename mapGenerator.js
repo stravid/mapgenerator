@@ -575,7 +575,7 @@ var Map = new Class({
                 
                 // FIXME: Error handling, where and how should that happen?
                 if (!startHexagon) {
-                    console.error('Country has no free neighbor hexagons!');
+                    //console.error('Country has no free neighbor hexagons!');
                     return null;   
                 }
                 
@@ -601,7 +601,7 @@ var Map = new Class({
     normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
         var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
         
-        console.info('Average Country Size: ' + averageCountrySize);
+        //console.info('Average Country Size: ' + averageCountrySize);
         
         for (var i = 0; i < numberOfCountries; i++) {
             if (rand(0, 1) == 1)
@@ -614,7 +614,7 @@ var Map = new Class({
             
             var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * sign);
             
-            console.info('Size of Country #' + i + ': ' + countrySize);
+            //console.info('Size of Country #' + i + ': ' + countrySize);
             
             if (this.countries.length > 0) {
                 var globalCountry = new Country();
