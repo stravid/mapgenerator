@@ -49,8 +49,8 @@ var Country = new Class({
         
         for (var i = 0; i < allHexagons.length; i++) {
             if (!allHexagons[i].used)
-                neighborHexagons.include(allHexagons[i]);
-                // neighborHexagons.push(allHexagons[i]);
+                // neighborHexagons.include(allHexagons[i]);
+                neighborHexagons.push(allHexagons[i]);
         }
         
         return neighborHexagons;

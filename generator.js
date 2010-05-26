@@ -31,7 +31,7 @@ var MapGenerator = new Class({
         
         clientMap.width = this.map.width;
         clientMap.height = this.map.height;
-        clientMap.countries = new Array();
+        clientMap.regions = new Array();
         clientMap.connections = new Array();
         
         for (var i = 0; i < this.map.countries.length; i++) {
@@ -69,7 +69,7 @@ var MapGenerator = new Class({
                     console.log('double connection ' + connection + ' found');
             }
             
-            clientMap.countries.push(country);
+            clientMap.regions.push(country);
         }
         
         return clientMap;

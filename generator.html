@@ -13,7 +13,7 @@
         
         window.addEvent('domready', function() {
             
-            generator.init(false);
+            generator.init(true);
             generator.generate(20, 0.5, 1);
             
             countries = generator.getCountries();
@@ -26,20 +26,20 @@
             
             ut = generator.getUnitacsClientMap();
             
-            for (var i = 0; i < ut.countries.length; i++) {
+            for (var i = 0; i < ut.regions.length; i++) {
                 var color = "#"+toHex(rand(50,200));
                 color += toHex(rand(50,200));
                 color += toHex(rand(50,200));
                 
-                map.path(ut.countries[i].pathString).attr("fill", color);
-                map.circle(ut.countries[i].center.x, ut.countries[i].center.y, 5).attr("fill", '#ff0000');
+                map.path(ut.regions[i].pathString).attr("fill", color);
+                map.circle(ut.regions[i].center.x, ut.regions[i].center.y, 5).attr("fill", '#ff0000');
             }
     
             console.log(ut.toSource());
             
-            for (var i = 0; i < ut.countries.length; i++) {
-                for (var j = 0; j < ut.countries[i].neighborIDs.length; j++) {
-                    map.path('M' + ut.countries[i].center.x + ',' + ut.countries[i].center.y + 'L' +  ut.countries[ut.countries[i].neighborIDs[j]].center.x + ',' + ut.countries[ut.countries[i].neighborIDs[j]].center.y + 'Z');
+            for (var i = 0; i < ut.regions.length; i++) {
+                for (var j = 0; j < ut.regions[i].neighborIDs.length; j++) {
+                    map.path('M' + ut.regions[i].center.x + ',' + ut.regions[i].center.y + 'L' +  ut.regions[ut.regions[i].neighborIDs[j]].center.x + ',' + ut.regions[ut.regions[i].neighborIDs[j]].center.y + 'Z');
                 }
             }
         });
