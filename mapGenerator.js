@@ -1,685 +1,732 @@
-// FIXME: mootools.rand() everywhere
+function Point(x, y) {
+    this.x = x;
+    this.y = y;  
+};
 
-var Point = new Class({
-    initialize: function(x, y) {
-        this.x = x;
-        this.y = y;
-    },   
-});
-
-var Line = new Class({
-    initialize: function(pointA, pointB) {
-        this.points.push(pointA);
-        this.points.push(pointB);
-    },
-    points: new Array(),
-});
-
-var Hexagon = new Class({
-    initialize: function(lineA, lineB, lineC, lineD, lineE, lineF) {
-        this.lines.push(lineA);
-        this.lines.push(lineB);
-        this.lines.push(lineC);
-        this.lines.push(lineD);
-        this.lines.push(lineE);
-        this.lines.push(lineF);
-        
-        this.used = false;
-    },
-    lines: new Array(),
-    neighbors: new Array(),
-    outline: new Array()
-});
-
-var Country = new Class({
-    hexagons: new Array(),
-    neighbors: new Array(),
-    outline: new Array(),
-    inLines: new Array(),
+function Line(pointA, pointB) {
+    this.points = new Array();
     
-    getNeighborHexagons: function() {
-        var allHexagons = new Array();
-        
-        for (var i = 0; i < this.hexagons.length; i++) {
-            // allHexagons = allHexagons.combine(this.hexagons[i].neighbors);
-            allHexagons.extend(this.hexagons[i].neighbors);
-        }
-        
-        var neighborHexagons = new Array();
-        
-        for (var i = 0; i < allHexagons.length; i++) {
-            if (!allHexagons[i].used)
-                neighborHexagons.include(allHexagons[i]);
-                //neighborHexagons.push(allHexagons[i]);
-        }
-        
-        return neighborHexagons;
-    },
+    this.points.push(pointA);
+    this.points.push(pointB);
+};
+
+function Hexagon(lineA, lineB, lineC, lineD, lineE, lineF) {
+    this.used = false;
+    this.lines = new Array();
+    this.outline = new Array();
+    this.neighbors = new Array();
     
-    getLineField: function(lines) {
-        var connectedLines = new Array();
-        connectedLines.push(lines[0]);
-        lines.erase(lines[0]);
+    this.lines.push(lineA);
+    this.lines.push(lineB);
+    this.lines.push(lineC);
+    this.lines.push(lineD);
+    this.lines.push(lineE);
+    this.lines.push(lineF);
+};
+
+function Country() {
+    this.hexagons = new Array();
+    this.neighbors = new Array();
+    this.outline = new Array();
+    // FIXME: inLines to inlines
+    this.inLines = new Array();
+};
+
+Array.prototype.extend = function (array) {
+    for (var i = 0; i < array.length; i++) {
+        this.push(array[i]);
+    }
+    
+    return this;
+};
+
+Array.prototype.contains = function(item, from) {
+    return this.indexOf(item, from) != -1;
+};
+
+Array.prototype.include = function(item) {
+    if (!this.contains(item))
+        this.push(item);
+    
+    return this;  
+};
+
+Array.prototype.combine = function(array) {
+    for (var i = 0, length = array.length; i < length; i++) {
+        this.include(array[i]);
+    }
+    
+    return this;
+};
+
+if (!Array.prototype.forEach) {
+    // FIXME: WTF
+    Array.prototype.forEach = function(fun /*, thisp*/) {
+        var len = this.length >>> 0;
         
-        // FIXME: found what?
-        var found = true;
+        if (typeof fun != "function")
+            throw new TypeError();
+    
+        var thisp = arguments[1];
         
-        while (found) {
-            found = false;
-            for (var i = 0; i < connectedLines.length; i++) {
-                for (var j = 0; j < lines.length; j++) {
-                    if ((lines[j].points[0] == connectedLines[i].points[0]) || 
-                        (lines[j].points[1] == connectedLines[i].points[1]) || 
-                        (lines[j].points[1] == connectedLines[i].points[0]) || 
-                        (lines[j].points[0] == connectedLines[i].points[1])) {
-                        
-                        var line = lines[j];
-                        connectedLines.push(line);
-                        lines.erase(line);
-                        
-                        found = true;
-                        break;
-                    }
-                }
-                if (found)
+        for (var i = 0; i < len; i++) {
+            if (i in this)
+                fun.call(thisp, this[i], i, this);
+        }
+    };
+}
+
+Array.prototype.each = Array.prototype.forEach;
+
+Country.prototype.getNeighborHexagons = function() {
+    var allHexagons = new Array();
+    
+    for (var i = 0; i < this.hexagons.length; i++) {
+        allHexagons.extend(this.hexagons[i].neighbors);
+    }
+    
+    var neighborHexagons = new Array();
+    
+    for (var i = 0; i < allHexagons.length; i++) {
+        if (!allHexagons[i].used)
+            neighborHexagons.include(allHexagons[i]);
+            //neighborHexagons.push(allHexagons[i]);
+            // FIXME: whats that?!
+    }
+    
+    return neighborHexagons;
+};
+
+Country.prototype.getLineField = function(lines) {
+    var connectedLines = new Array();
+    
+    connectedLines.push(lines[0]);
+    lines.erase(lines[0]);
+    
+    // FIXME: found what?
+    var found = true;
+    
+    while (found) {
+        found = false;
+        
+        for (var i = 0; i < connectedLines.length; i++) {
+            for (var j = 0; j < lines.length; j++) {
+                if ((lines[j].points[0] == connectedLines[i].points[0]) || 
+                    (lines[j].points[1] == connectedLines[i].points[1]) || 
+                    (lines[j].points[1] == connectedLines[i].points[0]) || 
+                    (lines[j].points[0] == connectedLines[i].points[1])) {
+                    
+                    var line = lines[j];
+                    
+                    connectedLines.push(line);
+                    lines.erase(line);
+                    found = true;
+                    
                     break;
-            }
-        }
-        return connectedLines;
-    },
-    
-    getHexagonField: function(hexagons) {
-        var connectedHexagons = new Array();
-        connectedHexagons.push(hexagons[0]);
-        hexagons.erase(hexagons[0]);
-        var found = true;
-        
-        while (found) {
-            found = false;
-            for (var i = 0; i < connectedHexagons.length; i++) {
-                for (var j = 0; j < hexagons.length; j++) {
-                    if (hexagons[j].neighbors.contains(connectedHexagons[i])) {
-                        
-                        var hex = hexagons[j];
-                        connectedHexagons.push(hex);
-                        hexagons.erase(hex);
-                        
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) break;
-            }
-        }
-        return connectedHexagons;
-    },
-    
-    getCenter: function() {
-        
-        var triplePoints = new Array();
-        var points = new Array();
-        var length = this.inLines.length;
-        for (var i = 0; i < length; i++) {
-            for (var j = 0; j < 2; j++) {
-                var point = this.inLines[i].points[j];
-                if (points.contains(point)) {
-                    if (!triplePoints.contains(point))
-                        triplePoints.push(point);
-                }
-                else
-                    points.push(point);            }
-        }
-        
-        var sumX = 0;
-        var sumY = 0;
-        if (triplePoints.length < 1) {
-            
-            // set center in middle of a hexagon
-            length = this.hexagons.length;
-            for (var i = 0; i < length; i++) {
-                var inCountryNeighbors = 0;
-                for (var j = 0; j < 6; j++) {
-                    if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
-                        inCountryNeighbors++;
-                        
-                        if (inCountryNeighbors == 3) {
-                            for (var k = 0; k < 6; k++) {
-                                sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
-                                sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
-                            }
-                            this.center = new Point(sumX/12, sumY/12);
-                            return;
-                        }
-                    }
                 }
             }
             
-            for (var i = 0; i < 6; i++) {
-                sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
-                sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
+            if (found)
+                break;
+        }
+    }
+    
+    return connectedLines;
+};
+
+Country.prototype.getHexagonField = function(hexagons) {
+    var connectedHexagons = new Array();
+    var found = true;
+    
+    connectedHexagons.push(hexagons[0]);
+    hexagons.erase(hexagons[0]);
+    
+    while (found) {
+        found = false;
+        
+        for (var i = 0; i < connectedHexagons.length; i++) {
+            for (var j = 0; j < hexagons.length; j++) {
+                if (hexagons[j].neighbors.contains(connectedHexagons[i])) {
+                    var hex = hexagons[j];
+                    
+                    connectedHexagons.push(hex);
+                    hexagons.erase(hex);
+                    found = true;
+                    
+                    break;
+                }
             }
-            this.center = new Point(sumX/12, sumY/12);
-            return;
+            
+            if (found)
+                break;
         }
-        
-        var doubleLines = new Array();
-        length = this.inLines.length;
-        for (var i = 0; i < length; i++) {
-            if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
-                doubleLines.push(this.inLines[i]);
+    }
+    
+    return connectedHexagons;
+};
+
+Country.prototype.getCenter = function() {   
+    var triplePoints = new Array();
+    var points = new Array();
+    var length = this.inLines.length;
+    
+    for (var i = 0; i < length; i++) {
+        for (var j = 0; j < 2; j++) {
+            var point = this.inLines[i].points[j];
+            
+            if (points.contains(point)) {
+                if (!triplePoints.contains(point))
+                    triplePoints.push(point);
+            }
+            else
+                points.push(point); 
         }
-        
-        if (doubleLines.length < 1) {
-        
-            // set center to a triple point
-            this.center = new Point(triplePoints[0].x, triplePoints[0].y);
-            return;
-        }
-        
-        var lineFields = new Array();
-        while (doubleLines.length > 0) {
-            lineFields.push(this.getLineField(doubleLines));
-        }
-        
-        var lineField = lineFields[0];
-        for (var i = 1; i < lineFields.length; i++) {
-            if (lineFields[i].length > lineField.length)
-                lineField = lineFields[i];
-        }
-        
-        var inLineHexagons = new Array();
+    }
+    
+    var sumX = 0;
+    var sumY = 0;
+    
+    if (triplePoints.length < 1) {
+        // set center in middle of a hexagon
         length = this.hexagons.length;
+        
         for (var i = 0; i < length; i++) {
-            var containsHex = true;
+            var inCountryNeighbors = 0;
             
             for (var j = 0; j < 6; j++) {
-                if (!lineField.contains(this.hexagons[i].lines[j]))
-                    containsHex = false;
-            }
-            
-            if (containsHex) 
-                inLineHexagons.push(this.hexagons[i]);
-        }
-        
-        if (inLineHexagons.length < 1) {
-            
-            // average Point of LineField
-            var lineCenters = new Array();
-            length = lineField.length;
-            for (var i = 0; i < length; i++) {
-                var x = lineField[i].points[0].x + lineField[i].points[1].x;
-                var y = lineField[i].points[0].y + lineField[i].points[1].y;
-                lineCenters.push(new Point(x/2,y/2));
-                sumX += x;
-                sumY += y;
-            }
-            var centerPoint = new Point(sumX/length/2, sumY/length/2);
-            var j;
-            var distance = 100000000;
-            for (var i = 0; i < length; i++) {
-                var lineDistance = Math.sqrt(((centerPoint.x - lineCenters[i].x) * (centerPoint.x - lineCenters[i].x) + 
-                    (centerPoint.y - lineCenters[i].y) * (centerPoint.y - lineCenters[i].y)));
-                if (distance > lineDistance) {
-                    j = i;
-                    distance = lineDistance;
+                if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
+                    inCountryNeighbors++;
+                    
+                    if (inCountryNeighbors == 3) {
+                        for (var k = 0; k < 6; k++) {
+                            sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
+                            sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
+                        }
+                        
+                        this.center = new Point(sumX / 12, sumY / 12);
+                        
+                        return;
+                    }
                 }
             }
-            this.center = new Point(lineCenters[j].x, lineCenters[j].y);
-            return;
         }
         
-        var hexagonFields = new Array();
-        while (inLineHexagons.length > 0) {
-            hexagonFields.push(this.getHexagonField(inLineHexagons));
+        for (var i = 0; i < 6; i++) {
+            sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
+            sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
         }
         
-        var hexagonField = hexagonFields[0];
-        for (var i = 1; i < hexagonFields.length; i++) {
-            if (hexagonFields[i].length > hexagonField.length)
-                hexagonField = hexagonFields[i];
+        this.center = new Point(sumX / 12, sumY / 12);
+        
+        return;
+    }
+    
+    var doubleLines = new Array();
+    
+    length = this.inLines.length;
+    
+    for (var i = 0; i < length; i++) {
+        if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
+            doubleLines.push(this.inLines[i]);
+    }
+    
+    if (doubleLines.length < 1) {
+        // set center to a triple point
+        this.center = new Point(triplePoints[0].x, triplePoints[0].y);
+        
+        return;
+    }
+    
+    var lineFields = new Array();
+    
+    while (doubleLines.length > 0) {
+        lineFields.push(this.getLineField(doubleLines));
+    }
+    
+    var lineField = lineFields[0];
+    
+    for (var i = 1; i < lineFields.length; i++) {
+        if (lineFields[i].length > lineField.length)
+            lineField = lineFields[i];
+    }
+    
+    var inLineHexagons = new Array();
+    
+    length = this.hexagons.length;
+    
+    for (var i = 0; i < length; i++) {
+        var containsHex = true;
+        
+        for (var j = 0; j < 6; j++) {
+            if (!lineField.contains(this.hexagons[i].lines[j]))
+                containsHex = false;
         }
         
-        length = hexagonField.length;
+        if (containsHex) 
+            inLineHexagons.push(this.hexagons[i]);
+    }
+    
+    if (inLineHexagons.length < 1) {
+        // average Point of LineField
+        var lineCenters = new Array();
+        
+        length = lineField.length;
+        
         for (var i = 0; i < length; i++) {
-            for (var j = 0; j < 6; j++) {
-                sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
-                sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
-            }
-        }
-        
-        this.center = new Point(sumX/length/12, sumY/length/12);
-        
-// setting center to the hexagon nearest average hexagonField-center
-/*        var hexagonCenters = new Array();
-        length = hexagonField.length;
-        for (var i = 0; i < length; i++) {
-            var x = 0;
-            var y = 0;
-            for (var j = 0; j < 6; j++) {
-                x += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
-                y += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
-            }
-            x /= 12;
-            y /= 12;
-            hexagonCenters.push(new Point(x, y));
+            var x = lineField[i].points[0].x + lineField[i].points[1].x;
+            var y = lineField[i].points[0].y + lineField[i].points[1].y;
+            
+            lineCenters.push(new Point(x/2,y/2));
             sumX += x;
             sumY += y;
         }
-        var centerPoint = new Point(sumX/length, sumY/length);
+        
+        var centerPoint = new Point(sumX/length/2, sumY/length/2);
         var j;
+        // FIXME: wtf
         var distance = 100000000;
+        
         for (var i = 0; i < length; i++) {
-            var hexagonDistance = Math.sqrt(((centerPoint.x - hexagonCenters[i].x) * (centerPoint.x - hexagonCenters[i].x)) + 
-                ((centerPoint.y - hexagonCenters[i].y) * (centerPoint.y - hexagonCenters[i].y)));
-            if (distance > hexagonDistance) {
+            var lineDistance = Math.sqrt(((centerPoint.x - lineCenters[i].x) * (centerPoint.x - lineCenters[i].x) + 
+                (centerPoint.y - lineCenters[i].y) * (centerPoint.y - lineCenters[i].y)));
+                
+            if (distance > lineDistance) {
                 j = i;
-                distance = hexagonDistance;
+                distance = lineDistance;
             }
         }
-        this.center = new Point(hexagonCenters[j].x, hexagonCenters[j].y);
-        return;*/
-    },
+        
+        this.center = new Point(lineCenters[j].x, lineCenters[j].y);
+        
+        return;
+    }
     
-    generateOutline: function() {
-        
-        // lineArray containing only outlines
-        var outLines = new Array();
-        var length = this.hexagons.length;
-        
-        for (var i = 0; i < length; i++) {
-            for (var j = 0; j < 6; j++) {
-                var line = this.hexagons[i].lines[j];
-                if (outLines.contains(line)) {
-                    outLines = outLines.erase(line);
-                    this.inLines.push(line);
-                }
-                else
-                    outLines.push(line);
-            }
+    var hexagonFields = new Array();
+    
+    while (inLineHexagons.length > 0) {
+        hexagonFields.push(this.getHexagonField(inLineHexagons));
+    }
+    
+    var hexagonField = hexagonFields[0];
+    
+    for (var i = 1; i < hexagonFields.length; i++) {
+        if (hexagonFields[i].length > hexagonField.length)
+            hexagonField = hexagonFields[i];
+    }
+    
+    length = hexagonField.length;
+    
+    for (var i = 0; i < length; i++) {
+        for (var j = 0; j < 6; j++) {
+            sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
+            sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
         }
-        
-        // getting top left line
-        var line = outLines.getLast();
-        
-        for (var i = 0; i < outLines.length; i++) {
-            if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+    }
+    
+    this.center = new Point(sumX/length/12, sumY/length/12);
+};
+
+Country.prototype.generateOutline = function() {
+    // lineArray containing only outlines
+    var outLines = new Array();
+    var length = this.hexagons.length;
+    
+    for (var i = 0; i < length; i++) {
+        for (var j = 0; j < 6; j++) {
+            var line = this.hexagons[i].lines[j];
+            
+            if (outLines.contains(line)) {
+                outLines = outLines.erase(line);
+                this.inLines.push(line);
+            }
+            else
+                outLines.push(line);
+        }
+    }
+    
+    // getting top left line
+    var line = outLines.getLast();
+    
+    for (var i = 0; i < outLines.length; i++) {
+        if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+            line = outLines[i];
+        else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
+            if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
                 line = outLines[i];
-            else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
-                if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
-                    line = outLines[i];
-            }
         }
-        
-        // creating the outline
-        this.outline.push(line.points[0]);
-        this.outline.push(line.points[1]);
-        outLines = outLines.erase(line);
-        var startPoint = line.points[0];
-        var point = line.points[1];
-        
-        while (startPoint != point) {
-            for (var i = 0; i < outLines.length; i++) {
-                var a = 0, b = 1;
-            
-                if (outLines[i].points[a] == point) {   
-                    point = outLines[i].points[b];
-                    this.outline.push(outLines[i].points[b]);
-                    outLines = outLines.erase(outLines[i]);
-                }
-                else if (outLines[i].points[b] == point) {
-                    point = outLines[i].points[a];
-                    this.outline.push(outLines[i].points[a]);
-                    outLines = outLines.erase(outLines[i]);
-                }
-            }
-        }
-        if (outLines.length > 0)
-            this.holeLines = outLines;
-    },
-});
-
-var Region = new Class({
-    countries: new Array(),
-    neighbors: new Array(),
-    outline: new Array()
-});
-
-var Map = new Class({
-    points: new Array(),
-    lines: new Array(),
-    hexagons: new Array(),
-    usedHexagons: new Array(),
-    countries: new Array(),
-    regions: new Array(),
-    width: 0,
-    height: 0,
-    hexagonSize: 0,
-                    
-    initialize: function(width, height, hexagonSize) {
-        this.width = width;
-        this.height = height;
-        this.hexagonSize = hexagonSize;
-    },
+    }
     
-    generateHexagonArray: function(distort) {
-        var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
-        var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
-        var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
-        // var distort = false;
+    // creating the outline
+    this.outline.push(line.points[0]);
+    this.outline.push(line.points[1]);
+    outLines = outLines.erase(line);
+    
+    var startPoint = line.points[0];
+    var point = line.points[1];
+    
+    while (startPoint != point) {
+        for (var i = 0; i < outLines.length; i++) {
+            var a = 0, b = 1;
         
-        // pointArray
-        for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
-            for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
-                
-                var x, y, phi, r;
-                
-                x = column * hexagonWidth;
-                if ((row % 2) == 1)
-                    y = row * this.hexagonSize * 0.75;
-                else
-                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                 
-                if (distort) {   
-                    phi = Math.random() * Math.PI * 2;
-                    r = Math.random() * this.hexagonSize/4;
-                    
-                    x += r * Math.cos(phi);
-                    x += r * Math.sin(phi);
-                }
-                
-                this.points.push(new Point(x, y));
-                    
-                x = (column + 0.5) * hexagonWidth;
-                if ((row % 2) == 1)
-                    y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-                else
-                    y = row * this.hexagonSize * 0.75;
-                    
-                if (distort) {   
-                    phi = Math.random() * 2 * Math.PI;
-                    r = Math.random() * this.hexagonSize/4;
+            if (outLines[i].points[a] == point) {   
+                point = outLines[i].points[b];
+                this.outline.push(outLines[i].points[b]);
+                outLines = outLines.erase(outLines[i]);
+            } else if (outLines[i].points[b] == point) {
+                point = outLines[i].points[a];
+                this.outline.push(outLines[i].points[a]);
+                outLines = outLines.erase(outLines[i]);
+            }
+        }
+    }
+    
+    if (outLines.length > 0)
+        this.holeLines = outLines;
+};
 
-                    x += r * Math.cos(phi);
-                    x += r * Math.sin(phi);
-                }
-                    
-                this.points.push(new Point(x, y));
-            }
-        }
-        
-        // lineArray
-        for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
-            var number = numberOfHexagonsInARow * 2 + 2;
+function Region() {
+    this.countries = new Array();
+    this.neighbors = new Array();
+    this.outline = new Array();
+};
+
+function Map(width, height, hexagonSize) {
+    this.points = new Array();
+    this.lines = new Array();
+    this.hexagons = new Array();
+    this.usedHexagons = new Array();
+    this.countries = new Array();
+    this.regions = new Array();
+    this.width = width;
+    this.height = height;
+    this.hexagonSize = hexagonSize;
+};
+
+Map.prototype.generateHexagonArray = function(useDistortion) {
+    var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
+    var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
+    var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+    
+    // pointArray
+    for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
+        for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+            var x, y, phi, r;
             
-            for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
-                var pointA, pointB;
-                pointA = this.points[(row * number) + column];
-                pointB = this.points[(row * number) + column + 1];
-                this.lines.push(new Line(pointA, pointB));
+            x = column * hexagonWidth;
+            
+            if ((row % 2) == 1)
+                y = row * this.hexagonSize * 0.75;
+            else
+                y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+             
+            if (useDistortion) {   
+                phi = Math.random() * Math.PI * 2;
+                r = Math.random() * this.hexagonSize/4;
+                x += r * Math.cos(phi);
+                x += r * Math.sin(phi);
             }
             
-            if (row < numberOfHexagonsInAColumn) {
-                var oddrow = 0;
-                if ((row % 2) == 1)
-                    oddrow = 1;
+            this.points.push(new Point(x, y));
                 
-                for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
-                    var pointA, pointB;
-                    pointA = this.points[(row * number) + column * 2 + oddrow];
-                    pointB = this.points[((row + 1) * number) + column * 2 + oddrow];
-                    this.lines.push(new Line(pointA, pointB));
-                }
+            x = (column + 0.5) * hexagonWidth;
+            
+            if ((row % 2) == 1)
+                y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+            else
+                y = row * this.hexagonSize * 0.75;
+                
+            if (useDistortion) {   
+                phi = Math.random() * 2 * Math.PI;
+                r = Math.random() * this.hexagonSize/4;
+                x += r * Math.cos(phi);
+                x += r * Math.sin(phi);
             }
+                
+            this.points.push(new Point(x, y));
+        }
+    }
+    
+    // lineArray
+    for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
+        var number = numberOfHexagonsInARow * 2 + 2;
+        
+        for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
+            var pointA, pointB;
+            
+            pointA = this.points[(row * number) + column];
+            pointB = this.points[(row * number) + column + 1];
+            this.lines.push(new Line(pointA, pointB));
         }
         
-        // hexagonArray
-        var linesPerRow = numberOfHexagonsInARow * 3 + 2;
-        
-        for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
+        if (row < numberOfHexagonsInAColumn) {
             var oddrow = 0;
+            
             if ((row % 2) == 1)
                 oddrow = 1;
+            
+            for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
+                var pointA, pointB;
                 
-            for (var column = 0; column < numberOfHexagonsInARow; column++) {
-                
-                var number = linesPerRow * row + column * 2 + oddrow;
-                var lineA = this.lines[number];
-                var lineB = this.lines[number+1];
-                
-                number = linesPerRow * row + (numberOfHexagonsInARow * 2 + 1) + column;
-                var lineC = this.lines[number];
-                var lineD = this.lines[number+1];
-                
-                number = linesPerRow * (row + 1) + column * 2 + oddrow;
-                var lineE = this.lines[number];
-                var lineF = this.lines[number+1];
-                
-                this.hexagons.push(new Hexagon(lineA, lineB, lineD, lineF, lineE, lineC));
+                pointA = this.points[(row * number) + column * 2 + oddrow];
+                pointB = this.points[((row + 1) * number) + column * 2 + oddrow];
+                this.lines.push(new Line(pointA, pointB));
             }
         }
-        
-        // hexagonNeighbors
-        var leftBorder = true;
-        var topBorder = true;
-        var rightBorder = false;
-        var bottomBorder = false;
-        var index = 0;
-        
-        for (var i = 0; i < numberOfHexagonsInAColumn; i++) {
-            leftBorder = true;
-            
-            if (i == (numberOfHexagonsInAColumn - 1))
-                bottomBorder = true;
-            
-            for (var j = 0; j < numberOfHexagonsInARow; j++) {
-                if (j == (numberOfHexagonsInARow - 1))
-                    rightBorder = true;
-                
-                if (!leftBorder)
-                    this.hexagons[index].neighbors.push(this.hexagons[index - 1]);
-                
-                if (!rightBorder)
-                    this.hexagons[index].neighbors.push(this.hexagons[index + 1]);
-                    
-                if (!topBorder) {
-                    this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
-                    if ((i % 2) == 1) {
-                        if (!rightBorder)
-                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 - numberOfHexagonsInARow]);
-                    } else {
-                        if (!leftBorder)
-                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 - numberOfHexagonsInARow]);
-                    }
-                }
-                
-                if (!bottomBorder) {
-                    this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
-                    if ((i % 2) == 1) {
-                        if (!rightBorder)
-                            this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
-                    } else {
-                        if (!leftBorder)
-                            this.hexagons[index].neighbors.push(this.hexagons[index - 1 + numberOfHexagonsInARow]);
-                    }
-                }
-                    
-                if (leftBorder)
-                    leftBorder = false;
-                else if (rightBorder)
-                    rightBorder = false;
-                    
-                index++;
-            }
-            
-            if (topBorder)
-                topBorder = false;
-        }
-    },
+    }
     
-    getRandomNeighborHexagon: function(country) {
-        // var possibleNeighbors = new Array();
-        var possibleNeighbors = country.getNeighborHexagons();
-        /*
-        for (var i = 0; i < allNeighbors.length; i++) {
-            if (!allNeighbors[i].used)
-                possibleNeighbors.push(allNeighbors[i]);
-            //if (!this.usedHexagons.contains(allNeighbors[i]))      
-        }*/
-        
-        if (possibleNeighbors.length > 0)
-            return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
-        else
-            return false;
-    },
+    // hexagonArray
+    var linesPerRow = numberOfHexagonsInARow * 3 + 2;
     
-    holeChecker: function(hexagon, maximumHoleSize) {
-        var freeHexagons = new Array();
+    for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
+        var oddrow = 0;
         
-        freeHexagons.push(hexagon);
-        
-        for (var i = 0; i < freeHexagons.length; i++) {
-            if (freeHexagons.length >= maximumHoleSize)
-                return false;
+        if ((row % 2) == 1)
+            oddrow = 1;
             
-            for (var j = 0; j < freeHexagons[i].neighbors.length; j++) {
-                if (!freeHexagons[i].neighbors[j].used) {
-                // if (!this.usedHexagons.contains(freeHexagons[i].neighbors[j])) {
-                    freeHexagons.include(freeHexagons[i].neighbors[j]);
+        for (var column = 0; column < numberOfHexagonsInARow; column++) {
+            var number = linesPerRow * row + column * 2 + oddrow;
+            var lineA = this.lines[number];
+            var lineB = this.lines[number+1];
+            
+            number = linesPerRow * row + (numberOfHexagonsInARow * 2 + 1) + column;
+            
+            var lineC = this.lines[number];
+            var lineD = this.lines[number+1];
+            
+            number = linesPerRow * (row + 1) + column * 2 + oddrow;
+            
+            var lineE = this.lines[number];
+            var lineF = this.lines[number+1];
+            
+            this.hexagons.push(new Hexagon(lineA, lineB, lineD, lineF, lineE, lineC));
+        }
+    }
+    
+    // hexagonNeighbors
+    var leftBorder = true;
+    var topBorder = true;
+    var rightBorder = false;
+    var bottomBorder = false;
+    var index = 0;
+    
+    for (var i = 0; i < numberOfHexagonsInAColumn; i++) {
+        leftBorder = true;
+        
+        if (i == (numberOfHexagonsInAColumn - 1))
+            bottomBorder = true;
+        
+        for (var j = 0; j < numberOfHexagonsInARow; j++) {
+            if (j == (numberOfHexagonsInARow - 1))
+                rightBorder = true;
+            
+            if (!leftBorder)
+                this.hexagons[index].neighbors.push(this.hexagons[index - 1]);
+            
+            if (!rightBorder)
+                this.hexagons[index].neighbors.push(this.hexagons[index + 1]);
+                
+            if (!topBorder) {
+                this.hexagons[index].neighbors.push(this.hexagons[index - numberOfHexagonsInARow]);
+                
+                if ((i % 2) == 1) {
+                    if (!rightBorder)
+                        this.hexagons[index].neighbors.push(this.hexagons[index + 1 - numberOfHexagonsInARow]);
+                } else {
+                    if (!leftBorder)
+                        this.hexagons[index].neighbors.push(this.hexagons[index - 1 - numberOfHexagonsInARow]);
                 }
             }
+            
+            if (!bottomBorder) {
+                this.hexagons[index].neighbors.push(this.hexagons[index + numberOfHexagonsInARow]);
+                
+                if ((i % 2) == 1) {
+                    if (!rightBorder)
+                        this.hexagons[index].neighbors.push(this.hexagons[index + 1 + numberOfHexagonsInARow]);
+                } else {
+                    if (!leftBorder)
+                        this.hexagons[index].neighbors.push(this.hexagons[index - 1 + numberOfHexagonsInARow]);
+                }
+            }
+                
+            if (leftBorder)
+                leftBorder = false;
+            else if (rightBorder)
+                rightBorder = false;
+                
+            index++;
         }
         
+        if (topBorder)
+            topBorder = false;
+    }   
+};
+
+Map.prototype.getRandomNeighborHexagon = function(country) {
+    var possibleNeighbors = country.getNeighborHexagons();
+    
+    if (possibleNeighbors.length > 0)
+        return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+    else
+        return false; 
+};
+
+Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
+    var freeHexagons = new Array();
+        
+    freeHexagons.push(hexagon);
+    
+    for (var i = 0; i < freeHexagons.length; i++) {
         if (freeHexagons.length >= maximumHoleSize)
             return false;
-        else
-        {
-            this.usedHexagons.combine(freeHexagons);
-            freeHexagons.each(function(hexagon) {
-                hexagon.used = true;
-            });
-            return true;
-        }
-    },
-    
-    generateCountry: function(ID, neighborCountry, size, maximumHoleSize) {
-        var country = new Country();
-        var startHexagon;
-        country.ID = ID;
         
-        if (size > maximumHoleSize)
-            maximumHoleSize = size;
-            
-        if (neighborCountry != null) {
-            do {
-                startHexagon = this.getRandomNeighborHexagon(neighborCountry);
-                
-                // FIXME: Error handling, where and how should that happen?
-                if (!startHexagon) {
-                    //console.error('Country has no free neighbor hexagons!');
-                    return null;   
-                }
-                
-            } while(this.holeChecker(startHexagon, maximumHoleSize))
-        }
-        else
-            startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
-          
-        startHexagon.used = true;    
-        country.hexagons.push(startHexagon);
-        this.usedHexagons.push(startHexagon);
-        
-        for (var i = 0; i < size - 1; i++) {
-            var newHexagon = this.getRandomNeighborHexagon(country);
-            newHexagon.used = true;
-            country.hexagons.push(newHexagon);
-            this.usedHexagons.push(newHexagon);
-        }
-        
-        return country;
-    },
-    
-    normalGenerator: function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-        var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
-        
-        //console.info('Average Country Size: ' + averageCountrySize);
-        
-        for (var i = 0; i < numberOfCountries; i++) {
-            if (rand(0, 1) == 1)
-                var sign = 1;
-            else
-                var sign = -1;
-            
-            if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
-                countrySizeVariance = 0;
-            
-            var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * sign);
-            
-            //console.info('Size of Country #' + i + ': ' + countrySize);
-            
-            if (this.countries.length > 0) {
-                var globalCountry = new Country();
-                globalCountry.hexagons = this.usedHexagons;
-                this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
+        for (var j = 0; j < freeHexagons[i].neighbors.length; j++) {
+            if (!freeHexagons[i].neighbors[j].used) {
+                freeHexagons.include(freeHexagons[i].neighbors[j]);
             }
-            else 
-                this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
         }
-    },
+    }
     
-    getCountryNeighbors: function() {
-        var length = this.countries.length;
-        for (var i = 0; i < length; i++) {
-            for (var j = i + 1; j < length; j++) {
-                var outlineLength = this.countries[j].outline.length;
-                var countryOutline = this.countries[i].outline;
-                for (var k = 0; k < outlineLength; k++) {
-                    if (countryOutline.contains(this.countries[j].outline[k])) {
-                        this.countries[i].neighbors.push(this.countries[j]);
-                        this.countries[j].neighbors.push(this.countries[i]);
+    if (freeHexagons.length >= maximumHoleSize)
+        return false;
+    else
+    {
+        this.usedHexagons.combine(freeHexagons);
+        freeHexagons.each(function(hexagon) {
+            hexagon.used = true;
+        });
+        
+        return true;
+    }    
+};
+
+Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleSize) {
+    var country = new Country();
+    var startHexagon;
+    
+    country.ID = ID;
+    
+    if (size > maximumHoleSize)
+        maximumHoleSize = size;
+        
+    if (neighborCountry != null) {
+        do {
+            startHexagon = this.getRandomNeighborHexagon(neighborCountry);
+            
+            // FIXME: Error handling, where and how should that happen?
+            if (!startHexagon)
+                return null;
+            
+        } while(this.holeChecker(startHexagon, maximumHoleSize))
+    }
+    else
+        startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
+      
+    startHexagon.used = true;    
+    country.hexagons.push(startHexagon);
+    this.usedHexagons.push(startHexagon);
+    
+    for (var i = 0; i < size - 1; i++) {
+        var newHexagon = this.getRandomNeighborHexagon(country);
+        
+        newHexagon.used = true;
+        country.hexagons.push(newHexagon);
+        this.usedHexagons.push(newHexagon);
+    }
+    
+    return country;
+};
+
+Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
+    var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
+
+    for (var i = 0; i < numberOfCountries; i++) {
+        var sign;
+        
+        if (rand(0, 1) == 1)
+            sign = 1;
+        else
+            sign = -1;
+        
+        if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
+            countrySizeVariance = 0;
+        
+        var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * sign);
+        
+        if (this.countries.length > 0) {
+            var globalCountry = new Country();
+            
+            globalCountry.hexagons = this.usedHexagons;
+            this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
+        }
+        else 
+            this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
+    }
+};
+
+Map.prototype.getCountryNeighbors = function() {
+    var length = this.countries.length;
+    
+    for (var i = 0; i < length; i++) {
+        for (var j = i + 1; j < length; j++) {
+            var outlineLength = this.countries[j].outline.length;
+            var countryOutline = this.countries[i].outline;
+            
+            for (var k = 0; k < outlineLength; k++) {
+                if (countryOutline.contains(this.countries[j].outline[k])) {
+                    this.countries[i].neighbors.push(this.countries[j]);
+                    this.countries[j].neighbors.push(this.countries[i]);
+                    
+                    break;
+                }
+            }
+        }
+    } 
+};
+
+Map.prototype.deleteCountryHoles = function() {
+    var length = this.countries.length
+    
+    for (var i = 0; i < length; i++) {
+        if (this.countries[i].holeLines != undefined) {
+            var country = this.countries[i];
+            
+            while ( 0 < country.holeLines.length) {
+                var hexLength = this.hexagons.length;
+                
+                for (var j = 0; j < hexLength; j++) {
+                    if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
+                        !country.hexagons.contains(this.hexagons[j])) {
+                        
+                        country.hexagons.push(this.hexagons[j]);
+                        for (var k = 0; k < 6; k++) {
+                            if (!country.inLines.contains(this.hexagons[j].lines[k]))
+                                country.inLines.push(this.hexagons[j].lines[k]);
+                        }
+                            
+                        for (var k = 0; k < 6; k++) {
+                            country.holeLines.erase(this.hexagons[j].lines[k]);
+                        }
+                        
                         break;
                     }
                 }
             }
         }
-    },
-    
-    deleteCountryHoles: function() {
-        var length = this.countries.length
-        for (var i = 0; i < length; i++) {
-            if ($defined(this.countries[i].holeLines)) {
-                var country = this.countries[i];
-                while ( 0 < country.holeLines.length) {
-                    var hexLength = this.hexagons.length;
-                    for (var j = 0; j < hexLength; j++) {
-                        if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
-                            !country.hexagons.contains(this.hexagons[j])) {
-                            
-                            country.hexagons.push(this.hexagons[j]);
-                            for (var k = 0; k < 6; k++)
-                                if (!country.inLines.contains(this.hexagons[j].lines[k]))
-                                    country.inLines.push(this.hexagons[j].lines[k]);
-                            for (var k = 0; k < 6; k++)
-                                country.holeLines.erase(this.hexagons[j].lines[k]);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    },
-    
-    calculateOutlines: function() {
-        for (var i = 0; i < this.countries.length; i++) {
-            this.countries[i].generateOutline();
-        }        
-    },
-    
-    calculateCenters: function() {
-       for (var i = 0; i < this.countries.length; i++) {
-            this.countries[i].getCenter();
-        } 
     }
-});
+};
+
+Map.prototype.calculateOutlines = function() {
+    for (var i = 0; i < this.countries.length; i++) {
+        this.countries[i].generateOutline();
+    }        
+};
+    
+Map.prototype.calculateCenters = function() {
+   for (var i = 0; i < this.countries.length; i++) {
+        this.countries[i].getCenter();
+    } 
+};
 
 function rand(minimum, maximum) {
     return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
