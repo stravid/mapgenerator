@@ -7,19 +7,19 @@
     <script src="generator.js" type="text/javascript"></script>
     <script src="draw.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var generator = new MapGenerator(1200, 600, 35);
+        var generator = new MapGenerator(1400, 800, 50);
         var countries;
         var ut;
         
         window.addEvent('domready', function() {
             
-            generator.init(true);
-            generator.generate(20, 0.5, 1);
+            generator.init(false);
+            generator.generate(50, 0.5, 1);
             
             countries = generator.getCountries();
             
-            map = Raphael("map", 1600, 600);
-            var fill = map.rect(0, 0, 1600, 600).attr("fill", /*"#0C45CF"*/"#111133");
+            map = Raphael("map", 1400, 800);
+            var fill = map.rect(0, 0, 1400, 800).attr("fill", /*"#0C45CF"*/"#111133");
             /*for (var i = 0; i < generator.map.countries.length; i++) {
                 drawCountry(generator.map.countries[i].outline, generator.map.countries[i].center);
             }*/

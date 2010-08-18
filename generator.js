@@ -72,6 +72,22 @@ var MapGenerator = new Class({
             clientMap.regions.push(country);
         }
         
+        clientMap.adjacencyMatrix = new Array(clientMap.regions.length);
+        
+        for (var i = 0; i < clientMap.regions.length; i++) {
+            clientMap.adjacencyMatrix[i] = new Array(clientMap.regions.length);
+            
+            for (var j = 0; j < clientMap.regions.length; j++) {
+                clientMap.adjacencyMatrix[i][j] = 0;
+            }
+        }
+        
+        for (var i = 0; i < clientMap.regions.length; i++) {
+            for (var j = 0; j < clientMap.regions[i].neighborIDs.length; j++) {
+                clientMap.adjacencyMatrix[clientMap.regions[i].ID][clientMap.regions[i].neighborIDs[j]] = 1;
+            }
+        }
+        
         return clientMap;
     }
 });
