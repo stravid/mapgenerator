@@ -59,6 +59,19 @@ Array.prototype.combine = function(array) {
     return this;
 };
 
+Array.prototype.erase = function(item) {
+    for (var i = this.length; i--; i) {
+        if (this[i] === item)
+            this.splice(i, 1);
+    }
+    
+    return this;  
+};
+
+Array.prototype.getLast = function() {
+    return (this.length) ? this[this.length - 1] : null;
+};
+
 if (!Array.prototype.forEach) {
     // FIXME: WTF
     Array.prototype.forEach = function(fun /*, thisp*/) {
