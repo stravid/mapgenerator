@@ -26,20 +26,19 @@ MapGenerator.prototype.getCountries = function() {
     return this.map.countries;
 };
 
-MapGenerator.prototype.getUnitacsClientMap = function() {
-    var clientMap = {};
+MapGenerator.prototype.getUnitacsMap = function() {
+    var map = {};
     
-    clientMap.width = this.map.width;
-    clientMap.height = this.map.height;
-    clientMap.regions = new Array();
-    clientMap.connections = new Array();
+    map.width = this.map.width;
+    map.height = this.map.height;
+    map.regions = new Array();
+    map.adjacencyMatrix = new Array();
     
     for (var i = 0; i < this.map.countries.length; i++) {
-        var country = {};
-        country.center = {};
-        country.neighborIDs = new Array();
+        var region = {};
         
-        country.ID = this.map.countries[i].ID;
+        region.center = this.map.countries[i].center;
+        region.ID = this.map.countries[i].ID;
         
         var pathString = "M " + this.map.countries[i].outline[0].x + " " + this.map.countries[i].outline[0].y;
         
@@ -48,45 +47,28 @@ MapGenerator.prototype.getUnitacsClientMap = function() {
         }
         
         pathString += " Z";
-        country.pathString = pathString;
+        region.pathString = pathString;
         
-        country.center.x = this.map.countries[i].center.x;
-        country.center.y = this.map.countries[i].center.y;
+        map.regions.push(region);
+    }
+    
+    for (var i = 0; i < this.map.countries.length; i++) {
+        map.adjacencyMatrix[i] = new Array();
         
-        for (var k = 0; k < this.map.countries[i].neighbors.length; k++) {
-            var neighborID = this.map.countries[i].neighbors[k].ID;
-            country.neighborIDs.push(neighborID);
+        for (var j = 0; j < this.map.countries.length; j++) {
+            map.adjacencyMatrix[i][j] = 0;
+        }
+    }
+    
+    for (var i = 0; i < this.map.countries.length; i++) {
+        for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
+            var differenceX = this.map.countries[i].center.x - this.map.countries[i].neighbors[j].center.x;
+            var differenceY = this.map.countries[i].center.y - this.map.countries[i].neighbors[j].center.y;
+            var distance = Math.sqrt(Math.pow(differenceX, 2) + Math.pow(differenceY, 2));
             
-            var connection = (country.ID < neighborID) ? [country.ID, neighborID] : [neighborID, country.ID];
-            
-            if (clientMap.connections.every(function(item){
-                //console.log(item[0] + ',' + item[1] + ' vs. ' + connection[0] + ',' + connection[1]);
-                return !((item[0] == connection[0]) && (item[1] == connection[1]));
-            })) {
-                clientMap.connections.push(connection);
-                console.log('new connection ' + connection + ' found');
-            } else
-                console.log('double connection ' + connection + ' found');
-        }
-        
-        clientMap.regions.push(country);
-    }
-    
-    clientMap.adjacencyMatrix = new Array(clientMap.regions.length);
-    
-    for (var i = 0; i < clientMap.regions.length; i++) {
-        clientMap.adjacencyMatrix[i] = new Array(clientMap.regions.length);
-        
-        for (var j = 0; j < clientMap.regions.length; j++) {
-            clientMap.adjacencyMatrix[i][j] = 0;
+            map.adjacencyMatrix[this.map.countries[i].ID][this.map.countries[i].neighbors[j].ID] = distance;
         }
     }
     
-    for (var i = 0; i < clientMap.regions.length; i++) {
-        for (var j = 0; j < clientMap.regions[i].neighborIDs.length; j++) {
-            clientMap.adjacencyMatrix[clientMap.regions[i].ID][clientMap.regions[i].neighborIDs[j]] = 1;
-        }
-    }
-    
-    return clientMap;
+    return map;
 };
