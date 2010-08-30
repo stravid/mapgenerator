@@ -1,24 +1,18 @@
 function MapGenerator(mapWidth, mapHeight, hexagonSize) {
-    this.map = new Map(mapWidth, mapHeight, hexagonSize);  
-};
-    
-MapGenerator.prototype.init = function(useDistortion) {
-    // FIXME: empty all
-    this.map.generateHexagonArray(useDistortion);
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    this.hexagonSize = hexagonSize;  
 };
 
 // FIXME: add shape style
 // FIXME: where is the shape style in mapGenerator.js? 
-MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-    // FIXME: empty all
+MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion) {
+    this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize);
+    this.map.generateHexagonArray(useDistortion);
     this.map.normalGenerator(numberOfCountries, countrySizeVariance, maximumHoleSize);
     this.map.calculateOutlines();
-    
-    
     this.map.deleteCountryHoles();
-
     this.map.calculateCenters();
-
     this.map.getCountryNeighbors();
 };
     

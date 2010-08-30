@@ -35,8 +35,7 @@ function Country() {
     this.hexagons = new Array();
     this.neighbors = new Array();
     this.outline = new Array();
-    // FIXME: inLines to inlines
-    this.inLines = new Array();
+    this.inlines = new Array();
 };
 
 Country.prototype.getNeighborHexagons = function() {
@@ -129,11 +128,11 @@ Country.prototype.getHexagonField = function(hexagons) {
 Country.prototype.getCenter = function() {   
     var triplePoints = new Array();
     var points = new Array();
-    var length = this.inLines.length;
+    var length = this.inlines.length;
     
     for (var i = 0; i < length; i++) {
         for (var j = 0; j < 2; j++) {
-            var point = this.inLines[i].points[j];
+            var point = this.inlines[i].points[j];
             
             if (points.contains(point)) {
                 if (!triplePoints.contains(point))
@@ -184,11 +183,11 @@ Country.prototype.getCenter = function() {
     
     var doubleLines = new Array();
     
-    length = this.inLines.length;
+    length = this.inlines.length;
     
     for (var i = 0; i < length; i++) {
-        if (triplePoints.contains(this.inLines[i].points[0]) && triplePoints.contains(this.inLines[i].points[1]))
-            doubleLines.push(this.inLines[i]);
+        if (triplePoints.contains(this.inlines[i].points[0]) && triplePoints.contains(this.inlines[i].points[1]))
+            doubleLines.push(this.inlines[i]);
     }
     
     if (doubleLines.length < 1) {
@@ -244,7 +243,7 @@ Country.prototype.getCenter = function() {
         
         var centerPoint = new Point(sumX/length/2, sumY/length/2);
         var j;
-        // FIXME: wtf
+        // FIXME: wtf, shoudnt be Infinity used?
         var distance = 100000000;
         
         for (var i = 0; i < length; i++) {
@@ -298,7 +297,7 @@ Country.prototype.generateOutline = function() {
             
             if (outLines.contains(line)) {
                 outLines = outLines.erase(line);
-                this.inLines.push(line);
+                this.inlines.push(line);
             }
             else
                 outLines.push(line);

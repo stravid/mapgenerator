@@ -26,10 +26,11 @@
         var generator = new MapGenerator(width, height, hexagonSize);
         var paper = Raphael("paper", width, height);
         
-        generator.init(useDistortion);
-        generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize);
+        generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
         
         var map = generator.getMap();
+        
+        console.log(generator);
         
         for (var i = 0; i < map.regions.length; i++) {          
             paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));

@@ -351,8 +351,8 @@ Map.prototype.deleteCountryHoles = function() {
                         
                         country.hexagons.push(this.hexagons[j]);
                         for (var k = 0; k < 6; k++) {
-                            if (!country.inLines.contains(this.hexagons[j].lines[k]))
-                                country.inLines.push(this.hexagons[j].lines[k]);
+                            if (!country.inlines.contains(this.hexagons[j].lines[k]))
+                                country.inlines.push(this.hexagons[j].lines[k]);
                         }
                             
                         for (var k = 0; k < 6; k++) {
