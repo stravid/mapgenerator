@@ -1,0 +1,99 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <title>Map Generator</title>
+    <script src="raphael.js" type="text/javascript"></script>
+    <script src="../point.js" type="text/javascript"></script>
+    <script src="../line.js" type="text/javascript"></script>
+    <script src="../hexagon.js" type="text/javascript"></script>
+    <script src="../region.js" type="text/javascript"></script>
+    <script src="../country.js" type="text/javascript"></script>
+    <script src="../map.js" type="text/javascript"></script>
+    <script src="../mapgenerator.js" type="text/javascript"></script>
+    
+    <link href='style.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <div id="panel">
+        <div id="info">
+            <h1>MapGenerator</h1>
+            <p>
+                Created by <a href="http://stravid.com">David Strauß</a>, <a href="http://egraether.multimediatechnology.at/blog/">Eberhard Gräther</a> and Christian Winkler. Fork and improve the code over at <a href="">GitHub</a>!
+            </p>
+        </div>
+        <div id="settings">
+            <form>
+                <fieldset id="firstColumn">
+                    <span>Size of map (px): </span><input type="text" id="mapWidth" value="1400"/> x <input type="text" id="mapHeight" value="800"/><br />
+                    <span>Size of a hexagon (px): </span><input type="text" id="hexagonSize" value="40"/><br />
+                    <span>Number of countries: </span><input type="text" id="numberOfCountries" value="60"/>
+                </fieldset>
+                <fieldset id="secondColumn">
+                    <span>Country size variance (0 - 0.9): </span><input type="text" id="countrySizeVariance" value="0.5"/><br />
+                    <span>Maximum size of holes: </span><input type="text" id="maximumHoleSize" value="0"/><br />
+                    <span>Distortion: </span><input type="checkbox" id="useDistortion">
+                </fieldset>
+                <fieldset id="thirdColumn">
+                    <span>Show centers and connections:</span><input type="checkbox" id="showCentersAndConnection"><br />
+                    <br />
+                    <input type="button" id="generate" value="Generate New Map">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div id="paper">
+    </div>
+    
+    <script type="text/javascript">
+        function generate() {
+            var width = parseInt(document.getElementById('mapWidth').value);
+            var height = parseInt(document.getElementById('mapHeight').value);
+            var hexagonSize = parseInt(document.getElementById('hexagonSize').value);
+            var numberOfCountries = parseInt(document.getElementById('numberOfCountries').value);
+            var maximumHoleSize = parseInt(document.getElementById('maximumHoleSize').value);
+            var countrySizeVariance = parseFloat(document.getElementById('countrySizeVariance').value);
+            var useDistortion = document.getElementById('useDistortion').checked;
+            var showCentersAndConnection = document.getElementById('showCentersAndConnection').checked;
+            
+            paper.clear();
+            paper.setSize(width, height);
+            Raphael.getColor.reset();
+            
+            var generator = new MapGenerator(width, height, hexagonSize);
+        
+            generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
+            
+            var map = generator.getMap();
+            
+            for (var i = 0; i < map.regions.length; i++) {          
+                paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
+                
+                if (showCentersAndConnection)
+                    paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#eeea10');
+            }
+            
+            if (showCentersAndConnection) {
+                for (var i = 0; i < map.adjacencyMatrix.length; i++) {
+                    for (var j = 0; j < map.adjacencyMatrix[i].length; j++) {
+                        if (map.adjacencyMatrix[i][j] == 0)
+                            continue;
+                            
+                        paper.path(
+                            'M ' + map.regions[i].center.x + 
+                            ',' + map.regions[i].center.y + 
+                            ' L ' + map.regions[j].center.x + 
+                            ',' + map.regions[j].center.y + ' Z'
+                        ).attr('stroke', '#ffffff').attr('opacity', 0.3);
+                    }
+                } 
+            }   
+        }
+        
+        var button = document.getElementById('generate');
+        var paper = Raphael("paper", 10, 10);
+    
+        button.onclick = generate;
+        generate();
+    </script>
+</body>
+</html>
