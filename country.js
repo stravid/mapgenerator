@@ -63,11 +63,10 @@ Country.prototype.getLineField = function(lines) {
     connectedLines.push(lines[0]);
     lines.erase(lines[0]);
     
-    // FIXME: found what?
-    var found = true;
+    var isConnected = true;
     
-    while (found) {
-        found = false;
+    while (isConnected) {
+        isConnected = false;
         
         for (var i = 0; i < connectedLines.length; i++) {
             for (var j = 0; j < lines.length; j++) {
@@ -80,13 +79,13 @@ Country.prototype.getLineField = function(lines) {
                     
                     connectedLines.push(line);
                     lines.erase(line);
-                    found = true;
+                    isConnected = true;
                     
                     break;
                 }
             }
             
-            if (found)
+            if (isConnected)
                 break;
         }
     }
@@ -96,13 +95,13 @@ Country.prototype.getLineField = function(lines) {
 
 Country.prototype.getHexagonField = function(hexagons) {
     var connectedHexagons = new Array();
-    var found = true;
+    var isConnected = true;
     
     connectedHexagons.push(hexagons[0]);
     hexagons.erase(hexagons[0]);
     
-    while (found) {
-        found = false;
+    while (isConnected) {
+        isConnected = false;
         
         for (var i = 0; i < connectedHexagons.length; i++) {
             for (var j = 0; j < hexagons.length; j++) {
@@ -111,13 +110,13 @@ Country.prototype.getHexagonField = function(hexagons) {
                     
                     connectedHexagons.push(hex);
                     hexagons.erase(hex);
-                    found = true;
+                    isConnected = true;
                     
                     break;
                 }
             }
             
-            if (found)
+            if (isConnected)
                 break;
         }
     }

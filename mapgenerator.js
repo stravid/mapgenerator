@@ -5,7 +5,7 @@ function MapGenerator(mapWidth, mapHeight, hexagonSize) {
 };
 
 // FIXME: add shape style
-// FIXME: where is the shape style in mapGenerator.js? 
+// FIXME: where is the shape style in mapGenerator.js?
 MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion) {
     this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize);
     this.map.generateHexagonArray(useDistortion);

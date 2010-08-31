@@ -74,7 +74,7 @@
             
             if (showCentersAndConnection) {
                 for (var i = 0; i < map.adjacencyMatrix.length; i++) {
-                    for (var j = 0; j < map.adjacencyMatrix[i].length; j++) {
+                    for (var j = 0; j < i; j++) {
                         if (map.adjacencyMatrix[i][j] == 0)
                             continue;
                             
