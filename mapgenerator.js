@@ -1,13 +1,12 @@
-function MapGenerator(mapWidth, mapHeight, hexagonSize) {
+function MapGenerator(mapWidth, mapHeight, hexagonSize, useCompactShapes) {
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
-    this.hexagonSize = hexagonSize;  
+    this.hexagonSize = hexagonSize; 
+    this.useCompactShapes = useCompactShapes;
 };
 
-// FIXME: add shape style
-// FIXME: where is the shape style in mapGenerator.js? 
 MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion) {
-    this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize);
+    this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize, this.useCompactShapes);
     this.map.generateHexagonArray(useDistortion);
     this.map.normalGenerator(numberOfCountries, countrySizeVariance, maximumHoleSize);
     this.map.calculateOutlines();
