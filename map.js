@@ -41,7 +41,7 @@ if (!Array.prototype.forEach) {
 
 Array.prototype.each = Array.prototype.forEach;
 
-function Map(width, height, hexagonSize) {
+function Map(width, height, hexagonSize, useCompactShapes) {
     this.points = new Array();
     this.lines = new Array();
     this.hexagons = new Array();
@@ -51,6 +51,9 @@ function Map(width, height, hexagonSize) {
     this.width = width;
     this.height = height;
     this.hexagonSize = hexagonSize;
+    this.useCompactShapes = useCompactShapes;
+    
+    console.log(this.useCompactShapes);
 };
 
 Map.prototype.generateHexagonArray = function(useDistortion) {
@@ -214,7 +217,7 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
 };
 
 Map.prototype.getRandomNeighborHexagon = function(country) {
-    var possibleNeighbors = country.getNeighborHexagons();
+    var possibleNeighbors = country.getNeighborHexagons(this.useCompactShapes);
     
     if (possibleNeighbors.length > 0)
         return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];

@@ -38,7 +38,7 @@ function Country() {
     this.inlines = new Array();
 };
 
-Country.prototype.getNeighborHexagons = function() {
+Country.prototype.getNeighborHexagons = function(useCompactShapes) {
     var allHexagons = new Array();
     
     for (var i = 0; i < this.hexagons.length; i++) {
@@ -49,9 +49,10 @@ Country.prototype.getNeighborHexagons = function() {
     
     for (var i = 0; i < allHexagons.length; i++) {
         if (!allHexagons[i].used)
-            neighborHexagons.include(allHexagons[i]);
-            //neighborHexagons.push(allHexagons[i]);
-            // FIXME: whats that?!
+            if (useCompactShapes)
+                neighborHexagons.push(allHexagons[i]);
+            else
+                neighborHexagons.include(allHexagons[i]);
     }
     
     return neighborHexagons;

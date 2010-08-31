@@ -34,6 +34,7 @@
                     <span>Distortion: </span><input type="checkbox" id="useDistortion">
                 </fieldset>
                 <fieldset id="thirdColumn">
+                    <span>Compact country shapes:</span><input type="checkbox" id="useCompactShapes"><br />
                     <span>Show centers and connections:</span><input type="checkbox" id="showCentersAndConnection"><br />
                     <br />
                     <input type="button" id="generate" value="Generate New Map">
@@ -54,13 +55,14 @@
             var countrySizeVariance = parseFloat(document.getElementById('countrySizeVariance').value);
             var useDistortion = document.getElementById('useDistortion').checked;
             var showCentersAndConnection = document.getElementById('showCentersAndConnection').checked;
+            var useCompactShapes = document.getElementById('useCompactShapes').checked;
             
             paper.clear();
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            var generator = new MapGenerator(width, height, hexagonSize);
-        
+            var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
+            
             generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
             
             var map = generator.getMap();
