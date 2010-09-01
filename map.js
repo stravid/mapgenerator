@@ -207,6 +207,7 @@ Map.prototype.getRandomNeighborHexagon = function(country) {
     if (possibleNeighbors.length > 0)
         return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
     else
+        // FIXME: really possible?
         return false; 
 };
 
@@ -228,8 +229,7 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
     
     if (freeHexagons.length >= maximumHoleSize)
         return false;
-    else
-    {
+    else {
         this.usedHexagons.combine(freeHexagons);
         freeHexagons.each(function(hexagon) {
             hexagon.used = true;
@@ -240,8 +240,8 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
 };
 
 Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleSize) {
-    var country = new Country();
-    var startHexagon;
+    var country = new Country(),
+        startHexagon;
     
     country.ID = ID;
     
@@ -265,7 +265,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleS
     country.hexagons.push(startHexagon);
     this.usedHexagons.push(startHexagon);
     
-    for (var i = 0; i < size - 1; i++) {
+    for (var i = 1; i < size; i++) {
         var newHexagon = this.getRandomNeighborHexagon(country);
         
         newHexagon.used = true;
@@ -277,12 +277,13 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleS
 };
 
 Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
-    var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
-
+    // FIXME: the 0.6 value should also be variable
+    var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);
+    
+    if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
+        countrySizeVariance = 0;
+    
     for (var i = 0; i < numberOfCountries; i++) {
-        if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
-            countrySizeVariance = 0;
-        
         var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * (rand(0, 1) ? 1 : -1));
         
         if (this.countries.length > 0) {
@@ -318,25 +319,28 @@ Map.prototype.deleteCountryHoles = function() {
             var country = this.countries[i],
                 holeHexagons = new Array();
             
-            for (var j = 0, jj = this.hexagons.length; j < jj; j++) {
-                if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
-                    !country.hexagons.contains(this.hexagons[j])) {
-                    holeHexagons.push(this.hexagons[j]);
-                    break;
-                }
-            }
-            
-            while (holeHexagons.length > 0) {
-                var hexagon = holeHexagons.pop();
-                country.hexagons.push(hexagon);
-                
-                for (var j = 0; j < 6; j++) {
-                    country.inlines.include(hexagon.lines[j]);
+            while (country.holeLines.length > 0) {
+                for (var j = 0, jj = this.hexagons.length; j < jj; j++) {
+                    if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
+                        !country.hexagons.contains(this.hexagons[j])) {
+                        holeHexagons.push(this.hexagons[j]);
+                        break;
+                    }
                 }
                 
-                for (var j = 0, jj = hexagon.neighbors.length; j < jj; j++) {
-                    if (!country.hexagons.contains(hexagon.neighbors[j]))
-                        holeHexagons.push(hexagon.neighbors[j]);
+                while (holeHexagons.length > 0) {
+                    var hexagon = holeHexagons.pop();
+                    country.hexagons.push(hexagon);
+                    
+                    for (var j = 0; j < 6; j++) {
+                        country.inlines.include(hexagon.lines[j]);
+                        country.holeLines.erase(hexagon.lines[j]);
+                    }
+                    
+                    for (var j = 0, jj = hexagon.neighbors.length; j < jj; j++) {
+                        if (!country.hexagons.contains(hexagon.neighbors[j]))
+                            holeHexagons.push(hexagon.neighbors[j]);
+                    }
                 }
             }
         }
