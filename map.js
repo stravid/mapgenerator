@@ -47,7 +47,6 @@ function Map(width, height, hexagonSize, useCompactShapes) {
     this.hexagons = new Array();
     this.usedHexagons = new Array();
     this.countries = new Array();
-    this.regions = new Array();
     this.width = width;
     this.height = height;
     this.hexagonSize = hexagonSize;
