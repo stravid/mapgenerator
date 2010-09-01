@@ -67,33 +67,37 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
+            try {
+                var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
             
-            generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
+                generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
             
-            var map = generator.getMap();
-            
-            for (var i = 0; i < map.regions.length; i++) {          
-                paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
+                var map = generator.getMap();
                 
-                if (showCentersAndConnection)
-                    paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#eeea10');
-            }
-            
-            if (showCentersAndConnection) {
-                for (var i = 0; i < map.adjacencyMatrix.length; i++) {
-                    for (var j = 0; j < i; j++) {
-                        if (map.adjacencyMatrix[i][j] == 0)
-                            continue;
-                            
-                        paper.path(
-                            'M ' + map.regions[i].center.x + 
-                            ',' + map.regions[i].center.y + 
-                            ' L ' + map.regions[j].center.x + 
-                            ',' + map.regions[j].center.y + ' Z'
-                        ).attr('stroke', '#ffffff').attr('opacity', 0.3);
-                    }
-                } 
+                for (var i = 0; i < map.regions.length; i++) {          
+                    paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
+                    
+                    if (showCentersAndConnection)
+                        paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#eeea10');
+                }
+                
+                if (showCentersAndConnection) {
+                    for (var i = 0; i < map.adjacencyMatrix.length; i++) {
+                        for (var j = 0; j < i; j++) {
+                            if (map.adjacencyMatrix[i][j] == 0)
+                                continue;
+                                
+                            paper.path(
+                                'M ' + map.regions[i].center.x + 
+                                ',' + map.regions[i].center.y + 
+                                ' L ' + map.regions[j].center.x + 
+                                ',' + map.regions[j].center.y + ' Z'
+                            ).attr('stroke', '#ffffff').attr('opacity', 0.3);
+                        }
+                    } 
+                }
+            } catch (e) {
+                alert(e);
             }   
         }
         

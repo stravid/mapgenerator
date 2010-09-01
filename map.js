@@ -252,9 +252,8 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleS
         do {
             startHexagon = this.getRandomNeighborHexagon(neighborCountry);
             
-            // FIXME: Error handling, where and how should that happen?
             if (!startHexagon)
-                return null;
+                throw 'Epic Fail';
             
         } while(this.holeChecker(startHexagon, maximumHoleSize))
     }
