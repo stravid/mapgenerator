@@ -59,12 +59,11 @@ Country.prototype.getNeighborHexagons = function(useCompactShapes) {
 };
 
 Country.prototype.getLineField = function(lines) {
-    var connectedLines = new Array();
+    var connectedLines = new Array(),
+        isConnected = true;
     
     connectedLines.push(lines[0]);
     lines.erase(lines[0]);
-    
-    var isConnected = true;
     
     while (isConnected) {
         isConnected = false;
@@ -76,12 +75,10 @@ Country.prototype.getLineField = function(lines) {
                     (lines[j].points[1] == connectedLines[i].points[0]) || 
                     (lines[j].points[0] == connectedLines[i].points[1])) {
                     
-                    var line = lines[j];
+                    connectedLines.push(lines[j]);
+                    lines.erase(lines[j]);
                     
-                    connectedLines.push(line);
-                    lines.erase(line);
                     isConnected = true;
-                    
                     break;
                 }
             }
@@ -95,8 +92,8 @@ Country.prototype.getLineField = function(lines) {
 };
 
 Country.prototype.getHexagonField = function(hexagons) {
-    var connectedHexagons = new Array();
-    var isConnected = true;
+    var connectedHexagons = new Array(),
+        isConnected = true;
     
     connectedHexagons.push(hexagons[0]);
     hexagons.erase(hexagons[0]);
@@ -104,15 +101,13 @@ Country.prototype.getHexagonField = function(hexagons) {
     while (isConnected) {
         isConnected = false;
         
-        for (var i = 0; i < connectedHexagons.length; i++) {
-            for (var j = 0; j < hexagons.length; j++) {
+        for (var i = 0, ii = connectedHexagons.length; i < ii; i++) {
+            for (var j = 0, jj = hexagons.length; j < jj; j++) {
                 if (hexagons[j].neighbors.contains(connectedHexagons[i])) {
-                    var hex = hexagons[j];
+                    connectedHexagons.push(hexagons[j]);
+                    hexagons.erase(hexagons[j]);
                     
-                    connectedHexagons.push(hex);
-                    hexagons.erase(hex);
                     isConnected = true;
-                    
                     break;
                 }
             }
@@ -125,12 +120,12 @@ Country.prototype.getHexagonField = function(hexagons) {
     return connectedHexagons;
 };
 
-Country.prototype.getCenter = function() {   
-    var triplePoints = new Array();
-    var points = new Array();
-    var length = this.inlines.length;
+Country.prototype.getCenter = function() {
+    // triplePoints are points in the inside of a country / a triplePoint is part of 3 hexagons
+    var triplePoints = new Array(),
+        points = new Array();
     
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.inlines.length; i < ii; i++) {
         for (var j = 0; j < 2; j++) {
             var point = this.inlines[i].points[j];
             
@@ -143,20 +138,19 @@ Country.prototype.getCenter = function() {
         }
     }
     
-    var sumX = 0;
-    var sumY = 0;
+    var sumX = 0,
+        sumY = 0;
     
+    // no triplePoints: set center in middle of a hexagon
     if (triplePoints.length < 1) {
-        // set center in middle of a hexagon
-        length = this.hexagons.length;
-        
-        for (var i = 0; i < length; i++) {
+        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
             var inCountryNeighbors = 0;
             
             for (var j = 0; j < 6; j++) {
                 if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
                     inCountryNeighbors++;
                     
+                    // use a hexagon as center with 3 neighbors
                     if (inCountryNeighbors == 3) {
                         for (var k = 0; k < 6; k++) {
                             sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
@@ -164,57 +158,54 @@ Country.prototype.getCenter = function() {
                         }
                         
                         this.center = new Point(sumX / 12, sumY / 12);
-                        
                         return;
                     }
                 }
             }
         }
         
+        // if there is no hexagon with 3 neighbors, use first
         for (var i = 0; i < 6; i++) {
             sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
             sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
         }
         
         this.center = new Point(sumX / 12, sumY / 12);
-        
         return;
     }
     
+    // doubleLines are Lines inside the country, between 2 triplePoints
     var doubleLines = new Array();
     
-    length = this.inlines.length;
-    
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.inlines.length; i < ii; i++) {
         if (triplePoints.contains(this.inlines[i].points[0]) && triplePoints.contains(this.inlines[i].points[1]))
             doubleLines.push(this.inlines[i]);
     }
     
+    // no doubleLines: set center to a triplePoint
     if (doubleLines.length < 1) {
-        // set center to a triple point
         this.center = new Point(triplePoints[0].x, triplePoints[0].y);
-        
         return;
     }
     
+    // a lineField consists of connected doubleLines
     var lineFields = new Array();
     
     while (doubleLines.length > 0) {
         lineFields.push(this.getLineField(doubleLines));
     }
     
+    // get the biggest lineField
     var lineField = lineFields[0];
-    
     for (var i = 1; i < lineFields.length; i++) {
         if (lineFields[i].length > lineField.length)
             lineField = lineFields[i];
     }
     
+    // inLineHexagons are hexagons completely on the inside of a country
     var inLineHexagons = new Array();
     
-    length = this.hexagons.length;
-    
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
         var containsHex = true;
         
         for (var j = 0; j < 6; j++) {
@@ -226,47 +217,44 @@ Country.prototype.getCenter = function() {
             inLineHexagons.push(this.hexagons[i]);
     }
     
+    // no inLineHexagons: set center to line in lineField
     if (inLineHexagons.length < 1) {
-        // average Point of LineField
         var lineCenters = new Array();
         
-        length = lineField.length;
-        
-        for (var i = 0; i < length; i++) {
-            var x = lineField[i].points[0].x + lineField[i].points[1].x;
-            var y = lineField[i].points[0].y + lineField[i].points[1].y;
+        for (var i = 0, ii = lineField.length; i < ii; i++) {
+            var x = lineField[i].points[0].x + lineField[i].points[1].x,
+                y = lineField[i].points[0].y + lineField[i].points[1].y;
             
             lineCenters.push(new Point(x/2,y/2));
             sumX += x;
             sumY += y;
         }
         
-        var centerPoint = new Point(sumX/length/2, sumY/length/2);
-        var j;
-        // FIXME: wtf, shoudnt be Infinity used?
-        var distance = 100000000;
+        var centerPoint = new Point(sumX / 2 / lineField.length, sumY / 2 / lineField.length),
+            distance = Infinity, 
+            j;
         
-        for (var i = 0; i < length; i++) {
-            var lineDistance = Math.sqrt(((centerPoint.x - lineCenters[i].x) * (centerPoint.x - lineCenters[i].x) + 
-                (centerPoint.y - lineCenters[i].y) * (centerPoint.y - lineCenters[i].y)));
-                
-            if (distance > lineDistance) {
+        for (var i = 0, ii = lineField.length; i < ii; i++) {
+            var lineDistance = Math.sqrt(Math.pow(centerPoint.x - lineCenters[i].x, 2) + Math.pow(centerPoint.y - lineCenters[i].y, 2));
+            
+            if (lineDistance < distance) {
                 j = i;
                 distance = lineDistance;
             }
         }
         
         this.center = new Point(lineCenters[j].x, lineCenters[j].y);
-        
         return;
     }
     
+    // a hexagonField is a field consisting of inLineHexagons
     var hexagonFields = new Array();
     
     while (inLineHexagons.length > 0) {
         hexagonFields.push(this.getHexagonField(inLineHexagons));
     }
     
+    // get the biggest hexagonField
     var hexagonField = hexagonFields[0];
     
     for (var i = 1; i < hexagonFields.length; i++) {
@@ -274,24 +262,21 @@ Country.prototype.getCenter = function() {
             hexagonField = hexagonFields[i];
     }
     
-    length = hexagonField.length;
-    
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = hexagonField.length; i < ii; i++) {
         for (var j = 0; j < 6; j++) {
             sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
             sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
         }
     }
     
-    this.center = new Point(sumX/length/12, sumY/length/12);
+    this.center = new Point(sumX / 12 / hexagonField.length, sumY / 12 / hexagonField.length);
 };
 
 Country.prototype.generateOutline = function() {
     // lineArray containing only outlines
     var outLines = new Array();
-    var length = this.hexagons.length;
     
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
         for (var j = 0; j < 6; j++) {
             var line = this.hexagons[i].lines[j];
             
@@ -304,16 +289,11 @@ Country.prototype.generateOutline = function() {
         }
     }
     
-    // getting top left line
+    // getting line on the outside
     var line = outLines.getLast();
-    
     for (var i = 0; i < outLines.length; i++) {
-        if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+        if (outLines[i].points[0].x < line.points[0].x)
             line = outLines[i];
-        else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
-            if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
-                line = outLines[i];
-        }
     }
     
     // creating the outline
@@ -321,20 +301,19 @@ Country.prototype.generateOutline = function() {
     this.outline.push(line.points[1]);
     outLines = outLines.erase(line);
     
-    var startPoint = line.points[0];
-    var point = line.points[1];
+    var startPoint = line.points[0],
+        point = line.points[1];
     
     while (startPoint != point) {
         for (var i = 0; i < outLines.length; i++) {
-            var a = 0, b = 1;
-        
-            if (outLines[i].points[a] == point) {   
-                point = outLines[i].points[b];
-                this.outline.push(outLines[i].points[b]);
+            if (outLines[i].points[0] == point) {   
+                point = outLines[i].points[1];
+                this.outline.push(outLines[i].points[1]);
                 outLines = outLines.erase(outLines[i]);
-            } else if (outLines[i].points[b] == point) {
-                point = outLines[i].points[a];
-                this.outline.push(outLines[i].points[a]);
+            } 
+            else if (outLines[i].points[1] == point) {
+                point = outLines[i].points[0];
+                this.outline.push(outLines[i].points[0]);
                 outLines = outLines.erase(outLines[i]);
             }
         }

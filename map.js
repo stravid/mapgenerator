@@ -47,7 +47,6 @@ function Map(width, height, hexagonSize, useCompactShapes) {
     this.hexagons = new Array();
     this.usedHexagons = new Array();
     this.countries = new Array();
-    this.regions = new Array();
     this.width = width;
     this.height = height;
     this.hexagonSize = hexagonSize;
@@ -55,9 +54,9 @@ function Map(width, height, hexagonSize, useCompactShapes) {
 };
 
 Map.prototype.generateHexagonArray = function(useDistortion) {
-    var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2;
-    var numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5 );
-    var numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize) ) - (1 / 3) );
+    var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2,
+        numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5), 
+        numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize)) - (1 / 3));
     
     // pointArray
     for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
@@ -65,11 +64,10 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
             var x, y, phi, r;
             
             x = column * hexagonWidth;
+            y = row * this.hexagonSize * 0.75;
             
-            if ((row % 2) == 1)
-                y = row * this.hexagonSize * 0.75;
-            else
-                y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
+            if ((row % 2) == 0)
+                y += 0.25 * this.hexagonSize;
              
             if (useDistortion) {   
                 phi = Math.random() * Math.PI * 2;
@@ -81,12 +79,11 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
             this.points.push(new Point(x, y));
                 
             x = (column + 0.5) * hexagonWidth;
+            y = row * this.hexagonSize * 0.75;
             
             if ((row % 2) == 1)
-                y = row * this.hexagonSize * 0.75 + 0.25 * this.hexagonSize;
-            else
-                y = row * this.hexagonSize * 0.75;
-                
+                y += 0.25 * this.hexagonSize;
+            
             if (useDistortion) {   
                 phi = Math.random() * 2 * Math.PI;
                 r = Math.random() * this.hexagonSize/4;
@@ -103,24 +100,17 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
         var number = numberOfHexagonsInARow * 2 + 2;
         
         for (var column = 0; column < numberOfHexagonsInARow * 2 + 1; column++) {
-            var pointA, pointB;
-            
-            pointA = this.points[(row * number) + column];
-            pointB = this.points[(row * number) + column + 1];
+            var pointA = this.points[(row * number) + column],
+                pointB = this.points[(row * number) + column + 1];
             this.lines.push(new Line(pointA, pointB));
         }
         
         if (row < numberOfHexagonsInAColumn) {
-            var oddrow = 0;
-            
-            if ((row % 2) == 1)
-                oddrow = 1;
+            var oddrow = (row % 2) ? 1 : 0;
             
             for (var column = 0; column < numberOfHexagonsInARow + 1; column++) {
-                var pointA, pointB;
-                
-                pointA = this.points[(row * number) + column * 2 + oddrow];
-                pointB = this.points[((row + 1) * number) + column * 2 + oddrow];
+                var pointA = this.points[(row * number) + column * 2 + oddrow],
+                    pointB = this.points[((row + 1) * number) + column * 2 + oddrow];
                 this.lines.push(new Line(pointA, pointB));
             }
         }
@@ -130,36 +120,33 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
     var linesPerRow = numberOfHexagonsInARow * 3 + 2;
     
     for (var row = 0; row < numberOfHexagonsInAColumn; row++) {
-        var oddrow = 0;
-        
-        if ((row % 2) == 1)
-            oddrow = 1;
+        var oddrow = (row % 2) ? 1 : 0;
             
         for (var column = 0; column < numberOfHexagonsInARow; column++) {
             var number = linesPerRow * row + column * 2 + oddrow;
-            var lineA = this.lines[number];
-            var lineB = this.lines[number+1];
+            var lineA = this.lines[number],
+                lineB = this.lines[number+1];
             
             number = linesPerRow * row + (numberOfHexagonsInARow * 2 + 1) + column;
             
-            var lineC = this.lines[number];
-            var lineD = this.lines[number+1];
+            var lineC = this.lines[number],
+                lineD = this.lines[number+1];
             
             number = linesPerRow * (row + 1) + column * 2 + oddrow;
             
-            var lineE = this.lines[number];
-            var lineF = this.lines[number+1];
+            var lineE = this.lines[number],
+                lineF = this.lines[number+1];
             
             this.hexagons.push(new Hexagon(lineA, lineB, lineD, lineF, lineE, lineC));
         }
     }
     
     // hexagonNeighbors
-    var leftBorder = true;
-    var topBorder = true;
-    var rightBorder = false;
-    var bottomBorder = false;
-    var index = 0;
+    var leftBorder = true,
+        topBorder = true,
+        rightBorder = false,
+        bottomBorder = false,
+        index = 0;
     
     for (var i = 0; i < numberOfHexagonsInAColumn; i++) {
         leftBorder = true;
@@ -293,17 +280,10 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance,
     var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);        
 
     for (var i = 0; i < numberOfCountries; i++) {
-        var sign;
-        
-        if (rand(0, 1) == 1)
-            sign = 1;
-        else
-            sign = -1;
-        
         if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
             countrySizeVariance = 0;
         
-        var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * sign);
+        var countrySize = (averageCountrySize + rand(0, parseInt(averageCountrySize * countrySizeVariance)) * (rand(0, 1) ? 1 : -1));
         
         if (this.countries.length > 0) {
             var globalCountry = new Country();
@@ -317,18 +297,14 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance,
 };
 
 Map.prototype.getCountryNeighbors = function() {
-    var length = this.countries.length;
-    
-    for (var i = 0; i < length; i++) {
-        for (var j = i + 1; j < length; j++) {
-            var outlineLength = this.countries[j].outline.length;
-            var countryOutline = this.countries[i].outline;
-            
-            for (var k = 0; k < outlineLength; k++) {
+    for (var i = 0, ii = this.countries.length; i < ii; i++) {
+        var countryOutline = this.countries[i].outline;
+        
+        for (var j = i + 1; j < ii; j++) {
+            for (var k = 0, kk = this.countries[j].outline.length; k < kk; k++) {
                 if (countryOutline.contains(this.countries[j].outline[k])) {
                     this.countries[i].neighbors.push(this.countries[j]);
                     this.countries[j].neighbors.push(this.countries[i]);
-                    
                     break;
                 }
             }
@@ -337,31 +313,30 @@ Map.prototype.getCountryNeighbors = function() {
 };
 
 Map.prototype.deleteCountryHoles = function() {
-    var length = this.countries.length
-    
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.countries.length; i < ii; i++) {
         if (this.countries[i].holeLines != undefined) {
-            var country = this.countries[i];
+            var country = this.countries[i],
+                holeHexagons = new Array();
             
-            while ( 0 < country.holeLines.length) {
-                var hexLength = this.hexagons.length;
+            for (var j = 0, jj = this.hexagons.length; j < jj; j++) {
+                if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
+                    !country.hexagons.contains(this.hexagons[j])) {
+                    holeHexagons.push(this.hexagons[j]);
+                    break;
+                }
+            }
+            
+            while (holeHexagons.length > 0) {
+                var hexagon = holeHexagons.pop();
+                country.hexagons.push(hexagon);
                 
-                for (var j = 0; j < hexLength; j++) {
-                    if (this.hexagons[j].lines.contains(country.holeLines[0]) && 
-                        !country.hexagons.contains(this.hexagons[j])) {
-                        
-                        country.hexagons.push(this.hexagons[j]);
-                        for (var k = 0; k < 6; k++) {
-                            if (!country.inlines.contains(this.hexagons[j].lines[k]))
-                                country.inlines.push(this.hexagons[j].lines[k]);
-                        }
-                            
-                        for (var k = 0; k < 6; k++) {
-                            country.holeLines.erase(this.hexagons[j].lines[k]);
-                        }
-                        
-                        break;
-                    }
+                for (var j = 0; j < 6; j++) {
+                    country.inlines.include(hexagon.lines[j]);
+                }
+                
+                for (var j = 0, jj = hexagon.neighbors.length; j < jj; j++) {
+                    if (!country.hexagons.contains(hexagon.neighbors[j]))
+                        holeHexagons.push(hexagon.neighbors[j]);
                 }
             }
         }
