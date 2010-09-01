@@ -95,8 +95,8 @@ Country.prototype.getLineField = function(lines) {
 };
 
 Country.prototype.getHexagonField = function(hexagons) {
-    var connectedHexagons = new Array();
-    var isConnected = true;
+    var connectedHexagons = new Array(),
+        isConnected = true;
     
     connectedHexagons.push(hexagons[0]);
     hexagons.erase(hexagons[0]);
@@ -126,9 +126,9 @@ Country.prototype.getHexagonField = function(hexagons) {
 };
 
 Country.prototype.getCenter = function() {   
-    var triplePoints = new Array();
-    var points = new Array();
-    var length = this.inlines.length;
+    var triplePoints = new Array(),
+        points = new Array(),
+        length = this.inlines.length;
     
     for (var i = 0; i < length; i++) {
         for (var j = 0; j < 2; j++) {
@@ -143,8 +143,8 @@ Country.prototype.getCenter = function() {
         }
     }
     
-    var sumX = 0;
-    var sumY = 0;
+    var sumX = 0,
+        sumY = 0;
     
     if (triplePoints.length < 1) {
         // set center in middle of a hexagon
@@ -233,18 +233,17 @@ Country.prototype.getCenter = function() {
         length = lineField.length;
         
         for (var i = 0; i < length; i++) {
-            var x = lineField[i].points[0].x + lineField[i].points[1].x;
-            var y = lineField[i].points[0].y + lineField[i].points[1].y;
+            var x = lineField[i].points[0].x + lineField[i].points[1].x,
+                y = lineField[i].points[0].y + lineField[i].points[1].y;
             
             lineCenters.push(new Point(x/2,y/2));
             sumX += x;
             sumY += y;
         }
         
-        var centerPoint = new Point(sumX/length/2, sumY/length/2);
-        var j;
-        // FIXME: wtf, shoudnt be Infinity used?
-        var distance = 100000000;
+        var centerPoint = new Point(sumX/length/2, sumY/length/2),
+            distance = Infinity, 
+            j;
         
         for (var i = 0; i < length; i++) {
             var lineDistance = Math.sqrt(((centerPoint.x - lineCenters[i].x) * (centerPoint.x - lineCenters[i].x) + 
@@ -289,9 +288,8 @@ Country.prototype.getCenter = function() {
 Country.prototype.generateOutline = function() {
     // lineArray containing only outlines
     var outLines = new Array();
-    var length = this.hexagons.length;
     
-    for (var i = 0; i < length; i++) {
+    for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
         for (var j = 0; j < 6; j++) {
             var line = this.hexagons[i].lines[j];
             
@@ -304,16 +302,11 @@ Country.prototype.generateOutline = function() {
         }
     }
     
-    // getting top left line
+    // getting line on the outside
     var line = outLines.getLast();
-    
     for (var i = 0; i < outLines.length; i++) {
-        if (outLines[i].points[0].x + outLines[i].points[1].x < line.points[0].x + line.points[1].x)
+        if (outLines[i].points[0].x < line.points[0].x)
             line = outLines[i];
-        else if (outLines[i].points[0].x + outLines[i].points[1].x == line.points[0].x + line.points[1].x) {
-            if (outLines[i].points[0].y + outLines[i].points[1].y < line.points[0].y + line.points[1].y)
-                line = outLines[i];
-        }
     }
     
     // creating the outline
@@ -321,20 +314,19 @@ Country.prototype.generateOutline = function() {
     this.outline.push(line.points[1]);
     outLines = outLines.erase(line);
     
-    var startPoint = line.points[0];
-    var point = line.points[1];
+    var startPoint = line.points[0],
+        point = line.points[1];
     
     while (startPoint != point) {
         for (var i = 0; i < outLines.length; i++) {
-            var a = 0, b = 1;
-        
-            if (outLines[i].points[a] == point) {   
-                point = outLines[i].points[b];
-                this.outline.push(outLines[i].points[b]);
+            if (outLines[i].points[0] == point) {   
+                point = outLines[i].points[1];
+                this.outline.push(outLines[i].points[1]);
                 outLines = outLines.erase(outLines[i]);
-            } else if (outLines[i].points[b] == point) {
-                point = outLines[i].points[a];
-                this.outline.push(outLines[i].points[a]);
+            } 
+            else if (outLines[i].points[1] == point) {
+                point = outLines[i].points[0];
+                this.outline.push(outLines[i].points[0]);
                 outLines = outLines.erase(outLines[i]);
             }
         }

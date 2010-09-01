@@ -52,8 +52,6 @@ function Map(width, height, hexagonSize, useCompactShapes) {
     this.height = height;
     this.hexagonSize = hexagonSize;
     this.useCompactShapes = useCompactShapes;
-    
-    console.log(this.useCompactShapes);
 };
 
 Map.prototype.generateHexagonArray = function(useDistortion) {
