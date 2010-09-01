@@ -23,7 +23,6 @@ Array.prototype.combine = function(array) {
 };
 
 if (!Array.prototype.forEach) {
-    // FIXME: WTF
     Array.prototype.forEach = function(fun /*, thisp*/) {
         var len = this.length >>> 0;
         
@@ -38,8 +37,6 @@ if (!Array.prototype.forEach) {
         }
     };
 }
-
-Array.prototype.each = Array.prototype.forEach;
 
 function Map(width, height, hexagonSize, useCompactShapes) {
     this.points = new Array();
@@ -231,7 +228,7 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
     else
     {
         this.usedHexagons.combine(freeHexagons);
-        freeHexagons.each(function(hexagon) {
+        freeHexagons.forEach(function(hexagon) {
             hexagon.used = true;
         });
         
