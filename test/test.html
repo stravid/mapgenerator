@@ -1,7 +1,14 @@
 <!DOCTYPE html> 
 <html>
 <head>
-    <title>Map Generator</title>
+    <title>Javascript Map Generator</title>
+    
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+    <meta name="description" content="" /> 
+    <meta name="author" content="David Strauß" />
+    <meta name="author" content="Eberhard Gräther" />
+    <meta name="author" content="Christian Winkler" />
+        
     <script src="raphael.js" type="text/javascript"></script>
     <script src="../point.js" type="text/javascript"></script>
     <script src="../line.js" type="text/javascript"></script>
@@ -15,9 +22,10 @@
 <body>
     <div id="panel">
         <div id="info">
-            <h1>MapGenerator</h1>
+            <h1>Map Generator</h1>
             <p>
-                Created by <a href="http://stravid.com">David Strauß</a>, <a href="http://egraether.multimediatechnology.at/">Eberhard Gräther</a> and Christian Winkler. Fork and improve the code over at <a href="">GitHub</a>!
+                Created by <a href="http://stravid.com">David Strauß</a>, <a href="http://egraether.multimediatechnology.at/blog/">Eberhard Gräther</a> and Christian Winkler. Fork and improve the code over at <a href="">GitHub</a>!<br />
+                We love <a href="http://raphaeljs.com/">Raphaël</a>!
             </p>
         </div>
         <div id="settings">
@@ -35,7 +43,6 @@
                 <fieldset id="thirdColumn">
                     <span>Compact country shapes:</span><input type="checkbox" id="useCompactShapes"><br />
                     <span>Show centers and connections:</span><input type="checkbox" id="showCentersAndConnection"><br />
-                    <br />
                     <input type="button" id="generate" value="Generate New Map">
                 </fieldset>
             </form>
@@ -60,33 +67,37 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
+            try {
+                var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
             
-            generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
+                generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
             
-            var map = generator.getMap();
-            
-            for (var i = 0; i < map.regions.length; i++) {          
-                paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
+                var map = generator.getMap();
                 
-                if (showCentersAndConnection)
-                    paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#eeea10');
-            }
-            
-            if (showCentersAndConnection) {
-                for (var i = 0; i < map.adjacencyMatrix.length; i++) {
-                    for (var j = 0; j < i; j++) {
-                        if (map.adjacencyMatrix[i][j] == 0)
-                            continue;
-                            
-                        paper.path(
-                            'M ' + map.regions[i].center.x + 
-                            ',' + map.regions[i].center.y + 
-                            ' L ' + map.regions[j].center.x + 
-                            ',' + map.regions[j].center.y + ' Z'
-                        ).attr('stroke', '#ffffff').attr('opacity', 0.3);
-                    }
-                } 
+                for (var i = 0; i < map.regions.length; i++) {          
+                    paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
+                    
+                    if (showCentersAndConnection)
+                        paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#eeea10');
+                }
+                
+                if (showCentersAndConnection) {
+                    for (var i = 0; i < map.adjacencyMatrix.length; i++) {
+                        for (var j = 0; j < i; j++) {
+                            if (map.adjacencyMatrix[i][j] == 0)
+                                continue;
+                                
+                            paper.path(
+                                'M ' + map.regions[i].center.x + 
+                                ',' + map.regions[i].center.y + 
+                                ' L ' + map.regions[j].center.x + 
+                                ',' + map.regions[j].center.y + ' Z'
+                            ).attr('stroke', '#ffffff').attr('opacity', 0.3);
+                        }
+                    } 
+                }
+            } catch (e) {
+                alert(e);
             }   
         }
         

@@ -53,17 +53,17 @@ input[type=button] {
 
 #firstColumn span {
     display: inline-block;
-    width: 200px;
+    width: 65%;
 }
 
 #secondColumn span {
     display: inline-block;
-    width: 265px;
+    width: 84%;
 }
 
 #thirdColumn span {
     display: inline-block;
-    width: 270px;
+    width: 85%;
 }
 
 fieldset {
