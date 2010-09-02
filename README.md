@@ -32,31 +32,31 @@ Then you can use the generator in your code
 ### Arguments
 * **width**
 
-The width of the map.
+    The width of the map.
 
 * **height**
 
-The height of the map.
+    The height of the map.
 
 * **hexagonSize**
 
-The size of a single hexagon. The total amount of hexagons out of the map is generated depends on the size of the map and this figure.
+    The size of a single hexagon. The total amount of hexagons out of the map is generated depends on the size of the map and this figure.
 
 * **numberOfCountries**
 
-The amount of countries the map will consist of.
+    The amount of countries the map will consist of.
 
 * **countrySizeVariance**
 
-Percentage value of how much the countries can vary in their size in correlation to the average country size.
+    Percentage value of how much the countries can vary in their size in correlation to the average country size.
 
 * **useDistortion**
 
-Toggles between regular hexagons and distorted ones.
+    Toggles between regular hexagons and distorted ones.
 
 * **useCompactShapes**
 
-Toggles between random country shapes and more compact ones.
+    Toggles between random country shapes and more compact ones.
 
 ---
 ### Output
@@ -67,24 +67,30 @@ Returns following object:
 
 * **width**
 
-The width of the map.
+    The width of the map.
 
 * **height**
 
-The height of the map.
+    The height of the map.
 
 * **regions**
-A array with all region objects, which looks like this:
+
+    A array with all region objects, which looks like this:
     * **ID**
-    Unique integer ID of the region
+    
+        Unique integer ID of the region
     * **center**
-    An object looking like this: 
+    
+        An object looking like this: 
         * **x**
-        The x-coordinate of the calculated center of the region.
+        
+            The x-coordinate of the calculated center of the region.
         * **y**
-        The y-coordinate of the calculated center of the region.
+        
+            The y-coordinate of the calculated center of the region.
     * **pathString**
-    The outline of the region in form of an SVG path string.
+    
+        The outline of the region in form of an SVG path string.
     
 * **adjacencyMatrix**
     
