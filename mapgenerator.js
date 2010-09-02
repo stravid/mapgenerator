@@ -24,6 +24,7 @@ function MapGenerator() {
 };
 
 MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion) {
+    console.log(arguments);
     this.map = new Map(mapWidth, mapHeight, hexagonSize);
     this.map.generateHexagonArray(useDistortion, this.distortionAmount);
 };
@@ -70,9 +71,9 @@ MapGenerator.prototype.getMap = function() {
         pathString += " Z";
         region.pathString = pathString;
         
-        region.neighbors = new Array();
+        region.neighborIDs = new Array();
         for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
-            region.neighbors.push(this.map.countries[i].neighbors[j].ID)
+            region.neighborIDs.push(this.map.countries[i].neighbors[j].ID)
         }
         
         map.regions.push(region);
