@@ -65,10 +65,10 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            // try {
+            try {
                 var generator = new MapGenerator();
-                
-                generator.generate(width, height, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes);
+                generator.createHexagonPattern(width, height, hexagonSize, useDistortion);
+                generator.generate(numberOfCountries, countrySizeVariance, useCompactShapes);
                 
                 var map = generator.getMap();
                 
@@ -94,9 +94,9 @@
                         }
                     } 
                 }
-            // } catch (e) {
-            //     alert(e);
-            // }   
+            } catch (e) {
+                alert(e);
+            }
         }
         
         var button = document.getElementById('generate');

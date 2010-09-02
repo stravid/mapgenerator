@@ -38,7 +38,7 @@ if (!Array.prototype.forEach) {
     };
 }
 
-function Map(width, height, hexagonSize, useCompactShapes) {
+function Map(width, height, hexagonSize) {
     this.points = new Array();
     this.lines = new Array();
     this.hexagons = new Array();
@@ -47,7 +47,6 @@ function Map(width, height, hexagonSize, useCompactShapes) {
     this.width = width;
     this.height = height;
     this.hexagonSize = hexagonSize;
-    this.useCompactShapes = useCompactShapes;
 };
 
 Map.prototype.generateHexagonArray = function(useDistortion) {
@@ -201,10 +200,15 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
     this.hexPerColumn = numberOfHexagonsInAColumn;
 };
 
-Map.prototype.getRandomNeighborHexagon = function(country) {
-    var possibleNeighbors = country.getNeighborHexagons(this.useCompactShapes);
+Map.prototype.clear = function() {
+    if (this.countries.length > 0) {
+        this.usedHexagons = new Array();
+        this.countries = new Array();
     
-    return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
+        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
+            this.hexagons[i].used = false;
+        }
+    }
 };
 
 Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
@@ -235,7 +239,7 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
     }    
 };
 
-Map.prototype.generateCountry = function(ID, neighborCountry, size, startAtCenter) {
+Map.prototype.generateCountry = function(ID, neighborCountry, size, useCompactShapes, startAtCenter) {
     var country = new Country(),
         startHexagon;
     
@@ -243,7 +247,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, startAtCente
     
     if (neighborCountry != null) {
         do {
-            startHexagon = this.getRandomNeighborHexagon(neighborCountry);
+            startHexagon = neighborCountry.getRandomNeighborHexagon(useCompactShapes);
             
             if (!startHexagon)
                 throw 'Epic Fail';
@@ -268,7 +272,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, startAtCente
     this.usedHexagons.push(startHexagon);
     
     for (var i = 1; i < size; i++) {
-        var newHexagon = this.getRandomNeighborHexagon(country);
+        var newHexagon = country.getRandomNeighborHexagon(useCompactShapes);
         
         newHexagon.used = true;
         country.hexagons.push(newHexagon);
@@ -278,7 +282,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, startAtCente
     return country;
 };
 
-Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, mapCoverage, startAtCenter) {
+Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, useCompactShapes, mapCoverage, startAtCenter) {
     var averageCountrySize = parseInt(this.hexagons.length * mapCoverage / numberOfCountries);
     
     if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
@@ -291,10 +295,10 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance,
             var globalCountry = new Country();
             
             globalCountry.hexagons = this.usedHexagons;
-            this.countries.push(this.generateCountry(i, globalCountry, countrySize, startAtCenter));
+            this.countries.push(this.generateCountry(i, globalCountry, countrySize, useCompactShapes, startAtCenter));
         }
         else 
-            this.countries.push(this.generateCountry(i, null, countrySize, startAtCenter));   
+            this.countries.push(this.generateCountry(i, null, countrySize, useCompactShapes, startAtCenter));   
     }
 };
 

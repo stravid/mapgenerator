@@ -4,32 +4,21 @@ function MapGenerator() {
     this.connectionsAsAdjacencyMatrix = true;
 };
 
-MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes) {
-    this.map = new Map(mapWidth, mapHeight, hexagonSize, useCompactShapes);
-    
-    // var start = (new Date).getTime();
+MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion) {
+    this.map = new Map(mapWidth, mapHeight, hexagonSize);
     this.map.generateHexagonArray(useDistortion);
-    // console.log("grid: " + ((new Date).getTime() - start));
+};
+
+MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, useCompactShapes) {
+    if (this.map == undefined)
+        throw "call MapGenerator.createHexagonPattern() before generating";
     
-    // start = (new Date).getTime();
-    this.map.normalGenerator(numberOfCountries, countrySizeVariance, this.mapCoverage, this.startAtCenter);
-    // console.log("countries: " + ((new Date).getTime() - start));
-    
-    // start = (new Date).getTime();
+    this.map.clear();
+    this.map.normalGenerator(numberOfCountries, countrySizeVariance, useCompactShapes, this.mapCoverage, this.startAtCenter);
     this.map.calculateOutlines();
-    // console.log("outlines: " + ((new Date).getTime() - start));
-    
-    // start = (new Date).getTime();
     this.map.deleteCountryHoles();
-    // console.log("holesremoving: " + ((new Date).getTime() - start));
-    
-    // start = (new Date).getTime();
     this.map.calculateCenters();
-    // console.log("centers: " + ((new Date).getTime() - start));
-    
-    // start = (new Date).getTime();
     this.map.getCountryNeighbors();
-    // console.log("neighbors: " + ((new Date).getTime() - start));
 };
     
 MapGenerator.prototype.getCountries = function() {
