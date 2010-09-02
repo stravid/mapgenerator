@@ -65,11 +65,11 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            try {
+            // try {
                 var generator = new MapGenerator();
-            
+                
                 generator.generate(width, height, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes);
-            
+                
                 var map = generator.getMap();
                 
                 for (var i = 0; i < map.regions.length; i++) {          
@@ -84,19 +84,19 @@
                         for (var j = 0; j < i; j++) {
                             if (map.adjacencyMatrix[i][j] == 0)
                                 continue;
-                                
+                            
                             paper.path(
                                 'M ' + map.regions[i].center.x + 
                                 ',' + map.regions[i].center.y + 
                                 ' L ' + map.regions[j].center.x + 
                                 ',' + map.regions[j].center.y + ' Z'
-                            ).attr('stroke', '#ffffff').attr('opacity', 0.3);
+                            ).attr({'stroke': '#ffffff', 'stroke-width': 2, 'opacity': 0.3});
                         }
                     } 
                 }
-            } catch (e) {
-                alert(e);
-            }   
+            // } catch (e) {
+            //     alert(e);
+            // }   
         }
         
         var button = document.getElementById('generate');

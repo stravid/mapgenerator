@@ -195,7 +195,10 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
         
         if (topBorder)
             topBorder = false;
-    }   
+    }
+    
+    this.hexPerRow = numberOfHexagonsInARow;
+    this.hexPerColumn = numberOfHexagonsInAColumn;
 };
 
 Map.prototype.getRandomNeighborHexagon = function(country) {
@@ -232,7 +235,7 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
     }    
 };
 
-Map.prototype.generateCountry = function(ID, neighborCountry, size) {
+Map.prototype.generateCountry = function(ID, neighborCountry, size, startAtCenter) {
     var country = new Country(),
         startHexagon;
     
@@ -246,6 +249,16 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size) {
                 throw 'Epic Fail';
             
         } while(this.holeChecker(startHexagon, size))
+    }
+    else if (startAtCenter) {
+        console.log(this.hexagons.length);
+        console.log(this.hexagons.length / 2);
+        console.log(this.hexPerColumn / 2 * this.hexPerRow - this.hexPerRow / 2);
+        
+        if (this.hexPerColumn % 2)
+            startHexagon = this.hexagons[parseInt(this.hexagons.length / 2)];
+        else
+            startHexagon = this.hexagons[parseInt(this.hexPerColumn / 2 * this.hexPerRow - this.hexPerRow / 2)];
     }
     else
         startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
@@ -265,9 +278,8 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size) {
     return country;
 };
 
-Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance) {
-    // FIXME: the 0.6 value should also be variable
-    var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);
+Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, mapCoverage, startAtCenter) {
+    var averageCountrySize = parseInt(this.hexagons.length * mapCoverage / numberOfCountries);
     
     if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
         countrySizeVariance = 0;
@@ -279,10 +291,10 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance)
             var globalCountry = new Country();
             
             globalCountry.hexagons = this.usedHexagons;
-            this.countries.push(this.generateCountry(i, globalCountry, countrySize));
+            this.countries.push(this.generateCountry(i, globalCountry, countrySize, startAtCenter));
         }
         else 
-            this.countries.push(this.generateCountry(i, null, countrySize));   
+            this.countries.push(this.generateCountry(i, null, countrySize, startAtCenter));   
     }
 };
 

@@ -1,4 +1,7 @@
 function MapGenerator() {
+    this.mapCoverage = 0.6;
+    this.startAtCenter = false;
+    this.connectionsAsAdjacencyMatrix = true;
 };
 
 MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes) {
@@ -9,7 +12,7 @@ MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, num
     // console.log("grid: " + ((new Date).getTime() - start));
     
     // start = (new Date).getTime();
-    this.map.normalGenerator(numberOfCountries, countrySizeVariance);
+    this.map.normalGenerator(numberOfCountries, countrySizeVariance, this.mapCoverage, this.startAtCenter);
     // console.log("countries: " + ((new Date).getTime() - start));
     
     // start = (new Date).getTime();
@@ -43,7 +46,6 @@ MapGenerator.prototype.getMap = function() {
     map.width = this.map.width;
     map.height = this.map.height;
     map.regions = new Array();
-    map.adjacencyMatrix = new Array();
     
     for (var i = 0; i < this.map.countries.length; i++) {
         var region = {};
@@ -60,24 +62,36 @@ MapGenerator.prototype.getMap = function() {
         pathString += " Z";
         region.pathString = pathString;
         
+        if (!this.connectionsAsAdjacencyMatrix) {
+            var neighborIDs = new Array();
+            for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
+                neighborIDs.push(this.map.countries[i].neighbors[j].ID)
+            }
+            region.neighbors = neighborIDs;
+        }
+        
         map.regions.push(region);
     }
     
-    for (var i = 0; i < this.map.countries.length; i++) {
-        map.adjacencyMatrix[i] = new Array();
+    if (this.connectionsAsAdjacencyMatrix) {
+        map.adjacencyMatrix = new Array();
         
-        for (var j = 0; j < this.map.countries.length; j++) {
-            map.adjacencyMatrix[i][j] = 0;
+        for (var i = 0; i < this.map.countries.length; i++) {
+            map.adjacencyMatrix[i] = new Array();
+        
+            for (var j = 0; j < this.map.countries.length; j++) {
+                map.adjacencyMatrix[i][j] = 0;
+            }
         }
-    }
     
-    for (var i = 0; i < this.map.countries.length; i++) {
-        for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
-            var differenceX = this.map.countries[i].center.x - this.map.countries[i].neighbors[j].center.x;
-            var differenceY = this.map.countries[i].center.y - this.map.countries[i].neighbors[j].center.y;
-            var distance = Math.sqrt(Math.pow(differenceX, 2) + Math.pow(differenceY, 2));
+        for (var i = 0; i < this.map.countries.length; i++) {
+            for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
+                var differenceX = this.map.countries[i].center.x - this.map.countries[i].neighbors[j].center.x;
+                var differenceY = this.map.countries[i].center.y - this.map.countries[i].neighbors[j].center.y;
+                var distance = Math.sqrt(Math.pow(differenceX, 2) + Math.pow(differenceY, 2));
             
-            map.adjacencyMatrix[this.map.countries[i].ID][this.map.countries[i].neighbors[j].ID] = distance;
+                map.adjacencyMatrix[this.map.countries[i].ID][this.map.countries[i].neighbors[j].ID] = distance;
+            }
         }
     }
     
