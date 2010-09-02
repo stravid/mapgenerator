@@ -1,4 +1,8 @@
 /* Helpers and native extentions */
+function distance(a, b) {
+    return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+};
+
 Array.prototype.extend = function (array) {
     for (var i = 0; i < array.length; i++) {
         this.push(array[i]);
@@ -62,10 +66,8 @@ Country.prototype.getRandomNeighborHexagon = function(useCompactShapes) {
     }
 };
 
-Country.prototype.getPointField = function(points) {
+Country.prototype.getPointField = function(points, lineLength) {
     var connectedPoints = new Array(),
-        line = this.hexagons[0].lines[0];
-        lineLength = Math.sqrt(Math.pow(line.points[0].x - line.points[1].x, 2) + Math.pow(line.points[0].y - line.points[1].y, 2)) * 1.1,
         isConnected = true;
     
     connectedPoints.push(points[0]);
@@ -76,7 +78,7 @@ Country.prototype.getPointField = function(points) {
         
         for (var i = 0; i < connectedPoints.length; i++) {
             for (var j = 0; j < points.length; j++) {
-                if (Math.sqrt(Math.pow(connectedPoints[i].x - points[j].x, 2) + Math.pow(connectedPoints[i].y - points[j].y, 2)) < lineLength) {
+                if (distance(connectedPoints[i], points[j]) < lineLength) {
                     connectedPoints.push(points[j]);
                     points.erase(points[j]);
                     
@@ -91,39 +93,6 @@ Country.prototype.getPointField = function(points) {
     }
     
     return connectedPoints;
-};
-
-Country.prototype.getLineField = function(lines) {
-    var connectedLines = new Array(),
-        isConnected = true;
-    
-    connectedLines.push(lines[0]);
-    lines.erase(lines[0]);
-    
-    while (isConnected) {
-        isConnected = false;
-        
-        for (var i = 0; i < connectedLines.length; i++) {
-            for (var j = 0; j < lines.length; j++) {
-                if ((lines[j].points[0] == connectedLines[i].points[0]) || 
-                    (lines[j].points[1] == connectedLines[i].points[1]) || 
-                    (lines[j].points[1] == connectedLines[i].points[0]) || 
-                    (lines[j].points[0] == connectedLines[i].points[1])) {
-                    
-                    connectedLines.push(lines[j]);
-                    lines.erase(lines[j]);
-                    
-                    isConnected = true;
-                    break;
-                }
-            }
-            
-            if (isConnected)
-                break;
-        }
-    }
-    
-    return connectedLines;
 };
 
 Country.prototype.getHexagonField = function(hexagons) {
@@ -174,7 +143,9 @@ Country.prototype.getCenter = function() {
     }
     
     var sumX = 0,
-        sumY = 0;
+        sumY = 0,
+        line = this.hexagons[0].lines[0];
+        lineLength = distance(line.points[0], line.points[1]) * 1.1;
     
     // no triplePoints: set center in middle of a hexagon
     if (triplePoints.length < 1) {
@@ -213,7 +184,7 @@ Country.prototype.getCenter = function() {
     var pointFields = new Array();
     
     while (triplePoints.length > 0) {
-        pointFields.push(this.getPointField(triplePoints));
+        pointFields.push(this.getPointField(triplePoints, lineLength));
     }
     
     // get the biggest pointField
@@ -223,165 +194,62 @@ Country.prototype.getCenter = function() {
             pointField = pointFields[i];
     }
     
-    // set center to average triplePoint in pointField
-    for (var i = 0, ii = pointField.length; i < ii; i++) {
-        sumX += pointField[i].x;
-        sumY += pointField[i].y;
-    }
-    
-    var centerPoint = new Point(sumX / pointField.length, sumY / pointField.length),
-        minDistance = Infinity,
-        j;
-    
-    if (pointField.length < 7) {
-        this.center = centerPoint;
-        return;
-    }
-    
-    for (var i = 0, ii = pointField.length; i < ii; i++) {
-        var distance = Math.sqrt(Math.pow(centerPoint.x - pointField[i].x, 2) + Math.pow(centerPoint.y - pointField[i].y, 2));
-        
-        if (distance < minDistance) {
-            j = i;
-            minDistance = distance;
-        }
-    }
-    
-    this.center = pointField[j];
-};
-
-Country.prototype.getCenterOld = function() {
-    // triplePoints are points in the inside of a country / a triplePoint is part of 3 hexagons
-    var triplePoints = new Array(),
-        points = new Array();
-    
-    for (var i = 0, ii = this.inlines.length; i < ii; i++) {
-        for (var j = 0; j < 2; j++) {
-            var point = this.inlines[i].points[j];
-            
-            if (points.contains(point)) {
-                if (!triplePoints.contains(point))
-                    triplePoints.push(point);
-            }
-            else
-                points.push(point); 
-        }
-    }
-    
-    var sumX = 0,
-        sumY = 0;
-    
-    // no triplePoints: set center in middle of a hexagon
-    if (triplePoints.length < 1) {
-        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
-            var inCountryNeighbors = 0;
-            
-            for (var j = 0; j < 6; j++) {
-                if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
-                    inCountryNeighbors++;
-                    
-                    // use a hexagon as center with 3 neighbors
-                    if (inCountryNeighbors == 3) {
-                        for (var k = 0; k < 6; k++) {
-                            sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
-                            sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
-                        }
-                        
-                        this.center = new Point(sumX / 12, sumY / 12);
-                        return;
-                    }
-                }
-            }
-        }
-        
-        // if there is no hexagon with 3 neighbors, use first
-        for (var i = 0; i < 6; i++) {
-            sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
-            sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
-        }
-        
-        this.center = new Point(sumX / 12, sumY / 12);
-        return;
-    }
-    
-    // doubleLines are Lines inside the country, between 2 triplePoints
-    var doubleLines = new Array();
-    
-    for (var i = 0, ii = this.inlines.length; i < ii; i++) {
-        if (triplePoints.contains(this.inlines[i].points[0]) && triplePoints.contains(this.inlines[i].points[1]))
-            doubleLines.push(this.inlines[i]);
-    }
-    
-    // no doubleLines: set center to a triplePoint
-    if (doubleLines.length < 1) {
-        this.center = new Point(triplePoints[0].x, triplePoints[0].y);
-        return;
-    }
-    
-    // a lineField consists of connected doubleLines
-    var lineFields = new Array();
-    
-    while (doubleLines.length > 0) {
-        lineFields.push(this.getLineField(doubleLines));
-    }
-    
-    // get the biggest lineField
-    var lineField = lineFields[0];
-    for (var i = 1; i < lineFields.length; i++) {
-        if (lineFields[i].length > lineField.length)
-            lineField = lineFields[i];
-    }
-    
     // inLineHexagons are hexagons completely on the inside of a country
-    var inLineHexagons = new Array();
+    var inlineHexagons = new Array();
     
     for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
         var containsHex = true;
         
         for (var j = 0; j < 6; j++) {
-            if (!lineField.contains(this.hexagons[i].lines[j]))
+            if (!pointField.contains(this.hexagons[i].lines[j].points[0]) || 
+                !pointField.contains(this.hexagons[i].lines[j].points[1])) {
+                
                 containsHex = false;
-        }
-        
-        if (containsHex) 
-            inLineHexagons.push(this.hexagons[i]);
-    }
-    
-    // no inLineHexagons: set center to line in lineField
-    if (inLineHexagons.length < 1) {
-        var lineCenters = new Array();
-        
-        for (var i = 0, ii = lineField.length; i < ii; i++) {
-            var x = lineField[i].points[0].x + lineField[i].points[1].x,
-                y = lineField[i].points[0].y + lineField[i].points[1].y;
-            
-            lineCenters.push(new Point(x/2,y/2));
-            sumX += x;
-            sumY += y;
-        }
-        
-        var centerPoint = new Point(sumX / 2 / lineField.length, sumY / 2 / lineField.length),
-            distance = Infinity, 
-            j;
-        
-        for (var i = 0, ii = lineField.length; i < ii; i++) {
-            var lineDistance = Math.sqrt(Math.pow(centerPoint.x - lineCenters[i].x, 2) + Math.pow(centerPoint.y - lineCenters[i].y, 2));
-            
-            if (lineDistance < distance) {
-                j = i;
-                distance = lineDistance;
+                break;
             }
         }
         
-        this.center = new Point(lineCenters[j].x, lineCenters[j].y);
+        if (containsHex) 
+            inlineHexagons.push(this.hexagons[i]);
+    }
+    
+    // no inlineHexagons: set center to average triplePoint in pointField
+    if (inlineHexagons.length < 1) {
+        for (var i = 0, ii = pointField.length; i < ii; i++) {
+            sumX += pointField[i].x;
+            sumY += pointField[i].y;
+        }
+        
+        var centerPoint = new Point(sumX / pointField.length, sumY / pointField.length),
+            minDistance = Infinity,
+            j;
+        
+        if (pointField.length < 7) {
+            this.center = centerPoint;
+            return;
+        }
+        
+        for (var i = 0, ii = pointField.length; i < ii; i++) {
+            var pointDistance = distance(centerPoint, pointField[i]);
+            
+            if (pointDistance < minDistance) {
+                j = i;
+                minDistance = pointDistance;
+                
+                if (minDistance < lineLength / 2)
+                    break;
+            }
+        }
+        
+        this.center = pointField[j];
         return;
     }
     
-    // a hexagonField is a field consisting of inLineHexagons
+    // a hexagonField is a field consisting of inlineHexagons
     var hexagonFields = new Array();
     
-    while (inLineHexagons.length > 0) {
-        hexagonFields.push(this.getHexagonField(inLineHexagons));
+    while (inlineHexagons.length > 0) {
+        hexagonFields.push(this.getHexagonField(inlineHexagons));
     }
     
     // get the biggest hexagonField
@@ -391,15 +259,6 @@ Country.prototype.getCenterOld = function() {
         if (hexagonFields[i].length > hexagonField.length)
             hexagonField = hexagonFields[i];
     }
-    
-    // for (var i = 0, ii = hexagonField.length; i < ii; i++) {
-    //     for (var j = 0; j < 6; j++) {
-    //         sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
-    //         sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
-    //     }
-    // }
-    // 
-    // this.center = new Point(sumX / 12 / hexagonField.length, sumY / 12 / hexagonField.length);
     
     var hexagonCenters = new Array();
     
@@ -412,21 +271,29 @@ Country.prototype.getCenterOld = function() {
             y += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
         }
         
-        hexagonCenters.push(new Point(x/12, y/12));
-        sumX += x / 12;
-        sumY += y / 12;
+        sumX += x /= 12;
+        sumY += y /= 12;
+        hexagonCenters.push(new Point(x, y));
     }
     
     var centerPoint = new Point(sumX / hexagonField.length, sumY / hexagonField.length),
-        distance = Infinity, 
+        minDistance = Infinity,
         j;
     
+    if (hexagonField.length < 7) {
+        this.center = centerPoint;
+        return;
+    }
+    
     for (var i = 0, ii = hexagonField.length; i < ii; i++) {
-        var hexDistance = Math.sqrt(Math.pow(centerPoint.x - hexagonCenters[i].x, 2) + Math.pow(centerPoint.y - hexagonCenters[i].y, 2));
+        var hexDistance = distance(centerPoint, hexagonCenters[i]);
         
-        if (hexDistance < distance) {
+        if (hexDistance < minDistance) {
             j = i;
-            distance = hexDistance;
+            minDistance = hexDistance;
+            
+            if (minDistance < lineLength * 2 / 3)
+                break;
         }
     }
     

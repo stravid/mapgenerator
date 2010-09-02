@@ -65,7 +65,7 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            try {
+            // try {
                 var generator = new MapGenerator();
                 
                 generator.createHexagonPattern(
@@ -105,9 +105,9 @@
                         }
                     } 
                 }
-            } catch (e) {
-                alert(e);
-            }
+            // } catch (e) {
+            //     alert(e);
+            // }
         }
         
         var button = document.getElementById('generate');
