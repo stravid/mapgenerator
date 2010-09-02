@@ -58,6 +58,37 @@ Country.prototype.getNeighborHexagons = function(useCompactShapes) {
     return neighborHexagons;
 };
 
+Country.prototype.getPointField = function(points) {
+    var connectedPoints = new Array(),
+        line = this.hexagons[0].lines[0];
+        lineLength = Math.sqrt(Math.pow(line.points[0].x - line.points[1].x, 2) + Math.pow(line.points[0].y - line.points[1].y, 2)) * 1.1,
+        isConnected = true;
+    
+    connectedPoints.push(points[0]);
+    points.erase(points[0]);
+    
+    while (isConnected) {
+        isConnected = false;
+        
+        for (var i = 0; i < connectedPoints.length; i++) {
+            for (var j = 0; j < points.length; j++) {
+                if (Math.sqrt(Math.pow(connectedPoints[i].x - points[j].x, 2) + Math.pow(connectedPoints[i].y - points[j].y, 2)) < lineLength) {
+                    connectedPoints.push(points[j]);
+                    points.erase(points[j]);
+                    
+                    isConnected = true;
+                    break;
+                }
+            }
+            
+            if (isConnected)
+                break;
+        }
+    }
+    
+    return connectedPoints;
+};
+
 Country.prototype.getLineField = function(lines) {
     var connectedLines = new Array(),
         isConnected = true;
@@ -121,6 +152,101 @@ Country.prototype.getHexagonField = function(hexagons) {
 };
 
 Country.prototype.getCenter = function() {
+    // triplePoints are points in the inside of a country / a triplePoint is part of 3 hexagons
+    var triplePoints = new Array(),
+        points = new Array();
+    
+    for (var i = 0, ii = this.inlines.length; i < ii; i++) {
+        for (var j = 0; j < 2; j++) {
+            var point = this.inlines[i].points[j];
+            
+            if (points.contains(point)) {
+                if (!triplePoints.contains(point))
+                    triplePoints.push(point);
+            }
+            else
+                points.push(point); 
+        }
+    }
+    
+    var sumX = 0,
+        sumY = 0;
+    
+    // no triplePoints: set center in middle of a hexagon
+    if (triplePoints.length < 1) {
+        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
+            var inCountryNeighbors = 0;
+            
+            for (var j = 0; j < 6; j++) {
+                if (this.hexagons.contains(this.hexagons[i].neighbors[j])) {
+                    inCountryNeighbors++;
+                    
+                    // use a hexagon as center with 3 neighbors
+                    if (inCountryNeighbors == 3) {
+                        for (var k = 0; k < 6; k++) {
+                            sumX += this.hexagons[i].lines[k].points[0].x + this.hexagons[i].lines[k].points[1].x;
+                            sumY += this.hexagons[i].lines[k].points[0].y + this.hexagons[i].lines[k].points[1].y;
+                        }
+                        
+                        this.center = new Point(sumX / 12, sumY / 12);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // if there is no hexagon with 3 neighbors, use first
+        for (var i = 0; i < 6; i++) {
+            sumX += this.hexagons[0].lines[i].points[0].x + this.hexagons[0].lines[i].points[1].x;
+            sumY += this.hexagons[0].lines[i].points[0].y + this.hexagons[0].lines[i].points[1].y;
+        }
+        
+        this.center = new Point(sumX / 12, sumY / 12);
+        return;
+    }
+    
+    // a pointField consists of connected triplePoints
+    var pointFields = new Array();
+    
+    while (triplePoints.length > 0) {
+        pointFields.push(this.getPointField(triplePoints));
+    }
+    
+    // get the biggest pointField
+    var pointField = pointFields[0];
+    for (var i = 1; i < pointFields.length; i++) {
+        if (pointFields[i].length > pointField.length)
+            pointField = pointFields[i];
+    }
+    
+    // set center to average triplePoint in pointField
+    for (var i = 0, ii = pointField.length; i < ii; i++) {
+        sumX += pointField[i].x;
+        sumY += pointField[i].y;
+    }
+    
+    var centerPoint = new Point(sumX / pointField.length, sumY / pointField.length),
+        minDistance = Infinity,
+        j;
+    
+    if (pointField.length < 7) {
+        this.center = centerPoint;
+        return;
+    }
+    
+    for (var i = 0, ii = pointField.length; i < ii; i++) {
+        var distance = Math.sqrt(Math.pow(centerPoint.x - pointField[i].x, 2) + Math.pow(centerPoint.y - pointField[i].y, 2));
+        
+        if (distance < minDistance) {
+            j = i;
+            minDistance = distance;
+        }
+    }
+    
+    this.center = pointField[j];
+};
+
+Country.prototype.getCenterOld = function() {
     // triplePoints are points in the inside of a country / a triplePoint is part of 3 hexagons
     var triplePoints = new Array(),
         points = new Array();
@@ -262,14 +388,46 @@ Country.prototype.getCenter = function() {
             hexagonField = hexagonFields[i];
     }
     
+    // for (var i = 0, ii = hexagonField.length; i < ii; i++) {
+    //     for (var j = 0; j < 6; j++) {
+    //         sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
+    //         sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
+    //     }
+    // }
+    // 
+    // this.center = new Point(sumX / 12 / hexagonField.length, sumY / 12 / hexagonField.length);
+    
+    var hexagonCenters = new Array();
+    
     for (var i = 0, ii = hexagonField.length; i < ii; i++) {
-        for (var j = 0; j < 6; j++) {
-            sumX += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x;
-            sumY += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
+        var x = 0,
+            y = 0;
+            
+        for (var j = 0; j < 6; j++) {    
+            x += hexagonField[i].lines[j].points[0].x + hexagonField[i].lines[j].points[1].x,
+            y += hexagonField[i].lines[j].points[0].y + hexagonField[i].lines[j].points[1].y;
+        }
+        
+        hexagonCenters.push(new Point(x/12, y/12));
+        sumX += x / 12;
+        sumY += y / 12;
+    }
+    
+    var centerPoint = new Point(sumX / hexagonField.length, sumY / hexagonField.length),
+        distance = Infinity, 
+        j;
+    
+    for (var i = 0, ii = hexagonField.length; i < ii; i++) {
+        var hexDistance = Math.sqrt(Math.pow(centerPoint.x - hexagonCenters[i].x, 2) + Math.pow(centerPoint.y - hexagonCenters[i].y, 2));
+        
+        if (hexDistance < distance) {
+            j = i;
+            distance = hexDistance;
         }
     }
     
-    this.center = new Point(sumX / 12 / hexagonField.length, sumY / 12 / hexagonField.length);
+    this.center = new Point(hexagonCenters[j].x, hexagonCenters[j].y);
+    return;
 };
 
 Country.prototype.generateOutline = function() {

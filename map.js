@@ -201,11 +201,7 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
 Map.prototype.getRandomNeighborHexagon = function(country) {
     var possibleNeighbors = country.getNeighborHexagons(this.useCompactShapes);
     
-    if (possibleNeighbors.length > 0)
-        return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
-    else
-        // FIXME: really possible?
-        return false; 
+    return possibleNeighbors[rand(0, possibleNeighbors.length - 1)];
 };
 
 Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
@@ -351,6 +347,6 @@ Map.prototype.calculateOutlines = function() {
     
 Map.prototype.calculateCenters = function() {
    for (var i = 0; i < this.countries.length; i++) {
-        this.countries[i].getCenter();
+        this.countries[i].getCenterOld();
     } 
 };

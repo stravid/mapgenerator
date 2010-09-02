@@ -7,12 +7,30 @@ function MapGenerator(mapWidth, mapHeight, hexagonSize, useCompactShapes) {
 
 MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion) {
     this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize, this.useCompactShapes);
+    
+    // var start = (new Date).getTime();
     this.map.generateHexagonArray(useDistortion);
+    // console.log("grid: " + ((new Date).getTime() - start));
+    
+    // start = (new Date).getTime();
     this.map.normalGenerator(numberOfCountries, countrySizeVariance, maximumHoleSize);
+    // console.log("countries: " + ((new Date).getTime() - start));
+    
+    // start = (new Date).getTime();
     this.map.calculateOutlines();
+    // console.log("outlines: " + ((new Date).getTime() - start));
+    
+    // start = (new Date).getTime();
     this.map.deleteCountryHoles();
+    // console.log("holesremoving: " + ((new Date).getTime() - start));
+    
+    // start = (new Date).getTime();
     this.map.calculateCenters();
+    // console.log("centers: " + ((new Date).getTime() - start));
+    
+    // start = (new Date).getTime();
     this.map.getCountryNeighbors();
+    // console.log("neighbors: " + ((new Date).getTime() - start));
 };
     
 MapGenerator.prototype.getCountries = function() {
