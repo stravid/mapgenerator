@@ -1,4 +1,4 @@
-# Map Generator
+Map Generator
 ====
 
 ## [Online Demo](#)
@@ -32,22 +32,29 @@ Then you can use the generator in your code
     
 ### Arguments
 **width**
+
 The width of the map.
 
 **height**
+
 The height of the map.
 
 **hexagonSize**
+
 The size of a single hexagon. The total amount of hexagons out of the map is generated depends on the size of the map and this figure.
 
 **numberOfCountries**
+
 The amount of countries the map will consist of.
 
 **countrySizeVariance**
+
 Percentage value of how much the countries can vary in their size in correlation to the average country size.
 
 **useDistortion**
+
 Toggles between regular hexagons and distorted ones.
 
 **useCompactShapes**
+
 Toggles between random country shapes and more compact ones.
