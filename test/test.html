@@ -67,12 +67,25 @@
             
             try {
                 var generator = new MapGenerator();
-                generator.getAdjacencyMatrix = true;
                 
-                generator.createHexagonPattern(width, height, hexagonSize, useDistortion);
-                generator.generate(numberOfCountries, countrySizeVariance, useCompactShapes);
+                generator.createHexagonPattern(
+                    width, 
+                    height, 
+                    hexagonSize, 
+                    useDistortion
+                    /* distortionAmount */
+                );
                 
-                var map = generator.getMap();
+                generator.generate(
+                    numberOfCountries, 
+                    countrySizeVariance, 
+                    useCompactShapes
+                    /* mapCoverage */
+                    /* startAtCenter */
+                );
+                
+                var getAdjacencyMatrix = true;
+                var map = generator.getMap(getAdjacencyMatrix);
                 
                 for (var i = 0; i < map.regions.length; i++) {          
                     paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));

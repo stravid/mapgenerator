@@ -1,40 +1,41 @@
 function MapGenerator() {
-    /*
-    * percentage of all hexagons that get covered by countries
-    * 0 = no
-    * 1 = all
-    */
-    this.mapCoverage = 0.6;
-    
-    // if set the first hexagon of the first country would be in the middle of the map
-    this.startAtCenter = false;
-    
-    /* 
-    * determines if the neighbor informations for every country
-    * get additionally stored in a adjacencyMatrix inclusive center-to-center distances
-    */
-    this.getAdjacencyMatrix = false;
-    
+};
+
+MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion/*, distortionAmount*/) {
     /*
     * amount of distortion
     * if bigger than 1, chances grow that connections can't be seen
     * or hexagons overlap each other
     */
-    this.distortionAmount = 1;
-};
-
-MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion) {
-    console.log(arguments);
+    var distortionAmount = arguments[4];
+    if (distortionAmount == undefined)
+        distortionAmount = 1;
+    
     this.map = new Map(mapWidth, mapHeight, hexagonSize);
-    this.map.generateHexagonArray(useDistortion, this.distortionAmount);
+    this.map.generateHexagonArray(useDistortion, distortionAmount);
 };
 
-MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, useCompactShapes) {
+MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, useCompactShapes/*, mapCoverage, startAtCenter*/) {
+    /*
+    * percentage of all hexagons that get covered by countries
+    * 0 = no
+    * 1 = all
+    */
+    var mapCoverage = arguments[3];
+    if (mapCoverage == undefined)
+        mapCoverage = 0.6;
+    
+    // if set the first hexagon of the first country would be in the middle of the map
+    var startAtCenter = arguments[4];
+    if (startAtCenter == undefined)
+        startAtCenter = false;
+    
+    
     if (this.map == undefined)
         throw "call MapGenerator.createHexagonPattern() before generating";
     
     this.map.clear();
-    this.map.normalGenerator(numberOfCountries, countrySizeVariance, useCompactShapes, this.mapCoverage, this.startAtCenter);
+    this.map.normalGenerator(numberOfCountries, countrySizeVariance, useCompactShapes, mapCoverage, startAtCenter);
     this.map.calculateOutlines();
     this.map.deleteCountryHoles();
     this.map.calculateCenters();
@@ -49,7 +50,15 @@ MapGenerator.prototype.getRawMap = function() {
     return this.map;  
 };
 
-MapGenerator.prototype.getMap = function() {
+MapGenerator.prototype.getMap = function(/* getAdjacencyMatrix */) {
+    /* 
+    * determines if the neighbor informations for every country
+    * get additionally stored in a adjacencyMatrix inclusive center-to-center distances
+    */
+    var getAdjacencyMatrix = arguments[0];
+    if (getAdjacencyMatrix == undefined)
+        getAdjacencyMatrix = false;
+    
     var map = {};
     
     map.width = this.map.width;
@@ -79,7 +88,7 @@ MapGenerator.prototype.getMap = function() {
         map.regions.push(region);
     }
     
-    if (this.getAdjacencyMatrix) {
+    if (getAdjacencyMatrix) {
         map.adjacencyMatrix = new Array();
         
         for (var i = 0; i < this.map.countries.length; i++) {

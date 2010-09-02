@@ -255,10 +255,6 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, useCompactSh
         } while(this.holeChecker(startHexagon, size))
     }
     else if (startAtCenter) {
-        console.log(this.hexagons.length);
-        console.log(this.hexagons.length / 2);
-        console.log(this.hexPerColumn / 2 * this.hexPerRow - this.hexPerRow / 2);
-        
         if (this.hexPerColumn % 2)
             startHexagon = this.hexagons[parseInt(this.hexagons.length / 2)];
         else
