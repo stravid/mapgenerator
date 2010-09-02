@@ -21,18 +21,15 @@ Then you can use the generator in your code
         height, 
         hexagonSize, 
         useDistortion
-        /* distortionAmount */
     );
                 
     generator.generate(
         numberOfCountries, 
         countrySizeVariance, 
         useCompactShapes
-        /* mapCoverage */
-        /* startAtCenter */
     );
             
-    var myMap = generator.getMap(true);
+    var myMap = generator.getMap();
     var myRawMap = generator.getRawMap();
     
 ### Arguments
@@ -66,9 +63,9 @@ Then you can use the generator in your code
 
 ---
 ### Output
-With MapGenerator.getRawMap() you get the raw map with all helper objects and references which were calculated internally. If you use MapGenerator.getMap(includeAdjacencyMatrix) this data will get processed once more for a more lightweight result.
+With MapGenerator.getRawMap() you get the raw map with all helper objects and references which were calculated internally. If you use MapGenerator.getMap() this data will get processed once more for a more lightweight result.
 
-#### MapGenerator.getMap(includeAdjacencyMatrix)
+#### MapGenerator.getMap()
 Returns following object:
 
 * **width**
@@ -104,4 +101,4 @@ Returns following object:
     
 * **adjacencyMatrix**
     
-    You must call MapGenerator.getMap(true) with the 'true' argument to get the adjacencyMatrix. The adjacencyMatrix of the map, when there is no connection the value is 0 otherwise the distance between the two centers of the regions. The indexes are the IDs of the regions.
+    The adjacencyMatrix of the map, when there is no connection the value is 0 otherwise the distance between the two centers of the regions. The indexes are the IDs of the regions.
