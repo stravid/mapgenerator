@@ -58,7 +58,7 @@ Toggles between regular hexagons and distorted ones.
 
 Toggles between random country shapes and more compact ones.
 
-====
+---
 ### Output
 With MapGenerator.getRawMap() you get the raw map with all helper objects and references which were calculated internally. If you use MapGenerator.getMap() this data will get processed once more for a more lightweight result.
 
@@ -74,26 +74,16 @@ The width of the map.
 The height of the map.
 
 * **regions**
-
 A array with all region objects, which looks like this:
     * **ID**
-    
     Unique integer ID of the region
-    
     * **center**
-    
-    An object looking like this:
-        
+    An object looking like this: 
         * **x**
-        
         The x-coordinate of the calculated center of the region.
-        
         * **y**
-        
         The y-coordinate of the calculated center of the region.
-        
     * **pathString**
-    
     The outline of the region in form of an SVG path string.
     
 * **adjacencyMatrix**
