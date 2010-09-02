@@ -39,23 +39,27 @@ function Country() {
 };
 
 Country.prototype.getRandomNeighborHexagon = function(useCompactShapes) {
-    var allHexagons = new Array();
-    
-    for (var i = 0; i < this.hexagons.length; i++) {
-        allHexagons.extend(this.hexagons[i].neighbors);
+    if (useCompactShapes) {
+        while (true) {
+            var hexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
+            var neighborHexagon = hexagon.neighbors[rand(0, hexagon.neighbors.length - 1)];
+                
+            if (!neighborHexagon.used)
+                return neighborHexagon;
+        }
     }
-    
-    var neighborHexagons = new Array();
-    
-    for (var i = 0; i < allHexagons.length; i++) {
-        if (!allHexagons[i].used)
-            if (useCompactShapes)
-                neighborHexagons.push(allHexagons[i]);
-            else
-                neighborHexagons.include(allHexagons[i]);
+    else {
+        var neighborHexagons = new Array();
+        
+        for (var i = 0; i < this.hexagons.length; i++) {
+            for (var j = 0; j < this.hexagons[i].neighbors.length; j++) {
+                if (!this.hexagons[i].neighbors[j].used)
+                    neighborHexagons.include(this.hexagons[i].neighbors[j]);
+            }
+        }
+        
+        return neighborHexagons[rand(0, neighborHexagons.length -1)];
     }
-    
-    return neighborHexagons[rand(0, neighborHexagons.length -1)];
 };
 
 Country.prototype.getPointField = function(points) {

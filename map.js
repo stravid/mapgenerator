@@ -60,10 +60,11 @@ Map.prototype.clear = function() {
     }
 };
 
-Map.prototype.generateHexagonArray = function(useDistortion, distortionAmount) {
+Map.prototype.generateHexagonArray = function(useDistortion) {
     var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2,
         numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5), 
-        numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize)) - (1 / 3));
+        numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize)) - (1 / 3)),
+        distortionAmount = 1;
     
     // pointArray
     for (var row = 0; row < numberOfHexagonsInAColumn + 1; row++) {
@@ -247,7 +248,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, useCompactSh
     
     if (neighborCountry != null) {
         do {
-            startHexagon = neighborCountry.getRandomNeighborHexagon(useCompactShapes);
+            startHexagon = neighborCountry.getRandomNeighborHexagon(true);
             
             if (!startHexagon)
                 throw 'Epic Fail';
@@ -278,8 +279,10 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, useCompactSh
     return country;
 };
 
-Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, useCompactShapes, mapCoverage, startAtCenter) {
-    var averageCountrySize = parseInt(this.hexagons.length * mapCoverage / numberOfCountries);
+Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, useCompactShapes) {
+    var mapCoverage = 0.6;
+    
+    var averageCountrySize = parseInt((this.hexagons.length - this.usedHexagons.length)* mapCoverage / numberOfCountries);
     
     if (countrySizeVariance < 0 || countrySizeVariance > 0.9)
         countrySizeVariance = 0;
@@ -291,10 +294,10 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance,
             var globalCountry = new Country();
             
             globalCountry.hexagons = this.usedHexagons;
-            this.countries.push(this.generateCountry(i, globalCountry, countrySize, useCompactShapes, startAtCenter));
+            this.countries.push(this.generateCountry(i, globalCountry, countrySize, useCompactShapes, false));
         }
         else 
-            this.countries.push(this.generateCountry(i, null, countrySize, useCompactShapes, startAtCenter));   
+            this.countries.push(this.generateCountry(i, null, countrySize, useCompactShapes, false));   
     }
 };
 
@@ -303,7 +306,7 @@ Map.prototype.getCountryNeighbors = function() {
         var countryOutline = this.countries[i].outline;
         
         for (var j = i + 1; j < ii; j++) {
-            for (var k = 0, kk = this.countries[j].outline.length; k < kk; k++) {
+            for (var k = 0, kk = this.countries[j].outline.length; k < kk; k += 2) {
                 if (countryOutline.contains(this.countries[j].outline[k])) {
                     this.countries[i].neighbors.push(this.countries[j]);
                     this.countries[j].neighbors.push(this.countries[i]);
