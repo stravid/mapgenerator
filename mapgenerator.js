@@ -89,7 +89,7 @@ MapGenerator.prototype.getMap = function(/* includeAdjacencyMatrix */) {
         map.regions.push(region);
     }
     
-    if (getAdjacencyMatrix) {
+    if (includeAdjacencyMatrix) {
         map.adjacencyMatrix = new Array();
         
         for (var i = 0; i < this.map.countries.length; i++) {
