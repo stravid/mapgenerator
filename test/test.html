@@ -67,6 +67,8 @@
             
             try {
                 var generator = new MapGenerator();
+                generator.getAdjacencyMatrix = true;
+                
                 generator.createHexagonPattern(width, height, hexagonSize, useDistortion);
                 generator.generate(numberOfCountries, countrySizeVariance, useCompactShapes);
                 

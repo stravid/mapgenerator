@@ -1,12 +1,31 @@
 function MapGenerator() {
+    /*
+    * percentage of all hexagons that get covered by countries
+    * 0 = no
+    * 1 = all
+    */
     this.mapCoverage = 0.6;
+    
+    // if set the first hexagon of the first country would be in the middle of the map
     this.startAtCenter = false;
-    this.connectionsAsAdjacencyMatrix = true;
+    
+    /* 
+    * determines if the neighbor informations for every country
+    * get additionally stored in a adjacencyMatrix inclusive center-to-center distances
+    */
+    this.getAdjacencyMatrix = false;
+    
+    /*
+    * amount of distortion
+    * if bigger than 1, chances grow that connections can't be seen
+    * or hexagons overlap each other
+    */
+    this.distortionAmount = 1;
 };
 
 MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion) {
     this.map = new Map(mapWidth, mapHeight, hexagonSize);
-    this.map.generateHexagonArray(useDistortion);
+    this.map.generateHexagonArray(useDistortion, this.distortionAmount);
 };
 
 MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, useCompactShapes) {
@@ -51,18 +70,15 @@ MapGenerator.prototype.getMap = function() {
         pathString += " Z";
         region.pathString = pathString;
         
-        if (!this.connectionsAsAdjacencyMatrix) {
-            var neighborIDs = new Array();
-            for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
-                neighborIDs.push(this.map.countries[i].neighbors[j].ID)
-            }
-            region.neighbors = neighborIDs;
+        region.neighbors = new Array();
+        for (var j = 0; j < this.map.countries[i].neighbors.length; j++) {
+            region.neighbors.push(this.map.countries[i].neighbors[j].ID)
         }
         
         map.regions.push(region);
     }
     
-    if (this.connectionsAsAdjacencyMatrix) {
+    if (this.getAdjacencyMatrix) {
         map.adjacencyMatrix = new Array();
         
         for (var i = 0; i < this.map.countries.length; i++) {

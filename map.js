@@ -49,7 +49,18 @@ function Map(width, height, hexagonSize) {
     this.hexagonSize = hexagonSize;
 };
 
-Map.prototype.generateHexagonArray = function(useDistortion) {
+Map.prototype.clear = function() {
+    if (this.countries.length > 0) {
+        this.usedHexagons = new Array();
+        this.countries = new Array();
+    
+        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
+            this.hexagons[i].used = false;
+        }
+    }
+};
+
+Map.prototype.generateHexagonArray = function(useDistortion, distortionAmount) {
     var hexagonWidth = Math.sqrt(3) * this.hexagonSize / 2,
         numberOfHexagonsInARow = parseInt((this.width / hexagonWidth) - 0.5), 
         numberOfHexagonsInAColumn = parseInt(((4 * this.height) / (3 * this.hexagonSize)) - (1 / 3));
@@ -67,9 +78,9 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
              
             if (useDistortion) {   
                 phi = Math.random() * Math.PI * 2;
-                r = Math.random() * this.hexagonSize/4;
+                r = Math.random() * this.hexagonSize/4 * distortionAmount;
                 x += r * Math.cos(phi);
-                x += r * Math.sin(phi);
+                y += r * Math.sin(phi);
             }
             
             this.points.push(new Point(x, y));
@@ -82,9 +93,9 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
             
             if (useDistortion) {   
                 phi = Math.random() * 2 * Math.PI;
-                r = Math.random() * this.hexagonSize/4;
+                r = Math.random() * this.hexagonSize/4 * distortionAmount;
                 x += r * Math.cos(phi);
-                x += r * Math.sin(phi);
+                y += r * Math.sin(phi);
             }
                 
             this.points.push(new Point(x, y));
@@ -198,17 +209,6 @@ Map.prototype.generateHexagonArray = function(useDistortion) {
     
     this.hexPerRow = numberOfHexagonsInARow;
     this.hexPerColumn = numberOfHexagonsInAColumn;
-};
-
-Map.prototype.clear = function() {
-    if (this.countries.length > 0) {
-        this.usedHexagons = new Array();
-        this.countries = new Array();
-    
-        for (var i = 0, ii = this.hexagons.length; i < ii; i++) {
-            this.hexagons[i].used = false;
-        }
-    }
 };
 
 Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
