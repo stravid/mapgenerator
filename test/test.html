@@ -68,9 +68,9 @@
             Raphael.getColor.reset();
             
             try {
-                var generator = new MapGenerator(width, height, hexagonSize, useCompactShapes);
+                var generator = new MapGenerator();
             
-                generator.generate(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion);
+                generator.generate(width, height, hexagonSize, numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion, useCompactShapes);
             
                 var map = generator.getMap();
                 

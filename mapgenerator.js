@@ -1,12 +1,8 @@
-function MapGenerator(mapWidth, mapHeight, hexagonSize, useCompactShapes) {
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-    this.hexagonSize = hexagonSize; 
-    this.useCompactShapes = useCompactShapes;
+function MapGenerator() {
 };
 
-MapGenerator.prototype.generate = function(numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion) {
-    this.map = new Map(this.mapWidth, this.mapHeight, this.hexagonSize, this.useCompactShapes);
+MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion, useCompactShapes) {
+    this.map = new Map(mapWidth, mapHeight, hexagonSize, useCompactShapes);
     this.map.generateHexagonArray(useDistortion);
     this.map.normalGenerator(numberOfCountries, countrySizeVariance, maximumHoleSize);
     this.map.calculateOutlines();
