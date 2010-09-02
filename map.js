@@ -232,15 +232,12 @@ Map.prototype.holeChecker = function(hexagon, maximumHoleSize) {
     }    
 };
 
-Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleSize) {
+Map.prototype.generateCountry = function(ID, neighborCountry, size) {
     var country = new Country(),
         startHexagon;
     
     country.ID = ID;
     
-    if (size > maximumHoleSize)
-        maximumHoleSize = size;
-        
     if (neighborCountry != null) {
         do {
             startHexagon = this.getRandomNeighborHexagon(neighborCountry);
@@ -248,7 +245,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleS
             if (!startHexagon)
                 throw 'Epic Fail';
             
-        } while(this.holeChecker(startHexagon, maximumHoleSize))
+        } while(this.holeChecker(startHexagon, size))
     }
     else
         startHexagon = this.hexagons[rand(0, this.hexagons.length - 1)];
@@ -268,7 +265,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, maximumHoleS
     return country;
 };
 
-Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, maximumHoleSize) {
+Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance) {
     // FIXME: the 0.6 value should also be variable
     var averageCountrySize = parseInt(this.hexagons.length * 0.6 / numberOfCountries);
     
@@ -282,10 +279,10 @@ Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance,
             var globalCountry = new Country();
             
             globalCountry.hexagons = this.usedHexagons;
-            this.countries.push(this.generateCountry(i, globalCountry, countrySize, maximumHoleSize));
+            this.countries.push(this.generateCountry(i, globalCountry, countrySize));
         }
         else 
-            this.countries.push(this.generateCountry(i, null, countrySize, maximumHoleSize));   
+            this.countries.push(this.generateCountry(i, null, countrySize));   
     }
 };
 

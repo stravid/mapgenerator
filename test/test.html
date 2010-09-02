@@ -37,7 +37,6 @@
                 </fieldset>
                 <fieldset id="secondColumn">
                     <span>Country size variance (0 - 0.9): </span><input type="text" id="countrySizeVariance" value="0.5"/><br />
-                    <span>Maximum size of holes: </span><input type="text" id="maximumHoleSize" value="0"/><br />
                     <span>Distortion: </span><input type="checkbox" id="useDistortion">
                 </fieldset>
                 <fieldset id="thirdColumn">
@@ -57,7 +56,6 @@
             var height = parseInt(document.getElementById('mapHeight').value);
             var hexagonSize = parseInt(document.getElementById('hexagonSize').value);
             var numberOfCountries = parseInt(document.getElementById('numberOfCountries').value);
-            var maximumHoleSize = parseInt(document.getElementById('maximumHoleSize').value);
             var countrySizeVariance = parseFloat(document.getElementById('countrySizeVariance').value);
             var useDistortion = document.getElementById('useDistortion').checked;
             var showCentersAndConnection = document.getElementById('showCentersAndConnection').checked;
@@ -70,7 +68,7 @@
             try {
                 var generator = new MapGenerator();
             
-                generator.generate(width, height, hexagonSize, numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion, useCompactShapes);
+                generator.generate(width, height, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes);
             
                 var map = generator.getMap();
                 
