@@ -1,21 +1,7 @@
 function MapGenerator() {
 };
 
-<<<<<<< HEAD
 MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion) {
-=======
-MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexagonSize, useDistortion/*, distortionAmount*/) {
-    /*
-    * amount of distortion
-    * if bigger than 1, chances grow that connections can't be seen
-    * or hexagons overlap each other
-    */
-    var distortionAmount = arguments[4];
-    
-    if (distortionAmount == undefined)
-        distortionAmount = 1;
-    
->>>>>>> 545b9590d7c77110a2138f28b5190c4f1d8a2ed3
     this.map = new Map(mapWidth, mapHeight, hexagonSize);
     this.map.generateHexagonArray(useDistortion);
 };
@@ -40,19 +26,7 @@ MapGenerator.prototype.getRawMap = function() {
     return this.map;  
 };
 
-<<<<<<< HEAD
 MapGenerator.prototype.getMap = function() {
-=======
-MapGenerator.prototype.getMap = function(/* includeAdjacencyMatrix */) {
-    /* 
-    * determines if the neighbor informations for every country
-    * get additionally stored in a adjacencyMatrix inclusive center-to-center distances
-    */
-    var includeAdjacencyMatrix = arguments[0];
-    if (includeAdjacencyMatrix == undefined)
-        includeAdjacencyMatrix = false;
-    
->>>>>>> 545b9590d7c77110a2138f28b5190c4f1d8a2ed3
     var map = {};
     
     map.width = this.map.width;
@@ -82,7 +56,6 @@ MapGenerator.prototype.getMap = function(/* includeAdjacencyMatrix */) {
         map.regions.push(region);
     }
     
-<<<<<<< HEAD
     map.adjacencyMatrix = new Array();
     
     for (var i = 0; i < this.map.countries.length; i++) {
@@ -90,17 +63,6 @@ MapGenerator.prototype.getMap = function(/* includeAdjacencyMatrix */) {
     
         for (var j = 0; j < this.map.countries.length; j++) {
             map.adjacencyMatrix[i][j] = 0;
-=======
-    if (includeAdjacencyMatrix) {
-        map.adjacencyMatrix = new Array();
-        
-        for (var i = 0; i < this.map.countries.length; i++) {
-            map.adjacencyMatrix[i] = new Array();
-        
-            for (var j = 0; j < this.map.countries.length; j++) {
-                map.adjacencyMatrix[i][j] = 0;
-            }
->>>>>>> 545b9590d7c77110a2138f28b5190c4f1d8a2ed3
         }
     }
     
