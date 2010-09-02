@@ -8,6 +8,7 @@ MapGenerator.prototype.createHexagonPattern = function(mapWidth, mapHeight, hexa
     * or hexagons overlap each other
     */
     var distortionAmount = arguments[4];
+    
     if (distortionAmount == undefined)
         distortionAmount = 1;
     
@@ -50,14 +51,14 @@ MapGenerator.prototype.getRawMap = function() {
     return this.map;  
 };
 
-MapGenerator.prototype.getMap = function(/* getAdjacencyMatrix */) {
+MapGenerator.prototype.getMap = function(/* includeAdjacencyMatrix */) {
     /* 
     * determines if the neighbor informations for every country
     * get additionally stored in a adjacencyMatrix inclusive center-to-center distances
     */
-    var getAdjacencyMatrix = arguments[0];
-    if (getAdjacencyMatrix == undefined)
-        getAdjacencyMatrix = false;
+    var includeAdjacencyMatrix = arguments[0];
+    if (includeAdjacencyMatrix == undefined)
+        includeAdjacencyMatrix = false;
     
     var map = {};
     

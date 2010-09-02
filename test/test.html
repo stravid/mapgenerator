@@ -84,8 +84,8 @@
                     /* startAtCenter */
                 );
                 
-                var getAdjacencyMatrix = true;
-                var map = generator.getMap(getAdjacencyMatrix);
+                var includeAdjacencyMatrix = true;
+                var map = generator.getMap(includeAdjacencyMatrix);
                 
                 for (var i = 0; i < map.regions.length; i++) {          
                     paper.path(map.regions[i].pathString).attr("fill", Raphael.getColor(0.4));
