@@ -1,7 +1,7 @@
 function MapGenerator() {
 };
 
-MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, numberOfCountries, countrySizeVariance, maximumHoleSize, useDistortion, useCompactShapes) {
+MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, numberOfCountries, countrySizeVariance, useDistortion, useCompactShapes) {
     this.map = new Map(mapWidth, mapHeight, hexagonSize, useCompactShapes);
     
     // var start = (new Date).getTime();
@@ -9,7 +9,7 @@ MapGenerator.prototype.generate = function(mapWidth, mapHeight, hexagonSize, num
     // console.log("grid: " + ((new Date).getTime() - start));
     
     // start = (new Date).getTime();
-    this.map.normalGenerator(numberOfCountries, countrySizeVariance, maximumHoleSize);
+    this.map.normalGenerator(numberOfCountries, countrySizeVariance);
     // console.log("countries: " + ((new Date).getTime() - start));
     
     // start = (new Date).getTime();
