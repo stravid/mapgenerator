@@ -24,7 +24,7 @@
         <div id="info">
             <h1>Map Generator</h1>
             <p>
-                Created by <a href="http://stravid.com">David Strauß</a>, <a href="http://egraether.multimediatechnology.at/blog/">Eberhard Gräther</a> and Christian Winkler. Fork and improve the code over at <a href="">GitHub</a>!<br />
+                Created by <a href="http://stravid.com">David Strauß</a>, <a href="http://egraether.multimediatechnology.at/">Eberhard Gräther</a> and Christian Winkler. Fork and improve the code over at <a href="">GitHub</a>!<br />
                 We love <a href="http://raphaeljs.com/">Raphaël</a>!
             </p>
         </div>
@@ -65,7 +65,7 @@
             paper.setSize(width, height);
             Raphael.getColor.reset();
             
-            // try {
+            try {
                 var generator = new MapGenerator();
                 
                 generator.createHexagonPattern(
@@ -93,21 +93,19 @@
                 if (showCentersAndConnection) {
                     for (var i = 0; i < map.adjacencyMatrix.length; i++) {
                         for (var j = 0; j < i; j++) {
-                            if (map.adjacencyMatrix[i][j] == 0)
-                                continue;
-                            
-                            paper.path(
-                                'M ' + map.regions[i].center.x + 
-                                ',' + map.regions[i].center.y + 
-                                ' L ' + map.regions[j].center.x + 
-                                ',' + map.regions[j].center.y + ' Z'
-                            ).attr({'stroke': '#ffffff', 'stroke-width': 2, 'opacity': 0.3});
+                            if (map.adjacencyMatrix[i][j] != 0)
+                                paper.path(
+                                    'M ' + map.regions[i].center.x + 
+                                    ',' + map.regions[i].center.y + 
+                                    ' L ' + map.regions[j].center.x + 
+                                    ',' + map.regions[j].center.y + ' Z'
+                                ).attr({'stroke': '#ffffff', 'stroke-width': 2, 'opacity': 0.3});
                         }
                     } 
                 }
-            // } catch (e) {
-            //     alert(e);
-            // }
+            } catch(e) {
+                alert(e);
+            }
         }
         
         var button = document.getElementById('generate');

@@ -271,7 +271,7 @@ Map.prototype.generateCountry = function(ID, neighborCountry, size, useCompactSh
 };
 
 Map.prototype.normalGenerator = function(numberOfCountries, countrySizeVariance, useCompactShapes) {
-    var mapCoverage = 0.65;
+    var mapCoverage = 0.6;
     
     var averageCountrySize = parseInt((this.hexagons.length - this.usedHexagons.length) * mapCoverage / numberOfCountries);
     
@@ -297,11 +297,18 @@ Map.prototype.getCountryNeighbors = function() {
         var countryOutline = this.countries[i].outline;
         
         for (var j = i + 1; j < ii; j++) {
-            for (var k = 0, kk = this.countries[j].outline.length; k < kk; k += 2) {
-                if (countryOutline.contains(this.countries[j].outline[k])) {
-                    this.countries[i].neighbors.push(this.countries[j]);
-                    this.countries[j].neighbors.push(this.countries[i]);
-                    break;
+            var minXIndex = this.countries[i].boundingBox.min.x < this.countries[j].boundingBox.min.x ? i : j,
+                minYIndex = this.countries[i].boundingBox.min.y < this.countries[j].boundingBox.min.y ? i : j;
+            
+            if (this.countries[minXIndex].boundingBox.max.x >= this.countries[minXIndex == j ? i : j].boundingBox.min.x &&
+                this.countries[minYIndex].boundingBox.max.y > this.countries[minYIndex == j ? i : j].boundingBox.min.y) {
+                
+                for (var k = 0, kk = this.countries[j].outline.length; k < kk; k += 2) {
+                    if (countryOutline.contains(this.countries[j].outline[k])) {
+                        this.countries[i].neighbors.push(this.countries[j]);
+                        this.countries[j].neighbors.push(this.countries[i]);
+                        break;
+                    }
                 }
             }
         }
@@ -349,7 +356,7 @@ Map.prototype.calculateOutlines = function() {
 };
     
 Map.prototype.calculateCenters = function() {
-   for (var i = 0; i < this.countries.length; i++) {
+    for (var i = 0; i < this.countries.length; i++) {
         this.countries[i].getCenter();
-    } 
+    }
 };

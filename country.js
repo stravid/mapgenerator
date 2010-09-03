@@ -325,7 +325,7 @@ Country.prototype.generateOutline = function() {
             line = outLines[i];
     }
     
-    // creating the outline
+    // creating the outline and bounding box
     this.outline.push(line.points[0]);
     this.outline.push(line.points[1]);
     outLines = outLines.erase(line);
@@ -333,17 +333,33 @@ Country.prototype.generateOutline = function() {
     var startPoint = line.points[0],
         point = line.points[1];
     
+    this.boundingBox = {};
+    this.boundingBox.min = new Point(Math.min(startPoint.x, point.x), Math.min(startPoint.y, point.y));
+    this.boundingBox.max = new Point(Math.max(startPoint.x, point.x), Math.max(startPoint.y, point.y));
+    
     while (startPoint != point) {
         for (var i = 0; i < outLines.length; i++) {
+            var isNewPoint = false;
+            
             if (outLines[i].points[0] == point) {   
                 point = outLines[i].points[1];
                 this.outline.push(outLines[i].points[1]);
                 outLines = outLines.erase(outLines[i]);
+                isNewPoint = true;
             } 
             else if (outLines[i].points[1] == point) {
                 point = outLines[i].points[0];
                 this.outline.push(outLines[i].points[0]);
                 outLines = outLines.erase(outLines[i]);
+                isNewPoint = true;
+            }
+            
+            if (isNewPoint) {
+                this.boundingBox.min.x = Math.min(this.boundingBox.min.x, point.x);
+                this.boundingBox.min.y = Math.min(this.boundingBox.min.y, point.y);
+                
+                this.boundingBox.max.x = Math.max(this.boundingBox.max.x, point.x);
+                this.boundingBox.max.y = Math.max(this.boundingBox.max.y, point.y);
             }
         }
     }
