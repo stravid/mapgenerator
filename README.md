@@ -1,6 +1,7 @@
 Map Generator
-![Map Generator](http://stravid.com/projects/mapgenerator/github-header.gif)
 ====
+![Map Generator](http://stravid.com/projects/mapgenerator/github-header.gif)
+
 
 ## [Online Demo](#)
 The Map Generator allows you to generate random, hexagon based maps with Javascript. You can change the width and height of the map, the size of an hexagon and the amount of countries the map consists of. Plus you can decide if the hexagons should be distorted or not and if the shape of a country is totaly random or more compact.
