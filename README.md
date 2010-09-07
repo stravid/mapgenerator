@@ -1,4 +1,5 @@
 Map Generator
+![Map Generator](http://stravid.com/projects/mapgenerator/github-header.gif)
 ====
 
 ## [Online Demo](#)
