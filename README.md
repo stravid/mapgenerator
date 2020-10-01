@@ -7,11 +7,11 @@ The Map Generator allows you to generate random, hexagon based maps with Javascr
 
 ## Instructions
 Inorder to use the Map Generator you have to include following files in your project
-    point.js
-    line.js
-    hexagon.js
-    country.js
-    map.js
+    point.js,
+    line.js,
+    hexagon.js,
+    country.js,
+    map.js,
     mapgenerator.js
 
 Then you can use the generator in your code
